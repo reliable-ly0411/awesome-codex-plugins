@@ -40,5 +40,20 @@ class PolicyTests(unittest.TestCase):
         self.assertTrue(p['preserve_local_workflows'])
 
 
+    def test_site_promotion_checks_existing_configuration_without_enabling_pages(self):
+        path = ROOT / '.github/workflows/site-promote.yml'
+        d = yaml.load(path.read_text(), Loader=yaml.BaseLoader)
+        self.assertEqual(d['jobs']['promote']['needs'], 'site-configuration')
+        preflight = d['jobs']['site-configuration']
+        self.assertEqual(preflight['permissions']['pages'], 'read')
+        self.assertNotIn('environment', preflight)
+        script = preflight['steps'][0]['run']
+        self.assertIn('gh api', script)
+        self.assertIn('.build_type', script)
+        self.assertIn('!= workflow', script)
+        self.assertNotIn('--method', script)
+        self.assertNotIn('-X ', script)
+
+
 if __name__ == '__main__':
     unittest.main()

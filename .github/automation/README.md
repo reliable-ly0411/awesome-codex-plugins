@@ -15,3 +15,6 @@ Run `deploy.yml` on the default branch with the full source commit (including a 
 External curation / cross-repository dispatcher implementations are retained as non-executing reference files under inactive-reference. Their workflow interfaces only explain that these actions are disabled in this fork; no token or content is sent. Restoring external communications requires a separately reviewed policy. Existing read-only contribution/security checks remain unchanged.
 
 Security scanner workflows and their publisher scripts incorporate the existing sync/security candidate caed325c1df045693dafcf26421a3283ea264bea's fail-closed score >= 80 and high/critical gates. Scans explicitly use online:false/submission_enabled:false; no external agent or registry submission is enabled. Claim/registry notices are manual-only. Generated catalog checks are read-only and fail when stale instead of auto-committing.
+
+Pages promotion first reads the existing configuration and refuses to deploy unless its build type is already `workflow`. It never enables Pages, changes its source, or creates credentials.
+The Pages settings were observed disabled (source branch `None`) on 2026-10-20. Manual candidate builds remain usable; publication is blocked until Pages enablement is separately approved and configured.

@@ -21,7 +21,26 @@ concurrency:
   group: manual-site-publication
   cancel-in-progress: false
 jobs:
+  site-configuration:
+    if: github.ref == 'refs/heads/main'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 5
+    permissions:
+      contents: read
+      pages: read
+    env:
+      GH_TOKEN: ${{ github.token }}
+    steps:
+      - name: Require existing Actions-based Pages configuration
+        run: |
+          set -euo pipefail
+          mode="$(gh api "repos/$GITHUB_REPOSITORY/pages" --jq '.build_type')"
+          if [ "$mode" != workflow ]; then
+            echo '::error::Pages must already use GitHub Actions. This workflow never enables or reconfigures Pages.'
+            exit 1
+          fi
   promote:
+    needs: site-configuration
     if: github.ref == 'refs/heads/main'
     runs-on: ubuntu-24.04
     timeout-minutes: 15
