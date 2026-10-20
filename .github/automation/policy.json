@@ -1,0 +1,21 @@
+{
+  "schema": 1,
+  "upstream_repository": "hashgraph-online/awesome-codex-plugins",
+  "upstream_branch": "main",
+  "default_branch": "main",
+  "sync_branch": "sync-only/upstream-main",
+  "release_source": "none-recognized",
+  "automatic_publish": false,
+  "historical_backfill": false,
+  "preserve_local_workflows": true,
+  "manual_workflows": [
+    "deploy.yml",
+    "site-promote.yml",
+    "sync-to-ai-plugins.yml",
+    "sync-scanner-version.yml",
+    "release-notes.yml",
+    "claim-notice.yml"
+  ],
+  "publication_note": "No automatic publisher is configured; manual workflows never bypass provenance, source, license or compatibility checks.",
+  "site_build_workflow": "deploy.yml"
+}
