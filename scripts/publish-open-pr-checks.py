@@ -109,13 +109,13 @@ def check_summary(result: dict[str, object], scanner_jobs: dict[int, list[str]])
             return (
                 "success",
                 "Contribution scan passed",
-                f"All {len(jobs)} centralized scanner job(s) met the score threshold of 80/100; finding severities are advisory.",
+                f"All {len(jobs)} centralized scanner job(s) met the score threshold of 80/100; no critical/high findings were reported.",
             )
         job_details = ", ".join(jobs) if jobs else "no scanner job was recorded"
         return (
             "failure",
-            "Centralized score not established",
-            f"The centralized scan did not establish a score of at least 80/100 ({job_details}); keep the contribution blocked until a passing score is available.",
+            "Centralized scan gates not established",
+            f"The centralized scan did not establish passing score/severity gates ({job_details}); keep the contribution blocked until it completes with a score of at least 80/100 and no critical/high findings.",
         )
 
     raise RuntimeError(f"unknown validator result state: {state}")
@@ -179,7 +179,7 @@ def remediation_comment(
 
     return one_paragraph(
         f"{COMMENT_MARKER} {mention}, {summary} {guidance} "
-        "Source-repository scanner CI is optional; listing requires a completed centralized score of at least 80/100. "
+        "Source-repository scanner CI is optional; listing requires a completed centralized score of at least 80/100 and no critical/high findings. "
         f"[Contribution requirements](https://github.com/hashgraph-online/awesome-codex-plugins/blob/main/CONTRIBUTING.md) "
         f"[Latest sweep]({run_url})."
     )

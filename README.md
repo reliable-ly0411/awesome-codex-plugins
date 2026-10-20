@@ -70,7 +70,7 @@ All plugins submitted to **Awesome Codex Plugins** must pass the HOL AI Plugin S
 | ------------ | ---------------------------------------------- |
 | **Centralized score** | ≥ 80 / 100 (normalized) |
 | **Source CI** | Optional; recommended for pre-submission feedback |
-| **Action status** | Advisory when the numeric centralized score is available |
+| **Action status** | Must pass both the normalized score and high/critical severity gates |
 
 See the full guide: [`SCANNER_GUIDE.md`](./SCANNER_GUIDE.md)  
 See contributing requirements: [`CONTRIBUTING.md`](./CONTRIBUTING.md)

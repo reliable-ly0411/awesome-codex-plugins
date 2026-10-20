@@ -10,7 +10,7 @@ All plugins submitted to **Awesome Codex Plugins** must pass the HOL AI Plugin S
 | **Centralized Scan** | Normalized score ≥ 80 / 100 is the catalog admission threshold |
 | **Source CI** | Optional; recommended for pre-submission feedback |
 
-Catalog admission uses the normalized 0–100 score from the catalog-owned centralized scan. A score of **80/100 or higher** is scanner-clear even when the scanner action reports advisory findings or exits nonzero for a non-gating reason. Raw point totals in local scanner output are informational; use the centralized normalized score for eligibility. Separate catalog-format, source-availability, or repository-integrity defects can still block merge.
+Catalog admission uses the normalized 0–100 score from the catalog-owned centralized scan. A passing scan requires a score of **80/100 or higher** and **no critical or high severity findings**. A numeric score alone does not override a failed scanner job. Raw point totals in local scanner output are informational; use the centralized normalized score for eligibility. Separate catalog-format, source-availability, or repository-integrity defects can still block merge.
 
 ## Quick Start
 
@@ -67,7 +67,7 @@ $ plugin-scanner scan . --format text
 Score: 119 / 130 (91.5%)
 ──────────────────────────────────────────────────────────────────
 
-✅ PASSED: Score ≥ 80; finding severities are advisory to listing eligibility
+✅ PASSED: Score ≥ 80, no high/critical findings
 ```
 
 ## CI integration (optional, recommended)
@@ -101,7 +101,7 @@ jobs:
           plugin_dir: "."
           mode: scan
           min_score: 80
-          fail_on_severity: none
+          fail_on_severity: high
           format: sarif
           upload_sarif: true
 ```
@@ -161,7 +161,7 @@ jobs:
         with:
           plugin_dir: "."
           mode: lint
-          fail_on_severity: none
+          fail_on_severity: high
 ```
 
 ### Auto-Submit to Registry (On Main Branch)
@@ -189,7 +189,7 @@ jobs:
           plugin_dir: "."
           mode: scan
           min_score: 80
-          fail_on_severity: none
+          fail_on_severity: high
 
       - name: Submit to HOL Registry
         uses: hashgraph-online/ai-plugin-scanner-action@caba2e96aa8ad2feb6cf6fca52442b52e22e779f # v1.2.635

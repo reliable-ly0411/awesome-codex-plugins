@@ -59,7 +59,7 @@ jobs:
           plugin_dir: "."
           mode: scan
           min_score: 80
-          fail_on_severity: none
+          fail_on_severity: high
           format: sarif
           upload_sarif: true
 ```
@@ -85,7 +85,7 @@ python3 -m pip download --only-binary=:all: --no-deps --dest .hol-plugin-scanner
 python3 -m pip hash .hol-plugin-scanner-dist/*.whl
 ```
 
-You need a score of **80/130** or higher with **no critical or high severity findings**. Save the output to include in your PR description.
+You need a normalized score of **80/100** or higher with **no critical or high severity findings**. Save the output to include in your PR description.
 
 ### Step 3: Verify your plugin repo has the required files
 
@@ -130,6 +130,7 @@ All plugins submitted to this list **must pass the HOL AI Plugin Scanner**.
 
 - **Score:** ≥ 80/100 on the normalized centralized score
 - **Centralized score:** The catalog-owned scan must report ≥ 80/100
+- **Severity gate:** No critical or high findings; a numeric score alone cannot override a failed scan
 - **Source CI:** Optional; a scanner workflow in the source repo is recommended for faster feedback
 - **PR description:** A local or source-CI score is useful context but is not a merge prerequisite
 
@@ -211,7 +212,7 @@ jobs:
           plugin_dir: "."
           mode: scan
           min_score: 80
-          fail_on_severity: none
+          fail_on_severity: high
           format: sarif
           upload_sarif: true
 ```
@@ -281,7 +282,7 @@ jobs:
         with:
           plugin_dir: "."
           mode: lint
-          fail_on_severity: none
+          fail_on_severity: high
 ```
 
 ## Plugin Repo Requirements
@@ -374,7 +375,7 @@ The CI will check:
 
 1. **Alphabetical order** - README entries must be sorted within each section
 2. **Plugin manifest** - For new README entries, the generator fetches your source repo and validates `plugin.json`, required fields, and icon presence
-3. **Scanner verification** - The catalog runs the centralized scanner for every valid contribution; the normalized score must be at least 80/100
+3. **Scanner verification** - The catalog runs the centralized scanner for every valid contribution; the normalized score must be at least 80/100 and there must be no critical or high findings
 4. **Markdown links** - All URLs in README must be reachable
 
 If the gate reports a catalog validation or source-repository problem, fix that defect and push the correction. Scanner findings should be remediated in the source repository before requesting another centralized scan. The status check and comment refresh automatically; do not post duplicate remediation comments.

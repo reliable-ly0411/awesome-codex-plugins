@@ -74,5 +74,5 @@ jobs:
           plugin_dir: ${{ runner.temp }}/contributed
           mode: scan
           min_score: 80
-          fail_on_severity: none
+          fail_on_severity: high
           pr_comment: off
