@@ -1,14 +1,6 @@
 name: Plugin Claim Notice
 
 on:
-  schedule:
-    - cron: "23 * * * *"
-  pull_request_target:
-    types:
-      - closed
-    paths:
-      - "README.md"
-      - "plugins/**"
   workflow_dispatch:
     inputs:
       pr_number:
