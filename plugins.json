@@ -2,8 +2,8 @@
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "name": "awesome-codex-plugins",
   "version": "1.0.0",
-  "last_updated": "2026-10-20",
-  "total": 314,
+  "last_updated": "2026-10-21",
+  "total": 318,
   "categories": [
     "Development & Workflow",
     "Tools & Integrations"
@@ -14,7 +14,7 @@
       "url": "https://github.com/RBraga01/a-team",
       "owner": "RBraga01",
       "repo": "a-team",
-      "description": "Universal multi-agent infrastructure with 25 specialist agents, 16 enforced workflow skills, and a lead orchestrator for Claude Code, Codex CLI, Cursor, and OpenCode.",
+      "description": "A complete engineering team in one folder with 26 specialist agents, 20 workflow skills, an orchestrator, and quality gates; integration and hook support vary by coding platform.",
       "category": "Development & Workflow",
       "source": "awesome-codex-plugins",
       "install_url": "https://raw.githubusercontent.com/RBraga01/a-team/HEAD/.codex-plugin/plugin.json"
@@ -1540,6 +1540,16 @@
       "install_url": "https://raw.githubusercontent.com/HDeibler/universal-design-principles/HEAD/.codex-plugin/plugin.json"
     },
     {
+      "name": "Usage Engineer",
+      "url": "https://github.com/noamshorts22-prog/usage-engineer",
+      "owner": "noamshorts22-prog",
+      "repo": "usage-engineer",
+      "description": "Skill and zero-dependency local CLI that compacts long logs, stops identical retries, checks stale project maps and audits Codex token usage.",
+      "category": "Development & Workflow",
+      "source": "awesome-codex-plugins",
+      "install_url": "https://raw.githubusercontent.com/noamshorts22-prog/usage-engineer/HEAD/.codex-plugin/plugin.json"
+    },
+    {
       "name": "Velith",
       "url": "https://github.com/epicsagas/Velith",
       "owner": "epicsagas",
@@ -1858,6 +1868,16 @@
       "category": "Tools & Integrations",
       "source": "awesome-codex-plugins",
       "install_url": "https://raw.githubusercontent.com/Ratnam-Mishra/canvas-apps-plugin-codex/HEAD/.codex-plugin/plugin.json"
+    },
+    {
+      "name": "Car Rental Business Skills",
+      "url": "https://github.com/sergebulaev/car-rental-skills",
+      "owner": "sergebulaev",
+      "repo": "car-rental-skills",
+      "description": "Codex-ready bundle for exotic, luxury and Turo car rental operators with a native .codex-plugin manifest and 8 skills that price a car against live published daily rates from a free read-only market data MCP server, scan competitors, plan a rental business, and draft rental agreements, damage inspections, listings, social posts and review replies; also works in Claude Code.",
+      "category": "Tools & Integrations",
+      "source": "awesome-codex-plugins",
+      "install_url": "https://raw.githubusercontent.com/sergebulaev/car-rental-skills/HEAD/.codex-marketplace/car-rental-skills/.codex-plugin/plugin.json"
     },
     {
       "name": "CarsXE",
@@ -2250,6 +2270,16 @@
       "install_url": "https://raw.githubusercontent.com/ninihen1/power-automate-mcp-skills/HEAD/.codex-plugin/plugin.json"
     },
     {
+      "name": "Foundry",
+      "url": "https://github.com/mohamedOmar11111/growth-architect-foundry",
+      "owner": "mohamedOmar11111",
+      "repo": "growth-architect-foundry",
+      "description": "Growth ops for ad agencies: audit accounts, write English and Arabic client reports and run ROAS maths, with live Google and Meta changes locked behind a human at a terminal.",
+      "category": "Tools & Integrations",
+      "source": "awesome-codex-plugins",
+      "install_url": "https://raw.githubusercontent.com/mohamedOmar11111/growth-architect-foundry/HEAD/.codex-plugin/plugin.json"
+    },
+    {
       "name": "FXMacroData",
       "url": "https://github.com/fxmacrodata/claude-plugin-fxmacrodata",
       "owner": "fxmacrodata",
@@ -2438,6 +2468,16 @@
       "category": "Tools & Integrations",
       "source": "awesome-codex-plugins",
       "install_url": "https://raw.githubusercontent.com/linkmcp-io/linkmcp/HEAD/.codex-plugin/plugin.json"
+    },
+    {
+      "name": "LLMSlim",
+      "url": "https://github.com/Thanatos9404/llmslim",
+      "owner": "Thanatos9404",
+      "repo": "llmslim",
+      "description": "Long-term memory for Codex with no LLM in the loop: a local MCP server stores messages word for word in SQLite and recalls the ones that answer a question within a token budget.",
+      "category": "Tools & Integrations",
+      "source": "awesome-codex-plugins",
+      "install_url": "https://raw.githubusercontent.com/Thanatos9404/llmslim/HEAD/plugins/llmslim/.codex-plugin/plugin.json"
     },
     {
       "name": "LMCP",
@@ -2764,7 +2804,7 @@
       "url": "https://github.com/jingjing2222/rust-reverse-engineering-skill",
       "owner": "jingjing2222",
       "repo": "rust-reverse-engineering-skill",
-      "description": "Reverse engineer Rust binaries and libraries: triage targets, demangle symbols, recover crate namespaces, and map panic, unwind, async, and FFI paths.",
+      "description": "Triage Rust ELF, Mach-O, and PE binaries, demangle symbols, recover likely crate namespaces, trace runtime and FFI paths, and optionally export pseudocode with headless Ghidra.",
       "category": "Tools & Integrations",
       "source": "awesome-codex-plugins",
       "install_url": "https://raw.githubusercontent.com/jingjing2222/rust-reverse-engineering-skill/HEAD/.codex-plugin/plugin.json"
@@ -2797,7 +2837,7 @@
       "description": "Define custom events in plain language, check them with lightweight probes, and resume your Codex conversation when they fire.",
       "category": "Tools & Integrations",
       "source": "awesome-codex-plugins",
-      "install_url": "https://raw.githubusercontent.com/hyprh/self-starter/HEAD/plugin/.codex-plugin/plugin.json"
+      "install_url": "https://raw.githubusercontent.com/hyprh/self-starter/HEAD/codex-plugin/.codex-plugin/plugin.json"
     },
     {
       "name": "SEO Dungeon",

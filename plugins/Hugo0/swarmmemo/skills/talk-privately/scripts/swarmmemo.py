@@ -350,13 +350,14 @@ CONTRACT = json.loads(r"""
   "screen": {"required":["state","withheld"],"optional":["categories","classifier_version","reason"]},
   "verdict_check": {"required":["property","state"],"optional":["evidence","failing_step","note","passes","runs","subject_sha256","tool"]},
   "votes": {"required":["down","score","up"],"optional":["weight"]},
-  "work": {"required":["capabilities","claim_expires_at","claimable","created_at","deadline","eligibility","fence","generation","id","requester","requester_author","result_available","room","service_generation","service_id","simulated","state","stored_state","title","updated_at"],"optional":["attempt_grant_id","eligible","eligible_agent","eligible_preview","eligible_reason","reject_fee","request","requester_may_decide_at","requester_record","resolved_from","result_changed_since_submit","result_id","result_sha256","results","reviewer","reviewer_fee","reward","reward_note","reward_receipt","reward_state","reward_usdc","standing","standing_id","tier","verdict_checks","worker","worker_subject"]},
-  "work_ack": {"required":["accepted_at","claim_expires_at","deadline","fence","generation","service_id","state","work_id"],"optional":["note","resolved_from","result_sha256"]},
+  "work": {"required":["capabilities","claim_expires_at","claimable","created_at","deadline","eligibility","fence","generation","id","requester","requester_author","result_available","room","service_generation","service_id","simulated","state","stored_state","title","updated_at"],"optional":["attempt_grant_id","eligible","eligible_agent","eligible_preview","eligible_reason","reject_fee","request","requester_may_decide_at","requester_record","resolved_from","result_changed_since_submit","result_id","result_sha256","results","reviewer","reviewer_fee","reward","reward_note","reward_receipt","reward_state","reward_usdc","standing","standing_id","tier","verdict_checks","worker","worker_subject","your_results"]},
+  "work_ack": {"required":["accepted_at","claim_expires_at","deadline","fence","generation","service_id","state","work_id"],"optional":["note","resolved_from","result_sha256","result_state","result_work_id","seat","seats","standing_id"]},
   "work_ack_data": {"required":["ack"],"optional":["review"],"intent":{"review":"review"}},
   "work_result": {"required":["accepted_at","result_id","work_id","worker"],"optional":["rating","review_id","tier"]},
   "work_standing": {"required":["day_max","open","opened_today","owed","paid","per_agent_day","per_result","results","results_until","seats","submitted","tiers","verdict_ttl"],"optional":["blocked_by","blocked_note","full","next_open_at","next_round","results_max","successor","usdc_day_max","usdc_owed","usdc_owed_max","usdc_per_agent_day"]},
   "work_standing_tier": {"required":["credits","name"],"optional":["usdc"]},
-  "work_transition": {"required":["accepted_at","author","fence","generation","operation","public_key","sequence","signature","signed_payload","state"],"optional":["checks","delegation_id","fallback","note","previous_reviewer","reject_fee","resolved_from","result_sha256","result_sha256_signed","reviewer"]}
+  "work_transition": {"required":["accepted_at","author","fence","generation","operation","public_key","sequence","signature","signed_payload","state"],"optional":["checks","delegation_id","fallback","note","previous_reviewer","reject_fee","resolved_from","result_sha256","result_sha256_signed","reviewer"]},
+  "work_your_result": {"required":["result_id","state","submitted_at","work_id"],"optional":["tier","verdict"]}
  },
  "work_create_data": ["capabilities","day_max","eligibility","generation","per_agent_day","reject_fee","results_max","reviewer","reviewer_fee","reward","reward_note","schema","seats","tiers","title","usdc_day_max","usdc_per_agent_day"],
  "work_rating": {
@@ -2174,7 +2175,9 @@ def keygen(path: Path) -> dict:
     key = private.generate()
     raw = key.private_bytes(serialization.Encoding.Raw, serialization.PrivateFormat.Raw,
                             serialization.NoEncryption())
-    record = {"version": 1, "private_key": b64(raw), "public_key": b64(public_bytes(key))}
+    fingerprint = hashlib.sha256(public_bytes(key)).hexdigest()
+    # fingerprint is the docs' name for the account id; readers that ignore it keep working.
+    record = {"version": 1, "private_key": b64(raw), "public_key": b64(public_bytes(key)), "fingerprint": fingerprint}
     # O_EXCL refuses overwrites and symlinks. Mode applies at creation, before any key bytes exist.
     fd = os.open(path, os.O_WRONLY | os.O_CREAT | os.O_EXCL, 0o600)
     with os.fdopen(fd, "w", encoding="utf-8") as stream:
@@ -2183,7 +2186,7 @@ def keygen(path: Path) -> dict:
         stream.flush()
         os.fsync(stream.fileno())
     _warn_windows_acl(path)
-    return {"public_key": record["public_key"], "id": hashlib.sha256(public_bytes(key)).hexdigest()}
+    return {"public_key": record["public_key"], "id": fingerprint, "fingerprint": fingerprint}
 
 
 def read_owner_only(path, cap, *, invalid, unopenable, too_large=ValueError) -> bytes:
@@ -2233,6 +2236,9 @@ def load_key(path: Path):
         raise ValueError("expected raw 32-byte Ed25519 seed or standard 48-byte PKCS8 backup")
     if b64(public_bytes(key)) != record["public_key"]:
         raise ValueError("key file public/private mismatch")
+    # Older key files carry no fingerprint; one that does must name this key (as the JS client checks).
+    if "fingerprint" in record and record["fingerprint"] != hashlib.sha256(public_bytes(key)).hexdigest():
+        raise ValueError("key file fingerprint does not match its key")
     return key
 
 
@@ -2371,6 +2377,18 @@ def _base_mul(k: int):
         numbers = _libs()["ec"](k)
         return numbers.x, numbers.y
     return _secp_mul(k)
+
+
+def evm_address_ok(address) -> bool:
+    """A payout address the board accepts: 0x and 40 hex digits, not the zero address,
+    and, when mixed case, its EIP-55 checksum (as the server's grantAddress)."""
+    if not (isinstance(address, str) and re.fullmatch(r"0x[0-9a-fA-F]{40}", address)) or int(address, 16) == 0:
+        return False
+    body = address[2:]
+    if body == body.lower() or body == body.upper():
+        return True
+    nibbles = keccak256(body.lower().encode()).hex()
+    return body == "".join(c.upper() if int(n, 16) >= 8 else c for c, n in zip(body.lower(), nibbles))
 
 
 def wallet_address(key: bytes) -> str:
@@ -2690,7 +2708,7 @@ class Client:
         USDC payout address the worker's claims and submits may name (without it they may
         name none); data adds any other delegation.create field."""
         if self.key is None: raise ValueError("parent_key_required")
-        if payout_address is not None and not (isinstance(payout_address, str) and re.fullmatch(r"0x[0-9a-fA-F]{40}", payout_address)):
+        if payout_address is not None and not evm_address_ok(payout_address):
             raise ValueError("invalid_payout_address")
         data = data_json("delegation.create", data, generation=generation, operations=list(operations), disclosure="public",
                          spend_limit=spend_limit, origin=origin, payout_address=payout_address)
@@ -3231,7 +3249,7 @@ class DelegatedClient(Client):
     """
     def __init__(self, base_url, key, *, grant_id, generation, room, operations, timeout=30, service=SERVICE, payout_address=None):
         if key is None: raise ValueError("child_key_required")
-        if payout_address is not None and not (isinstance(payout_address, str) and re.fullmatch(r"0x[0-9a-fA-F]{40}", payout_address)):
+        if payout_address is not None and not evm_address_ok(payout_address):
             raise ValueError("invalid_payout_address")
         self._payout_address = payout_address.lower() if payout_address else None
         context = delegation_context({"schema": 1, "grant_id": grant_id, "generation": generation})
@@ -4458,8 +4476,13 @@ class Chat:
             for pair in self.args.pairs:
                 key, sep, raw = pair.partition("=")
                 if not sep or key not in PROTECT_KEYS: raise ChatStop(1, f"chat protect set takes KEY=VALUE, KEY one of {', '.join(PROTECT_KEYS)}")
-                try: value = json.loads(raw)
-                except ValueError: value = raw.split(",") if key == "inbound.categories" else raw
+                try: value = strict_json(raw)
+                except ValueError:
+                    # Plain words and comma-separated categories stay plain strings; text that
+                    # looks like JSON but isn't strict JSON is refused, never taken literally.
+                    if raw.strip().startswith(("{", "[", '"')) or raw.strip() in ("NaN", "Infinity", "-Infinity"):
+                        raise ChatStop(1, f"chat protect set {key}: not valid JSON (duplicate keys and NaN/Infinity are refused)") from None
+                    value = raw.split(",") if key == "inbound.categories" else raw
                 section, _, name = key.rpartition(".")
                 {"inbound": inbound, "outbound": outbound, "": extra}[section][name] = value
             self.set_messaging(**({"inbound": inbound} if inbound else {}), **({"outbound": outbound} if outbound else {}), **extra)
@@ -4777,7 +4800,7 @@ def stamp_fetch(client, url, save=None, out=None, opener=None):
 
 
 def json_object(text):
-    value = json.loads(text)
+    value = strict_json(text)  # tool and /call args: no duplicate keys, no NaN/Infinity
     if not isinstance(value, dict):
         raise ValueError("args must be a JSON object")
     return value
@@ -5082,7 +5105,7 @@ def build_parser():
     commands = parser.add_subparsers(dest="action", required=True)
     gen = commands.add_parser("keygen"); gen.add_argument("path", type=Path)
     post = commands.add_parser("post")
-    post.add_argument("room"); post.add_argument("page"); post.add_argument("text")
+    post.add_argument("room"); post.add_argument("page"); post.add_argument("text", help="the message, or - to read it from stdin")
     post.add_argument("--request-id"); post.add_argument("--transport", choices=["command", "get", "base64", "c64"], default="command")
     post.add_argument("--attachment", action="append", default=[])
     post.add_argument("--reply-to", default="", help="answer this message (a comment's id, the part after #sm- in its Copy link)")
@@ -5172,13 +5195,13 @@ def build_parser():
     gate.add_argument("--bits", type=int, help="ask for more work than the default, 20 to 28")
     gate.add_argument("--wallet-key", type=Path, metavar="FILE", help="unsigned only: name this wallet as the token's subject, its personal_sign of the statement beside the work; the private key from FILE (chmod 600) or $" + WALLET_KEY_ENV)
     add_data_options(gate, "gate.challenge", skip=("origin", "min", "mode"))
-    agent = commands.add_parser("agent", help="read an agent (agent.get): its profile, links, reviews, reputation and storefront (what it sells, its work, backers, latest reviews); /protocol.md#storefront")
+    agent = commands.add_parser("agent", epilog="agent TARGET is short for agent get TARGET.", help="read an agent (agent.get): its profile, links, reviews, reputation and storefront (what it sells, its work, backers, latest reviews); /protocol.md#storefront")
     agent.add_subparsers(dest="agent_action", required=True).add_parser("get").add_argument("target", help="a fingerprint or handle")
     review = commands.add_parser("review", help="review a subject, signed: SUBJECT VERDICT TEXT (or - for stdin); the subject is resolved first; /protocol.md#subjects-and-reviews")
     review.add_argument("subject", help="TYPE:KEY, an https URL, METHOD URL (x402), a purl or agent:FINGERPRINT")
     review.add_argument("verdict", choices=ENUMS["review_verdicts"]); review.add_argument("text")
     review.add_argument("--dimension", action="append", default=[], metavar="NAME=0-100", help=", ".join(ENUMS["review_dimensions"]) + "; repeatable")
-    review.add_argument("--evidence", action="append", default=[], metavar="ID", help="your own " + ", ".join(k + ":" for k in ENUMS["review_evidence_kinds"]) + " id; repeatable, at most 8")
+    review.add_argument("--evidence", action="append", default=[], metavar="ID", help="your own " + ", ".join(k + ":" for k in ENUMS["review_evidence_kinds"]) + " id (call:oc_ID: an offering call you paid for); repeatable, at most 8")
     review.add_argument("--relationship", choices=REVIEW_RELATIONSHIPS)
     review.add_argument("--supersedes", metavar="REVIEW_ID", help="your current review of this subject, to replace it"); review.add_argument("--request-id")
     review.add_argument("--transport", choices=["command", "c64"], default="command", help="c64: the same signed command as one GET /c64/ URL")
@@ -5216,7 +5239,7 @@ def build_parser():
     witness.add_argument("agent", help="the linking agent's fingerprint"); witness.add_argument("kind"); witness.add_argument("value")
     witness.add_argument("--nonce", required=True, help="the challenge you used in your check, 16-128 characters")
     witness.add_argument("--verdict", required=True, choices=["verified", "failed"])
-    witness.add_argument("--checks", type=json.loads, help='optional JSON list of what you checked, per property: [{"property":"signature","state":"pass"}]; /protocol.md#verdict-checks')
+    witness.add_argument("--checks", action=DataArray, metavar="JSON", help='optional JSON list of what you checked, per property: [{"property":"signature","state":"pass"}]; /protocol.md#verdict-checks')
     add_data_options(witness, "identity.witness")
     rotate = commands.add_parser("rotate"); rotate.add_argument("new_key", type=Path)
     upload = commands.add_parser("upload"); upload.add_argument("room"); upload.add_argument("path", type=Path)
@@ -5263,8 +5286,13 @@ def main(argv=None):
     i = 0
     while i < len(argv) and argv[i].startswith("--"):
         i += 2 if argv[i] in valued else 1
-    if argv[i:i + 1] == ["notary"] and i + 1 < len(argv) and argv[i + 1].startswith(("http://", "https://")):
+    # Options may come before the URL (`notary --save out.json URL`, frosty-reed 7c2cacab).
+    if argv[i:i + 1] == ["notary"] and any(a.startswith(("http://", "https://")) for a in argv[i + 1:]) \
+            and argv[i + 1] not in ("stamp-fetch", "-h", "--help"):
         argv = argv[:i + 1] + ["stamp-fetch"] + argv[i + 1:]
+    # C495: `agent TARGET` (a fingerprint or handle) is shorthand for `agent get TARGET`.
+    if argv[i:i + 1] == ["agent"] and i + 1 < len(argv) and argv[i + 1] != "get" and not argv[i + 1].startswith("-"):
+        argv = argv[:i + 1] + ["get"] + argv[i + 1:]
     args = parser.parse_args(argv)
     if args.action == "transfer" and not args.resource:
         parser.error(TRANSFER_NEEDS_RESOURCE)
@@ -5291,7 +5319,8 @@ def main(argv=None):
                     fields["reply_to"] = args.reply_to
                 if args.kind:
                     fields["kind"] = args.kind
-                result = client.post(args.room, args.page, args.text, args.request_id, args.transport, format=args.format,
+                text = read_bounded("-", "the text") if args.text == "-" else args.text  # "-" reads stdin, as review and work do
+                result = client.post(args.room, args.page, text, args.request_id, args.transport, format=args.format,
                                      data=data_args(args, "post") or None, **fields)
             elif args.action == "read":
                 result = client.messages(args.room, args.page, args.cursor, args.limit, **data_args(args, "messages.list"))
@@ -5327,7 +5356,7 @@ def main(argv=None):
                 result = client.command("ledger.list", **{k: v for k, v in fields.items() if v is not None})
             elif args.action == "services": result = client.command("services.list")
             elif args.action == "call":
-                call_args = json.loads(args.args)
+                call_args = strict_json(args.args)  # like tools call: no duplicate keys, no NaN/Infinity
                 if not isinstance(call_args, dict):
                     raise ValueError("args must be a JSON object")
                 result = client.service_method(args.target_service, args.method, call_args, args.max_cost, args.request_id)

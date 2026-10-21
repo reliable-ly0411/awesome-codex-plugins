@@ -145,7 +145,7 @@ Third-party plugins built by the community. [PRs welcome](#contributing)!
 
 <!-- pinned -->
 
-- [A Team](https://github.com/RBraga01/a-team) - Universal multi-agent infrastructure with 25 specialist agents, 16 enforced workflow skills, and a lead orchestrator for Claude Code, Codex CLI, Cursor, and OpenCode.
+- [A Team](https://github.com/RBraga01/a-team) - A complete engineering team in one folder with 26 specialist agents, 20 workflow skills, an orchestrator, and quality gates; integration and hook support vary by coding platform.
 - [Aegis](https://github.com/GanyuanRan/Aegis) - An agentic skills framework & software development methodology that works: planning, TDD, debugging, and collaboration workflows.
 - [Agency Continuity Audit](https://github.com/revertcreations/agency-continuity-audit) - Read-only audit that distinguishes durable agent goals, state, corrections, restart evidence, authority boundaries, scheduler claims, and commercial proof from self-reported health.
 - [Agent Deck](https://github.com/not-so-fat/agent-deck) - One MCP for context management: bind self-improving playbooks, MCP tools, and API keys to the session.
@@ -310,6 +310,7 @@ Third-party plugins built by the community. [PRs welcome](#contributing)!
 - [Unforgit](https://github.com/MiguelMedeiros/unforgit-codex-plugin) - Git-backed repository memory for Codex and other coding agents via MCP, with durable local knowledge for decisions, conventions, gotchas, and playbooks.
 - [Unity Agent Workflows](https://github.com/AUN-PN/unity-agent-workflows) - Codex plugin and skill for Unity 2D agents that enforces "No proof, no edit" workflows with runtime-owner proof, Teach structure maps, and validation gates.
 - [Universal Design Principles](https://github.com/HDeibler/universal-design-principles) - Cross-agent UX and product-design marketplace with a root Codex collection plugin, five focused plugin bundles, and 137 Agent Skills for design review, accessibility, layout, interaction, cognition, and product polish.
+- [Usage Engineer](https://github.com/noamshorts22-prog/usage-engineer) - Skill and zero-dependency local CLI that compacts long logs, stops identical retries, checks stale project maps and audits Codex token usage.
 - [Velith](https://github.com/epicsagas/Velith) - AI-native publishing system with a 6-phase pipeline from ideation to EPUB/PDF across 8 genres.
 - [Vibe Prospecting](https://github.com/explorium-ai/vibeprospecting-plugin) - Live B2B company and contact intelligence for building lead lists, researching prospects, enriching contacts, and personalizing outreach.
 - [VibePortrait](https://github.com/dadwadw233/VibePortrait) - Developer personality portrait generator — analyzes AI conversation history to produce MBTI type (16 color themes), capability radar, developer rating, 3-dimension famous match, and a persona skill that lets any AI "think like you".
@@ -345,6 +346,7 @@ Third-party plugins built by the community. [PRs welcome](#contributing)!
 - [BurpSuite MCP Bridge](https://github.com/6jeffr3y/burpsuite-mcp-bridge) - Bridge Burp Suite traffic, replay, rewrite rules, and evidence export into Codex through MCP for WSL, Windows, and macOS workflows.
 - [Call-E](https://github.com/CALLE-AI/call-e-integrations) - Plan, run, and inspect Call-E phone call workflows from Codex through the calle CLI.
 - [Canvas Apps Plugin Codex](https://github.com/Ratnam-Mishra/canvas-apps-plugin-codex) - Build and edit Microsoft Power Apps Canvas Apps using natural language and Canvas Authoring MCP server.
+- [Car Rental Business Skills](https://github.com/sergebulaev/car-rental-skills) - Codex-ready bundle for exotic, luxury and Turo car rental operators with a native .codex-plugin manifest and 8 skills that price a car against live published daily rates from a free read-only market data MCP server, scan competitors, plan a rental business, and draft rental agreements, damage inspections, listings, social posts and review replies; also works in Claude Code.
 - [CarsXE](https://github.com/carsxe/carsxe-codex-plugin) - Decode VINs, license plates, market value, vehicle history, recalls, liens, OBD codes, and more via the CarsXE API.
 - [CentricMem](https://github.com/zeyu-j/centricmem-skill) - Hosted librarian for agent Markdown memory via host MCP.
 - [Chrome DevTools](https://github.com/win4r/chrome-devtools-codex-plugin) - One-click Codex plugin wrapper for chrome-devtools-mcp.
@@ -370,7 +372,6 @@ Third-party plugins built by the community. [PRs welcome](#contributing)!
 - [DamnPDFs](https://github.com/SouravBeraAkaSpeed/damnpdfs-codex-plugin) - Use 71 PDF, image and Office file tools through a paired DamnPDFs browser tab, with temporary cloud processing for native conversions and local imports.
 - [Darkmoon](https://github.com/ASCIT31/darkmoon-mcp-server) - Start authorized autonomous AI pentest runs, poll status, list campaigns and read findings on your own self-hosted Darkmoon Pro through MCP.
 - [Data Product Builder for dbt](https://github.com/entropy-data/dataproduct-builder-dbt) - Full data-product lifecycle on dbt for Entropy Data: scaffold, audit, and integrate projects with ODCS, ODPS, OpenLineage, and GitHub Actions.
-- [Datacircle](https://github.com/waynehamadi/datacircle-plugin) - Query your favorite B2B data APIs through us. Same request, same price, no markup.
 - [deja](https://github.com/vshulcz/deja-vu) - Search the coding sessions already on your disk — Codex, Claude Code, Cursor, opencode and nineteen more — including work from before it was installed, indexed locally with no model in the loop.
 - [dex](https://github.com/exmergo/dex) - Agent skills for warehouse exploration, dbt transformation and semantic modeling, and schema-drift maintenance.
 - [Digital Marketing Pro](https://github.com/indranilbanerjee/digital-marketing-pro) - Open-source AI marketing plugin for agencies — 154 skills, 25 specialist agents, 12-Part Strategy Flow, AEO/GEO, GSC AI Performance Report, Google Ads API v24, EU AI Act Article 50 / C2PA compliance.
@@ -385,6 +386,7 @@ Third-party plugins built by the community. [PRs welcome](#contributing)!
 - [Feishu to Codex](https://github.com/zlsbksdxl/codex-lark) - Connect Codex to Feishu/Lark workflows for Docs, Messenger, Drive, Sheets, Base, Calendar, Tasks, Meetings, Mail, approvals, and more through the official Lark CLI.
 - [Firecrawl](https://github.com/firecrawl/firecrawl-codex-plugin) - Search, scrape, crawl, and map the web from Codex with Firecrawl CLI skills for live research and extraction.
 - [Flow Studio Power Automate](https://github.com/ninihen1/power-automate-mcp-skills) - Debug, build, and operate Power Automate flows via FlowStudio MCP with action-level inputs and outputs.
+- [Foundry](https://github.com/mohamedOmar11111/growth-architect-foundry) - Growth ops for ad agencies: audit accounts, write English and Arabic client reports and run ROAS maths, with live Google and Meta changes locked behind a human at a terminal.
 - [FXMacroData](https://github.com/fxmacrodata/claude-plugin-fxmacrodata) - Official-source macro releases, central-bank rates, release calendars and FX rates for 22 currencies through the hosted FXMacroData MCP server.
 - [GH Project](https://github.com/zfifteen/gh-project-plugin) - Create GitHub repositories from Codex with inferred defaults, native menus, explicit confirmation, and deterministic local cloning.
 - [Hermes Tweet](https://github.com/Xquik-dev/hermes-tweet) - Hermes Agent X/Twitter plugin for read-first social research, monitoring, and approval-gated actions through Xquik.
@@ -404,6 +406,7 @@ Third-party plugins built by the community. [PRs welcome](#contributing)!
 - [LienDeadline](https://github.com/LienDeadline/skills) - US mechanics lien and preliminary notice deadlines for construction material suppliers, with statute citations, plus lien guides for all 50 states and DC; read-only.
 - [LinkedIn Skills](https://github.com/sergebulaev/linkedin-skills) - Codex-ready LinkedIn marketing bundle with a native .codex-plugin manifest and 10 skills: post writing with 16 tested hook formulas, AI-tell humanizer, pre-publish audit, comment and reply drafting, hook extraction, content planning, profile optimization, engager analytics, and thread monitoring; also works in Claude Code.
 - [LinkMCP](https://github.com/linkmcp-io/linkmcp) - Connects Codex to your own LinkedIn account through the hosted LinkMCP server for profile and company lookups, people and Sales Navigator search, inbox, posts, connection requests and work email finding (closed source; paid plans with a 7-day free trial).
+- [LLMSlim](https://github.com/Thanatos9404/llmslim) - Long-term memory for Codex with no LLM in the loop: a local MCP server stores messages word for word in SQLite and recalls the ones that answer a question within a token budget.
 - [LMCP](https://github.com/colibird-ai/local-mcp-releases) - Local tools that let Codex use Mail, Calendar, Contacts, Teams, Slack, WhatsApp (Mac), OneDrive, Google Drive, Notion, Outlook (Windows) and Office files on Mac and Windows.
 - [Loomaly](https://github.com/loomaly/loomaly) - Ranks your site's SEO problems by what to fix first, gives Codex a fix prompt for your framework to apply in your repo, and re-checks the live page once the fix is deployed, via a hosted MCP server and four skills.
 - [Maestro: Costguard](https://github.com/mbanderas/costguard) - Cost auditor for Codex that flags CI/cron and cloud-spend waste via read-only provider checks, then previews and applies surgical CI workflow fixes locally without writing to provider accounts or pushing git.
@@ -438,7 +441,7 @@ Third-party plugins built by the community. [PRs welcome](#contributing)!
 - [Resume Tailor](https://github.com/olegvg/resume-tailor-plugin) - Tailor resumes and application text to job descriptions, or create candidate profiles from supplied career evidence.
 - [Roomcomm](https://github.com/kotinder/codex-roomcomm) - Shared rooms where Codex talks with other people's AI agents (Claude Code, DeepSeek Harness, OpenClaw) through the hosted Roomcomm MCP server, with a signed message history and no key needed to start.
 - [ru-text](https://github.com/talkstream/ru-text) - Russian text quality for AI agents — 2,000+ linguistic atoms for typography, information style, editorial standards, UX writing, business correspondence and AI-text cleanup, with a 0–10 text score.
-- [Rust Reverse Engineering](https://github.com/jingjing2222/rust-reverse-engineering-skill) - Reverse engineer Rust binaries and libraries: triage targets, demangle symbols, recover crate namespaces, and map panic, unwind, async, and FFI paths.
+- [Rust Reverse Engineering](https://github.com/jingjing2222/rust-reverse-engineering-skill) - Triage Rust ELF, Mach-O, and PE binaries, demangle symbols, recover likely crate namespaces, trace runtime and FFI paths, and optionally export pseudocode with headless Ghidra.
 - [ScrapeGraph AI](https://github.com/ScrapeGraphAI/just-scrape) - AI-powered web scraping CLI to search, scrape, extract structured JSON, crawl, and monitor web pages via the ScrapeGraph AI API.
 - [sectionsight](https://github.com/Majny/sectionsight) - Sets up cookieless, privacy-first website analytics (time per page section, consent banner, Slack or e-mail reports, health alerts) and proves the privacy claims with a headless-browser check.
 - [Self-Starter](https://github.com/hyprh/self-starter) - Define custom events in plain language, check them with lightweight probes, and resume your Codex conversation when they fire.
@@ -563,8 +566,9 @@ The score is best used as a quick trust signal and triage summary (not the only 
 - [awesome-ai-plugins](https://github.com/hashgraph-online/awesome-ai-plugins) - Umbrella list covering Codex, Claude Code, Gemini CLI, and MCP servers.
 - [codex-patch-overlay](https://github.com/salty-flower/codex-patch-overlay) - Patched Codex CLI builds carrying community-requested features upstream has not merged yet (live TUI reasoning streaming, completion sound, WebP image input, timed CLI queueing). Ready-to-run macOS/Linux binaries plus a Nix overlay, refreshed each upstream release.
 - [Email Marketing Bible](https://github.com/CosmoBlk/email-marketing-bible) - Codex skill (SKILL.md) for email marketing: automation flows, deliverability triage, copy de-slopping, AI email design, ESP control via MCP with send-safety gates, compliance and 19 industry playbooks.
-- [Tura](https://github.com/Tura-AI/tura) - A local, open-source coding agent for developers who are tired of vague skill claims, token-saving extensions with no evidence, and agents that change a repository before understanding it.
 - [HOL Plugin Registry](https://hol.org/registry/plugins) - Browse plugins with scanner-backed security analysis and trust scores.
+- [Koto](https://github.com/mehrdadxzaker/Koto) - Experimental local-first model selection for Codex with consented history, qualification checks, and skills for setup, diagnosis, and safe disconnect.
+- [Tura](https://github.com/Tura-AI/tura) - A local, open-source coding agent for developers who are tired of vague skill claims, token-saving extensions with no evidence, and agents that change a repository before understanding it.
 
 <!-- hol-sponsors:start -->
 <!-- hol-sponsors:end -->

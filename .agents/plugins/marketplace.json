@@ -16,8 +16,8 @@
         "authentication": "ON_INSTALL"
       },
       "category": "Development & Workflow",
-      "description": "Universal multi-agent infrastructure with 25 specialist agents, 16 enforced workflow skills, and a lead orchestrator for Claude Code, Codex CLI, Cursor, and OpenCode.",
-      "icon": "./plugins/RBraga01/a-team/assets/ATeam_full.png"
+      "description": "A complete engineering team in one folder with 26 specialist agents, 20 workflow skills, an orchestrator, and quality gates; integration and hook support vary by coding platform.",
+      "icon": "./plugins/RBraga01/a-team/assets/icon.svg"
     },
     {
       "name": "aegis",
@@ -2273,6 +2273,21 @@
       "description": "Cross-agent UX and product-design marketplace with a root Codex collection plugin, five focused plugin bundles, and 137 Agent Skills for design review, accessibility, layout, interaction, cognition, and product polish."
     },
     {
+      "name": "usage-engineer",
+      "displayName": "Usage Engineer",
+      "source": {
+        "source": "local",
+        "path": "./plugins/noamshorts22-prog/usage-engineer"
+      },
+      "policy": {
+        "installation": "AVAILABLE",
+        "authentication": "ON_INSTALL"
+      },
+      "category": "Development & Workflow",
+      "description": "Skill and zero-dependency local CLI that compacts long logs, stops identical retries, checks stale project maps and audits Codex token usage.",
+      "icon": "./plugins/noamshorts22-prog/usage-engineer/.codex-plugin/assets/composer-icon.svg"
+    },
+    {
       "name": "velith",
       "displayName": "Velith",
       "source": {
@@ -2742,6 +2757,21 @@
       },
       "category": "Tools & Integrations",
       "description": "Build and edit Microsoft Power Apps Canvas Apps using natural language and Canvas Authoring MCP server."
+    },
+    {
+      "name": "car-rental-skills",
+      "displayName": "Car Rental Business Skills",
+      "source": {
+        "source": "local",
+        "path": "./plugins/sergebulaev/car-rental-skills"
+      },
+      "policy": {
+        "installation": "AVAILABLE",
+        "authentication": "ON_INSTALL"
+      },
+      "category": "Tools & Integrations",
+      "description": "Codex-ready bundle for exotic, luxury and Turo car rental operators with a native .codex-plugin manifest and 8 skills that price a car against live published daily rates from a free read-only market data MCP server, scan competitors, plan a rental business, and draft rental agreements, damage inspections, listings, social posts and review replies; also works in Claude Code.",
+      "icon": "./plugins/sergebulaev/car-rental-skills/assets/icon.svg"
     },
     {
       "name": "carsxe",
@@ -3323,6 +3353,21 @@
       "description": "Debug, build, and operate Power Automate flows via FlowStudio MCP with action-level inputs and outputs."
     },
     {
+      "name": "foundry",
+      "displayName": "Foundry",
+      "source": {
+        "source": "local",
+        "path": "./plugins/mohamedOmar11111/growth-architect-foundry"
+      },
+      "policy": {
+        "installation": "AVAILABLE",
+        "authentication": "ON_INSTALL"
+      },
+      "category": "Tools & Integrations",
+      "description": "Growth ops for ad agencies: audit accounts, write English and Arabic client reports and run ROAS maths, with live Google and Meta changes locked behind a human at a terminal.",
+      "icon": "./plugins/mohamedOmar11111/growth-architect-foundry/assets/codex/icon.svg"
+    },
+    {
       "name": "fxmacrodata",
       "displayName": "FXMacroData",
       "source": {
@@ -3603,6 +3648,21 @@
       "category": "Tools & Integrations",
       "description": "Connects Codex to your own LinkedIn account through the hosted LinkMCP server for profile and company lookups, people and Sales Navigator search, inbox, posts, connection requests and work email finding (closed source; paid plans with a 7-day free trial).",
       "icon": "./plugins/linkmcp-io/linkmcp/assets/logo-512.png"
+    },
+    {
+      "name": "llmslim",
+      "displayName": "LLMSlim",
+      "source": {
+        "source": "local",
+        "path": "./plugins/Thanatos9404/llmslim"
+      },
+      "policy": {
+        "installation": "AVAILABLE",
+        "authentication": "ON_INSTALL"
+      },
+      "category": "Tools & Integrations",
+      "description": "Long-term memory for Codex with no LLM in the loop: a local MCP server stores messages word for word in SQLite and recalls the ones that answer a question within a token budget.",
+      "icon": "./plugins/Thanatos9404/llmslim/assets/icon.png"
     },
     {
       "name": "local-mcp",
@@ -4086,7 +4146,8 @@
         "authentication": "ON_INSTALL"
       },
       "category": "Tools & Integrations",
-      "description": "Reverse engineer Rust binaries and libraries: triage targets, demangle symbols, recover crate namespaces, and map panic, unwind, async, and FFI paths."
+      "description": "Triage Rust ELF, Mach-O, and PE binaries, demangle symbols, recover likely crate namespaces, trace runtime and FFI paths, and optionally export pseudocode with headless Ghidra.",
+      "icon": "./plugins/jingjing2222/rust-reverse-engineering-skill/assets/icon.svg"
     },
     {
       "name": "just-scrape",

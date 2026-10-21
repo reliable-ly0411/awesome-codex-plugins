@@ -14,7 +14,8 @@ Generator (CI):  plugins/<owner>/<repo>/  ←  fetched from your GitHub repo
 ```
 
 The generator removes only explicitly reviewed retired identities in
-`RETIRED_BUNDLE_IDENTITIES`, currently `samuelbushi/uizze`, and only when absent
+`RETIRED_BUNDLE_IDENTITIES`, currently `samuelbushi/uizze` and
+`waynehamadi/datacircle-plugin`, and only when absent
 from the README. Missing README entries do not authorize cleanup of other
 bundles. This retirement change includes deletion of that nine-file legacy
 bundle; `plugins/uizze/uizze` is preserved.
@@ -71,17 +72,17 @@ If you add source-repository scanner CI, keep the workflow run URL for local deb
 The release metadata below is synced automatically from the latest published HOL scanner release.
 
 ```bash
-pipx install --force "plugin-scanner==3.49.0"
+pipx install --force "plugin-scanner==3.52.0"
 plugin-scanner scan . --format text
 ```
 
-Expected reviewed wheel SHA256: `a8e5f0f5e527996c368e3a5d32a890c97ffb421cec74ed3a55af0d48cca4007c`
+Expected reviewed wheel SHA256: `75e2bc5e922297e9a3c6cbab7c319358d252855a134a85f42842ae866609c329`
 
 If you want to verify the exact wheel before install:
 
 ```bash
 rm -rf .hol-plugin-scanner-dist
-python3 -m pip download --only-binary=:all: --no-deps --dest .hol-plugin-scanner-dist "plugin-scanner==3.49.0"
+python3 -m pip download --only-binary=:all: --no-deps --dest .hol-plugin-scanner-dist "plugin-scanner==3.52.0"
 python3 -m pip hash .hol-plugin-scanner-dist/*.whl
 ```
 
@@ -140,7 +141,7 @@ The commands below stay pinned to the same reviewed scanner release used in the 
 
 ```bash
 # Install the current reviewed release
-pipx install --force "plugin-scanner==3.49.0"
+pipx install --force "plugin-scanner==3.52.0"
 
 # Scan your plugin
 plugin-scanner scan . --format text
@@ -152,7 +153,7 @@ plugin-scanner lint . --format text
 plugin-scanner verify . --format text
 ```
 
-Expected reviewed wheel SHA256: `a8e5f0f5e527996c368e3a5d32a890c97ffb421cec74ed3a55af0d48cca4007c`
+Expected reviewed wheel SHA256: `75e2bc5e922297e9a3c6cbab7c319358d252855a134a85f42842ae866609c329`
 
 ### Required in Your Plugin Repo
 
