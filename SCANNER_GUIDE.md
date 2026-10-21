@@ -6,11 +6,11 @@ All plugins submitted to **Awesome Codex Plugins** must pass the HOL AI Plugin S
 
 | Requirement | Threshold |
 |-------------|-----------|
-| **Scanner Score** | ≥ 80 / 130 |
-| **Centralized Scan** | Numeric score ≥ 80 / 130 is the catalog admission threshold |
+| **Scanner Score** | ≥ 80 / 100 on the normalized centralized score |
+| **Centralized Scan** | Normalized score ≥ 80 / 100 is the catalog admission threshold |
 | **Source CI** | Optional; recommended for pre-submission feedback |
 
-Catalog admission uses the numeric score from the catalog-owned centralized scan. A score of **80/130 or higher** is scanner-clear even when the scanner action reports advisory findings or exits nonzero for a non-gating reason. Separate catalog-format, source-availability, or repository-integrity defects can still block merge.
+Catalog admission uses the normalized 0–100 score from the catalog-owned centralized scan. A passing scan requires a score of **80/100 or higher** and **no critical or high severity findings**. A numeric score alone does not override a failed scanner job. Raw point totals in local scanner output are informational; use the centralized normalized score for eligibility. Separate catalog-format, source-availability, or repository-integrity defects can still block merge.
 
 ## Quick Start
 
@@ -96,7 +96,7 @@ jobs:
       - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683  # v4.2.2
 
       - name: HOL Plugin Scanner
-        uses: hashgraph-online/ai-plugin-scanner-action@v1
+        uses: hashgraph-online/ai-plugin-scanner-action@caba2e96aa8ad2feb6cf6fca52442b52e22e779f # v1.2.635
         with:
           plugin_dir: "."
           mode: scan
@@ -128,7 +128,7 @@ jobs:
       - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683  # v4.2.2
 
       - name: HOL Plugin Scanner
-        uses: hashgraph-online/ai-plugin-scanner-action@v1
+        uses: hashgraph-online/ai-plugin-scanner-action@caba2e96aa8ad2feb6cf6fca52442b52e22e779f # v1.2.635
         with:
           plugin_dir: "."
           mode: scan
@@ -157,7 +157,7 @@ jobs:
       - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683  # v4.2.2
 
       - name: HOL Plugin Linter
-        uses: hashgraph-online/ai-plugin-scanner-action@v1
+        uses: hashgraph-online/ai-plugin-scanner-action@caba2e96aa8ad2feb6cf6fca52442b52e22e779f # v1.2.635
         with:
           plugin_dir: "."
           mode: lint
@@ -184,7 +184,7 @@ jobs:
       - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683  # v4.2.2
 
       - name: HOL Plugin Scanner
-        uses: hashgraph-online/ai-plugin-scanner-action@v1
+        uses: hashgraph-online/ai-plugin-scanner-action@caba2e96aa8ad2feb6cf6fca52442b52e22e779f # v1.2.635
         with:
           plugin_dir: "."
           mode: scan
@@ -192,7 +192,7 @@ jobs:
           fail_on_severity: high
 
       - name: Submit to HOL Registry
-        uses: hashgraph-online/ai-plugin-scanner-action@v1
+        uses: hashgraph-online/ai-plugin-scanner-action@caba2e96aa8ad2feb6cf6fca52442b52e22e779f # v1.2.635
         with:
           plugin_dir: "."
           mode: submit

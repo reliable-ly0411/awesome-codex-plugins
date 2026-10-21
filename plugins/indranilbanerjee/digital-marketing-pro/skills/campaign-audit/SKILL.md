@@ -7,7 +7,7 @@ allowed-tools: Read Bash Glob Grep
 
 # /digital-marketing-pro:campaign-audit — Cross-Channel Current-State Audit
 
-> **Script location.** If your host does not set `${CLAUDE_PLUGIN_ROOT}`, the scripts are in this plugin's `scripts/` folder, next to `skills/`.
+> **Script location.** If your host does not set `${CLAUDE_PLUGIN_ROOT}`, the scripts are in this plugin's `scripts/` folder, next to `skills/`. Run them with Python 3.10 or newer: `python`, or `python3` where `python` is not found (macOS, many Linux systems).
 
 This skill produces a single document describing **everything currently running for a brand across every channel** — what's live, what's spending, what's performing, what's leaking budget, what's quietly broken. It's the prerequisite for any informed `/digital-marketing-pro:campaign-plan`, `/digital-marketing-pro:performance-report`, or `/digital-marketing-pro:competitor-analysis` refresh.
 
@@ -254,4 +254,4 @@ In the conversation, print:
 - [`performance-check`](../performance-check/SKILL.md) — lighter metrics-only snapshot
 - [`competitor-analysis`](../competitor-analysis/SKILL.md) — pairs naturally with the AEO/GEO section
 - [`aeo-audit`](../aeo-audit/SKILL.md) — deeper AI-engine visibility audit if Section 5 raises concerns
-- `${CLAUDE_PLUGIN_ROOT}/scripts/performance-monitor.py` — underlying data pulls
+- `"${CLAUDE_PLUGIN_ROOT}/scripts/performance-monitor.py"` — underlying data pulls

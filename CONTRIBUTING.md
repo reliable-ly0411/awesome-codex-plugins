@@ -13,6 +13,19 @@ Generator (CI):  plugins/<owner>/<repo>/  ←  fetched from your GitHub repo
                   marketplace.json        ←  regenerated from README
 ```
 
+The generator removes only explicitly reviewed retired identities in
+`RETIRED_BUNDLE_IDENTITIES`, currently `samuelbushi/uizze` and
+`waynehamadi/datacircle-plugin`, and only when absent
+from the README. Missing README entries do not authorize cleanup of other
+bundles. This retirement change includes deletion of that nine-file legacy
+bundle; `plugins/uizze/uizze` is preserved.
+
+GitHub and local `./plugins/<owner>/<repo>` links retain their bundles, ignoring
+owner/repository display case. Local links are retention-only and are not fetched
+from GitHub. An empty parsed source, an unrecognized plugin listing, or a symlink
+in the two-level generated tree aborts cleanup before deletion. Additional
+retirements require their own reviewed set change and committed bundle removal.
+
 ## Adding a Plugin
 
 > **Important: Read this entire guide before opening a PR. Submissions missing required items will be asked to fix them.**
@@ -42,7 +55,7 @@ jobs:
     steps:
       - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
       - name: HOL Plugin Scanner
-        uses: hashgraph-online/ai-plugin-scanner-action@v1
+        uses: hashgraph-online/ai-plugin-scanner-action@caba2e96aa8ad2feb6cf6fca52442b52e22e779f # v1.2.635
         with:
           plugin_dir: "."
           mode: scan
@@ -59,21 +72,21 @@ If you add source-repository scanner CI, keep the workflow run URL for local deb
 The release metadata below is synced automatically from the latest published HOL scanner release.
 
 ```bash
-pipx install --force "plugin-scanner==3.38.0"
+pipx install --force "plugin-scanner==3.52.0"
 plugin-scanner scan . --format text
 ```
 
-Expected reviewed wheel SHA256: `7b2f760a04847a0e73ec221a6b3ccceef7ee407b4f80daa543865b2f3dc80291`
+Expected reviewed wheel SHA256: `75e2bc5e922297e9a3c6cbab7c319358d252855a134a85f42842ae866609c329`
 
 If you want to verify the exact wheel before install:
 
 ```bash
 rm -rf .hol-plugin-scanner-dist
-python3 -m pip download --only-binary=:all: --no-deps --dest .hol-plugin-scanner-dist "plugin-scanner==3.38.0"
+python3 -m pip download --only-binary=:all: --no-deps --dest .hol-plugin-scanner-dist "plugin-scanner==3.52.0"
 python3 -m pip hash .hol-plugin-scanner-dist/*.whl
 ```
 
-You need a score of **80/130** or higher with **no critical or high severity findings**. Save the output to include in your PR description.
+You need a normalized score of **80/100** or higher with **no critical or high severity findings**. Save the output to include in your PR description.
 
 ### Step 3: Verify your plugin repo has the required files
 
@@ -116,8 +129,9 @@ All plugins submitted to this list **must pass the HOL AI Plugin Scanner**.
 
 ### Minimum Requirements
 
-- **Score:** ≥ 80/130
-- **Centralized score:** The catalog-owned scan must report ≥ 80/130
+- **Score:** ≥ 80/100 on the normalized centralized score
+- **Centralized score:** The catalog-owned scan must report ≥ 80/100
+- **Severity gate:** No critical or high findings; a numeric score alone cannot override a failed scan
 - **Source CI:** Optional; a scanner workflow in the source repo is recommended for faster feedback
 - **PR description:** A local or source-CI score is useful context but is not a merge prerequisite
 
@@ -127,7 +141,7 @@ The commands below stay pinned to the same reviewed scanner release used in the 
 
 ```bash
 # Install the current reviewed release
-pipx install --force "plugin-scanner==3.38.0"
+pipx install --force "plugin-scanner==3.52.0"
 
 # Scan your plugin
 plugin-scanner scan . --format text
@@ -139,7 +153,7 @@ plugin-scanner lint . --format text
 plugin-scanner verify . --format text
 ```
 
-Expected reviewed wheel SHA256: `7b2f760a04847a0e73ec221a6b3ccceef7ee407b4f80daa543865b2f3dc80291`
+Expected reviewed wheel SHA256: `75e2bc5e922297e9a3c6cbab7c319358d252855a134a85f42842ae866609c329`
 
 ### Required in Your Plugin Repo
 
@@ -194,7 +208,7 @@ jobs:
       - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683  # v4.2.2
 
       - name: HOL Plugin Scanner
-        uses: hashgraph-online/ai-plugin-scanner-action@v1
+        uses: hashgraph-online/ai-plugin-scanner-action@caba2e96aa8ad2feb6cf6fca52442b52e22e779f # v1.2.635
         with:
           plugin_dir: "."
           mode: scan
@@ -226,7 +240,7 @@ jobs:
       - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683  # v4.2.2
 
       - name: HOL Plugin Scanner
-        uses: hashgraph-online/ai-plugin-scanner-action@v1
+        uses: hashgraph-online/ai-plugin-scanner-action@caba2e96aa8ad2feb6cf6fca52442b52e22e779f # v1.2.635
         with:
           plugin_dir: "."
           mode: scan
@@ -237,7 +251,7 @@ jobs:
 
       - name: Submit to Registry if Eligible
         if: github.ref == 'refs/heads/main'
-        uses: hashgraph-online/ai-plugin-scanner-action@v1
+        uses: hashgraph-online/ai-plugin-scanner-action@caba2e96aa8ad2feb6cf6fca52442b52e22e779f # v1.2.635
         with:
           plugin_dir: "."
           mode: submit
@@ -265,7 +279,7 @@ jobs:
       - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683  # v4.2.2
 
       - name: HOL Plugin Linter
-        uses: hashgraph-online/ai-plugin-scanner-action@v1
+        uses: hashgraph-online/ai-plugin-scanner-action@caba2e96aa8ad2feb6cf6fca52442b52e22e779f # v1.2.635
         with:
           plugin_dir: "."
           mode: lint
@@ -325,7 +339,7 @@ Must be valid JSON at `.codex-plugin/plugin.json` with at minimum:
 - Plugin must have a **public GitHub repository**
 - Must be **functional** with a valid `.codex-plugin/plugin.json` manifest
 - Must include an **icon** as described above
-- **Must reach a centralized HOL Plugin Scanner score ≥ 80**
+- **Must reach a normalized centralized HOL Plugin Scanner score ≥ 80/100**
 - Source-repository scanner CI is optional; the catalog runs the centralized scanner
 - **One plugin per PR**
 
@@ -343,7 +357,7 @@ Before submitting, verify:
 - [ ] `SECURITY.md` exists in your plugin repo
 - [ ] `LICENSE` exists in your plugin repo
 - [ ] `.codex-plugin/plugin.json` exists and is valid JSON
-- [ ] The catalog-owned centralized Plugin Scanner score reaches ≥ 80/130 before merge
+- [ ] The catalog-owned centralized Plugin Scanner score reaches ≥ 80/100 before merge
 
 **In your PR:**
 - [ ] README.md entry is alphabetically sorted within its category
@@ -362,7 +376,7 @@ The CI will check:
 
 1. **Alphabetical order** - README entries must be sorted within each section
 2. **Plugin manifest** - For new README entries, the generator fetches your source repo and validates `plugin.json`, required fields, and icon presence
-3. **Scanner verification** - The catalog runs the centralized scanner for every valid contribution; the numeric centralized score must be at least 80
+3. **Scanner verification** - The catalog runs the centralized scanner for every valid contribution; the normalized score must be at least 80/100 and there must be no critical or high findings
 4. **Markdown links** - All URLs in README must be reachable
 
 If the gate reports a catalog validation or source-repository problem, fix that defect and push the correction. Scanner findings should be remediated in the source repository before requesting another centralized scan. The status check and comment refresh automatically; do not post duplicate remediation comments.

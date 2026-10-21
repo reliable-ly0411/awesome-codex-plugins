@@ -7,7 +7,7 @@ allowed-tools: Read Bash Glob Grep
 
 # /digital-marketing-pro:launch-campaign — Multi-Channel Campaign Launch Orchestrator
 
-> **Script location.** If your host does not set `${CLAUDE_PLUGIN_ROOT}`, the scripts are in this plugin's `scripts/` folder, next to `skills/`.
+> **Script location.** If your host does not set `${CLAUDE_PLUGIN_ROOT}`, the scripts are in this plugin's `scripts/` folder, next to `skills/`. Run them with Python 3.10 or newer: `python`, or `python3` where `python` is not found (macOS, many Linux systems).
 
 This skill takes an **approved** campaign plan (from `/digital-marketing-pro:campaign-plan`) and walks it through every step required to go live: pre-launch gates, channel-by-channel activation, CRM record creation, kickoff comms to the team, and day-1 monitoring setup. It complements — and is broader than — `/digital-marketing-pro:launch-ad-campaign`, which handles only paid-ads activation on Google / Meta / LinkedIn / TikTok.
 
@@ -210,6 +210,6 @@ Print the launch summary in the conversation:
 - [`campaign-plan`](../campaign-plan/SKILL.md) — produces the plan this skill consumes
 - [`launch-ad-campaign`](../launch-ad-campaign/SKILL.md) — the paid-ads-only subset this skill delegates to during Step 3 (paid-ads activation)
 - [`performance-check`](../performance-check/SKILL.md) — day-1 check-in skill mentioned in the success message
-- `performance-monitor.py` (`${CLAUDE_PLUGIN_ROOT}/scripts/performance-monitor.py`) — arms the day-1 watchdog
+- `performance-monitor.py` (`"${CLAUDE_PLUGIN_ROOT}/scripts/performance-monitor.py"`) — arms the day-1 watchdog
 - [`crm-sync`](../crm-sync/SKILL.md) — creates the CRM Campaign object
 - [`c2pa-metadata`](../c2pa-metadata/SKILL.md) — signs AI assets for EU launches (mandatory per Step 0)

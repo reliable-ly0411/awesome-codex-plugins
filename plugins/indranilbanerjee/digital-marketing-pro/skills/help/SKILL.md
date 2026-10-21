@@ -6,7 +6,7 @@ argument-hint: "[--commands | --skills | --examples | --connectors | --troublesh
 
 # /digital-marketing-pro:help
 
-> **Script location.** If your host does not set `${CLAUDE_PLUGIN_ROOT}`, the scripts are in this plugin's `scripts/` folder, next to `skills/`.
+> **Script location.** If your host does not set `${CLAUDE_PLUGIN_ROOT}`, the scripts are in this plugin's `scripts/` folder, next to `skills/`. Run them with Python 3.10 or newer: `python`, or `python3` where `python` is not found (macOS, many Linux systems).
 
 Show the Digital Marketing Pro user guide with **live plugin state** (version, agent/skill/command/script counts, connector counts, runtime environment) pulled from disk — not hardcoded — plus getting-started steps, usage examples, and troubleshooting.
 
@@ -145,7 +145,7 @@ Full engagement:
 | Issue | Solution |
 |-------|----------|
 | "No active brand" message | Run `/digital-marketing-pro:brand-setup` to create your first brand profile |
-| Python features unavailable | Install the tested versions: `python scripts/setup.py --install lite` (lite mode) or `python -m pip install -r scripts/requirements.txt` (everything, exact pins) |
+| Python features unavailable | Install the tested versions: `python "${CLAUDE_PLUGIN_ROOT}/scripts/setup.py" --install lite` (lite mode) or `python -m pip install -r "${CLAUDE_PLUGIN_ROOT}/scripts/requirements.txt"` (everything, exact pins) |
 | MCP connector not working | Run `/digital-marketing-pro:integrations` to check status, `/digital-marketing-pro:connect <name>` for setup |
 | Brand voice seems off | Run `/digital-marketing-pro:brand-setup --full` for detailed 17-question profiling |
 | Commands not recognized | Ensure the plugin is installed: check "Manage Plugin" in Cowork or `claude plugin list` |
