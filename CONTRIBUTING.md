@@ -362,7 +362,7 @@ The CI will check:
 
 1. **Alphabetical order** - README entries must be sorted within each section
 2. **Plugin manifest** - For new README entries, the generator fetches your source repo and validates `plugin.json`, required fields, and icon presence
-3. **Scanner verification** - The catalog runs the centralized scanner for every valid contribution; the numeric centralized score must be at least 80
+3. **Scanner verification** - The catalog runs the centralized scanner for every valid contribution; it must complete successfully with a score of at least 80 and no critical or high severity findings
 4. **Markdown links** - All URLs in README must be reachable
 
 If the gate reports a catalog validation or source-repository problem, fix that defect and push the correction. Scanner findings should be remediated in the source repository before requesting another centralized scan. The status check and comment refresh automatically; do not post duplicate remediation comments.
@@ -373,3 +373,7 @@ If the gate reports a catalog validation or source-repository problem, fix that 
 - Scanner action: [ai-plugin-scanner-action](https://github.com/hashgraph-online/ai-plugin-scanner-action)
 - Registry: [hol.org/registry/plugins](https://hol.org/registry/plugins)
 - Scanner questions: use the existing contribution PR thread
+
+### Downstream sync-only policy
+
+This fork receives upstream source only. Existing contribution instructions are retained as upstream project reference and for local catalog safety review; do not prepare or submit upstream PRs, comments or code. High/critical scanner findings and failed or incomplete scans remain blocking.

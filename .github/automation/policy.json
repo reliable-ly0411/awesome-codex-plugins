@@ -17,5 +17,19 @@
     "claim-notice.yml"
   ],
   "publication_note": "No automatic publisher is configured; manual workflows never bypass provenance, source, license or compatibility checks.",
-  "site_build_workflow": "deploy.yml"
+  "site_build_workflow": "deploy.yml",
+  "downstream_repository": "reliable-ly0411/awesome-codex-plugins",
+  "upstream_contributions": false,
+  "preserve_local_paths": [
+    ".github",
+    "scripts/publish-open-pr-checks.py",
+    "scripts/publish-open-pr-checks-centralized.py",
+    "scripts/test_publish_open_pr_checks.py",
+    "CONTRIBUTING.md",
+    "SCANNER_GUIDE.md"
+  ],
+  "disabled_external_workflows": [
+    "sync-to-ai-plugins.yml",
+    "claim-notice.yml"
+  ]
 }
