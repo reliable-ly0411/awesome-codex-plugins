@@ -1,5 +1,8 @@
 # Mechanical Engineering Research Skill | Thermal-Fluid Research Workflow Plugin
 
+Repository scope, evidence, and reuse boundaries are also available in the
+[NED3 resource manifest](.ned3/resource-manifest-v0.1.json).
+
 [English](README.md) | [简体中文](README.zh-CN.md) | [繁體中文](README.zh-TW.md)
 
 **A domain-rigor layer and modular skill suite for thermal-fluid mechanical engineering research with AI agents.**
@@ -262,6 +265,7 @@ The examples are synthetic, public-safe artifacts designed to show the plugin's 
 | Data and release | Provenance, rights, benchmark design, reproducibility, public packages | [`data-provenance-and-release.md`](skills/mechanical-engineering-research/references/data-provenance-and-release.md) |
 | Figure and artifact QA | Final-size figures, tables, PDFs, Word, spreadsheets, and slides | [`scientific-figure-and-artifact-qa.md`](skills/mechanical-engineering-research/references/scientific-figure-and-artifact-qa.md) |
 | Proposal development | DOE/NSF/NASA-style narratives, solicitation alignment, milestones, risks | [`proposal-development.md`](skills/mechanical-engineering-research/references/proposal-development.md) |
+| Budget and justification | Sponsor budget rules, institutional workbooks, cost bases, subawards, indirect costs, reconciliation | [`budget-and-justification.md`](skills/mechanical-engineering-research/references/budget-and-justification.md) |
 | Research coding | Reproducible scripts, notebooks, plotting, simulation automation, code review | [`research-coding.md`](skills/mechanical-engineering-research/references/research-coding.md) |
 | Presentations | Graphics-first research talks, slide logic, speaker notes, backup slides | [`presentation-slides.md`](skills/mechanical-engineering-research/references/presentation-slides.md) |
 | AI/ML tools | Computer vision, sequence models, sensor fusion, surrogate modeling | [`ai-tools-thermal-fluids.md`](skills/mechanical-engineering-research/references/ai-tools-thermal-fluids.md) |

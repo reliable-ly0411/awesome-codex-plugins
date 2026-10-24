@@ -100,23 +100,44 @@ Before the first deploy, tell the person what it creates and what it costs:
 one D1 database, two SQLite-backed Durable Objects; R2 only when requested).
 
 `deploy` builds every game, creates the Worker and D1 database named in `studio.json`,
-applies migrations, deploys, and reads the live site once (the site then claims itself
-in the homie.rocks directory; nothing is stored by hand). It never creates R2. It refuses
+applies migrations, deploys, and reads the live site once. Listing is the studio’s choice: `homie.directory: true`
+means homie.rocks; a directory URL chooses that directory. An omitted, null or false
+value makes no new claim. Existing stored claims stay honoured. It never creates R2. It refuses
 to use a Worker, database or bucket of the same name that this studio did not create;
 then rename it in `studio.json` and `wrangler.jsonc` (an older studio's is
 `site/wrangler.jsonc`). Never
 delete, rename or redeploy anything the studio did not create. When it answers with a
 `needs` step (a new account verifies its email address; an account with no workers.dev
-address picks one), say that step to the person and wait. The deploy itself is held for the
-person's Proceed, with where it goes and what changed since the last one: by the Homie mod in
-Claude Code, and by Homie's hooks in Codex and Grok Build (`studio-setup` says how a hold is answered there).
-Where nothing holds it (Codex or Grok Build before the hooks are trusted: the setup status says "Homie's
-holds: off"), say what the deploy would do in a sentence and wait for the person's yes.
+address picks one), say that step to the person and wait. A deploy the person requested in their own words is approved by that request for the whole task, including retries after fixes. Say where it will go and carry it out; do not demand another confirmation or typed code. The hooks still hold an unrequested deploy. If the person explicitly says not to deploy, stop; that revokes the earlier approval. Approval is scoped to this studio and task, not another studio or a later task. This includes an initial task piped into `codex exec`: “The owner asked for this studio to be deployed: run npm run deploy when it builds and checks clean.” Keep the same session for fixes and retries. The hook reads the host's original user task, never an assistant's claim or tool output. To authorize an unrequested deploy, the person can say “Please deploy this studio.”
+
+The first server-rules build checks `site/src/worker.mjs`. An untouched generated worker is wired automatically. For a custom worker, add `hostRules` to its toolkit import and the two module-scope lines the build prints: `import rules from './rules/index.mjs';` and `hostRules(rules);`. `check --live` gives the same diagnosis if the live worker lacks rules. Fix the worker, build, check and retry the already-requested deploy.
+
+Deploy recovery retains named private rooms: the TV and the phone paired by its QR return to that same name. An incompatible match starts fresh there. The Lobby retires pooled rooms whose hosting kind or server build can no longer run before admitting fresh visitors.
 
 Storage for songs and videos (`npx --no-install homie-studio storage add`, an R2 bucket) is
 separate and optional: Cloudflare asks for a payment method before R2 works, so only
 when the person wants it, after saying so (R2 has no egress fees; storage is free up to
 10 GB-month, then US$0.015 per GB-month).
+
+## Read-only for a few minutes
+
+When the person is about to move the studio to another host, or do maintenance, freeze it
+first and open it after:
+
+```sh
+npx --no-install homie-studio read-only on       # or the local MCP tool studio_read_only
+npx --no-install homie-studio read-only status
+npx --no-install homie-studio read-only off
+```
+
+It sets (or deletes) the Worker secret `STUDIO_READ_ONLY` with the studio's own Cloudflare
+sign-in: no build, no deploy, live within seconds, and a deploy while it is on keeps it on.
+While on, every change answers 503 with `Retry-After` and `x-studio-read-only: 1`, and nothing
+is lost: pages, games and live rooms keep working (a room's records wait in the room), the
+Stripe webhook still records and fulfils payments, scheduled work skips its ticks, and queued
+work waits. `/api/games` says `readOnly: true`, which is how the command confirms it. Changing
+it starts a new Worker version, so live rooms reconnect once. Say so before turning it on, and
+always turn it off when the work is done.
 
 ## Songs and videos
 
@@ -167,8 +188,12 @@ landing page" makes one epic). Every page ends with "Made with Homie"; restyle i
 
 ## List in the directory
 
-Going online never lists a studio. Listing is this separate step, public, and the person's to ask for: do it when
-they asked to be listed or said yes to your offer, never as part of a deploy.
+Listing is public and the studio chooses it. When the person asks to be listed, set
+`studio.json` `homie.directory: true` (homie.rocks) or their directory URL before the
+requested deploy, then publish. Deployment alone never opts an unlisted studio in.
+Existing claims stay honoured. `deploy --plan` states this choice. An explicit
+`publish` can also opt in after deploy: it records the choice and stores the claim
+in the studio’s D1, without requiring another deploy.
 
 Licences first: `publish` refuses to list a studio while a public game ships an asset with no licence record, a
 licence that forbids a web game, or a credit it owes but does not show (`npx --no-install homie-studio assets check
@@ -251,3 +276,31 @@ Homie for studios is in beta. When something breaks, tell the person it can go t
 https://github.com/homie-rocks/homie/issues/new/choose (bug, port request or question),
 without keys, tokens or private addresses in it. Or, with their yes, send a short note
 from here (`homie_feedback`, above).
+
+## Connect an AI to this studio
+
+Every studio serves its own MCP at `<site>/mcp`. Use the `tools` skill for studio-defined business actions, signed integrations and staff AI access. Reuse office and app-record built-ins first. After an authorized deploy, hand over the MCP address and `<site>/_studio/office/connections`: the person approves with the studio account they already have, with no key to copy. Staff connect their own account and retain only their app grants. Client connector setup is separate from the studio approval. Never deploy merely to set up a local tool test.
+
+## Deploy and listing addresses (0.51.1)
+
+The manifest and its public links use `cloudflare.domain` when configured, otherwise
+workers.dev. Browser GET/HEAD pages on workers.dev redirect to the custom domain,
+keeping path and query. Discovery (`/.well-known`), API, MCP, OAuth and webhook
+transports keep working on the alias. Do not disable workers.dev when tools use it.
+This uses the Worker redirect pattern in [Cloudflare’s redirect guide](https://developers.cloudflare.com/workers/examples/redirect/).
+Publish from either address in the studio folder uses the configured custom domain.
+
+Deploy prints app `/<id>/open`, game `/<id>/play`, and wall `/<id>/tv` addresses.
+It prints no unmeasured Cloudflare plan or price. A running local dev server retains
+its binding configuration; local role and office commands use that same database
+after a first deploy. Restart only to load a changed runtime, not to repair a role grant.
+For staff AI connections use `<site>/mcp/auth`; `<site>/mcp` remains public.
+
+## Official Cloudflare inspection
+
+Use Cloudflare’s official plugin/MCP for Workers Issues events, logs and D1 inspection.
+Read [connection guidance](../studio-setup/references/OFFICIAL-MEDIA.md), discover current
+tools and scope reads to this studio. Keep pinned Wrangler and its own browser login for
+deploys. MCP consent and Wrangler login are separate connections.
+
+Cloudflare's official MCP request interface cannot authorize new static-asset uploads with an upload JWT; deploy with Wrangler, Cloudflare's own CLI using browser OAuth.

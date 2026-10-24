@@ -9,7 +9,7 @@ view-preference: both
 
 # /digital-marketing-pro:engagement-workflow — 12-Part Engagement Orchestrator
 
-> **Script location.** If your host does not set `${CLAUDE_PLUGIN_ROOT}`, the scripts are in this plugin's `scripts/` folder, next to `skills/`.
+> **Script location.** If your host does not set `${CLAUDE_PLUGIN_ROOT}`, the scripts are in this plugin's `scripts/` folder, next to `skills/`. Run them with Python 3.10 or newer: `python`, or `python3` where `python` is not found (macOS, many Linux systems).
 
 This skill orchestrates the full marketing engagement using the 12-Part sequential methodology. Every brand engagement runs through the same 12 parts in sequence, producing a canonical set of files at each stage.
 
@@ -112,7 +112,7 @@ To resume an interrupted run, use `/digital-marketing-pro:resume` — it reloads
 **Steps:**
 
 1. Validate that the brand profile exists at `~/.claude-marketing/brands/{brand-slug}/profile.json`. If not, instruct the user to run `/digital-marketing-pro:brand-setup` first.
-2. Run `python ${CLAUDE_PLUGIN_ROOT}/scripts/engagement-state.py init --brand {brand-slug} --id {engagement-id}`.
+2. Run `python "${CLAUDE_PLUGIN_ROOT}/scripts/engagement-state.py" init --brand {brand-slug} --id {engagement-id}`.
 3. Confirm the directory tree was created and report the next required action (Part 1 intake).
 4. Walk the user through Part 1 Stone vs Opinion intake by asking the questions one batch at a time.
 
@@ -132,7 +132,7 @@ For each Stone fact, capture:
 
 Save each via:
 ```
-python ${CLAUDE_PLUGIN_ROOT}/scripts/engagement-state.py add-stone-fact --brand {slug} --id {id} --fact-json '{"category":"...","fact":"...","source":"..."}'
+python "${CLAUDE_PLUGIN_ROOT}/scripts/engagement-state.py" add-stone-fact --brand {slug} --id {id} --fact-json '{"category":"...","fact":"...","source":"..."}'
 ```
 
 **Opinion — what the client believes:**
@@ -151,7 +151,7 @@ For each Opinion, capture:
 
 Save each via:
 ```
-python ${CLAUDE_PLUGIN_ROOT}/scripts/engagement-state.py add-opinion --brand {slug} --id {id} --hypothesis-json '{"category":"...","hypothesis":"...","client_evidence":"...","research_question":"..."}'
+python "${CLAUDE_PLUGIN_ROOT}/scripts/engagement-state.py" add-opinion --brand {slug} --id {id} --hypothesis-json '{"category":"...","hypothesis":"...","client_evidence":"...","research_question":"..."}'
 ```
 
 **On completion of Part 1:** mark Part 1 as completed via `mark-part-completed --part 1`, advise the user to proceed to Part 2 (External Research).

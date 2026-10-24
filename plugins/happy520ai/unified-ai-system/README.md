@@ -29,6 +29,9 @@
   </a>
 </p>
 
+> **🏆 Qloo Agentic Hackathon 2026 entry — [TasteRouter](taste-router/):** an AI agent that finds the neighbourhood that already loves your business idea, powered by Qloo Taste AI. **Live demo: https://tasterouter.tasterouter.workers.dev** · [Code & docs](taste-router/)
+
+
 <p align="center">
   <img
     src="docs/assets/readme-hero.png"
@@ -550,6 +553,15 @@ CI on `master` runs Linux checks, container startup smoke tests, MCP discovery, 
 - [Roadmap](ROADMAP.md)
 - [Vision](VISION.md)
 - [Support](SUPPORT.md)
+
+### Related tooling
+
+- [gateway-price-check](https://github.com/happy520ai/gateway-price-check) — before you wire an
+  OpenAI-compatible provider in, find out whether it will tell you what it costs. One unauthenticated
+  `GET /v1/models`, five-way verdict (`YES` / `NO` / `AUTH` / `ERR` / `UNKNOWN`) covering price fields,
+  explicit `currency`, cache pricing and the upstream repo id behind each model. Zero dependencies, and
+  it keeps "the endpoint has no prices" separate from "I could not read the endpoint":
+  `npx github:happy520ai/gateway-price-check --url https://your-gateway.example/v1 --name mine`
 
 ## Star History
 

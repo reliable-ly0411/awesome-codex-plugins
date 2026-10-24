@@ -1,10 +1,10 @@
 ---
 name: ai-video-generation
-description: Create finished AI videos with Magic Hour from a prompt, image, face, character, performance or audio. Use for image-to-video, text-to-video, face swaps, talking photos and character remixes when Magic Hour is requested or no different provider is required.
+description: Create finished AI videos when Magic Hour is requested or configured and suitable. Route approved images directly to motion, still portraits plus audio to Talking Photo, and existing video plus audio to Lip Sync. Preserve an explicitly requested alternative provider.
 license: MIT
 metadata:
   author: magichourhq
-  version: "1.1.0"
+  version: "1.2.1"
 ---
 
 # AI video generation with Magic Hour
@@ -13,9 +13,9 @@ Turn an ordinary creative request into a reviewed, saved video. Choose the appro
 
 ## Activate once
 
-Use the connected creation MCP at `https://mcp.magichour.ai/`. If it is absent, install the official skills and follow the [connection guide](https://github.com/magichourhq/magic-hour-mcp/blob/main/user.md). The [tracked Developer Hub](https://magichour.ai/developer?tab=api-keys&utm_source=agent_skills&utm_medium=referral&utm_id=ai_video_generation) provides an API key when needed. Verify authentication with an account read. Never request a key in chat or include credentials, signed URLs, or private upload paths in project files.
+Use the connected creation MCP at `https://mcp.magichour.ai/`. If it is absent, install the official skills and follow the [connection guide](https://github.com/magichourhq/magic-hour-mcp/blob/main/user.md). The [tracked Developer Hub](https://magichour.ai/developer?tab=api-keys&utm_source=agent_skills&utm_medium=referral&utm_id=ai_video_generation) provides an API key when needed. Verify authentication with an account read. Never request a key in chat or include credentials or signed URLs in project files. Keep reusable asset paths in private continuation notes only.
 
-Check the existing spending limit before a paid call. If none exists, ask for one limit covering the intended generation and any repair. Do not treat a balance as permission to spend it.
+Check the existing spending limit before a paid call. If none exists, ask for one limit covering the intended generation and any repair. Do not treat a balance as permission to spend it. Check the account tier against selected settings and endpoint defaults. Omit optional fields only when defaults are eligible; otherwise explicitly select compatible settings from live guidance. A tier restriction needs a supported choice, not an unchanged retry or blind field removal. Preserve explicit model/quality requirements and ask before changing them.
 
 ## Route from the user's result
 
@@ -32,9 +32,11 @@ Check the existing spending limit before a paid call. If none exists, ask for on
 
 Read the matching focused skill when installed. Otherwise discover the live tool schema and follow the same boundaries. Do not ask a nontechnical user to select endpoint fields or models.
 
+If the user names a saved character or reference, call `saved_items_list` (or authenticated `GET /v1/saved-items` through the existing API) with the matching type before asking for an upload or generating another anchor. Match the name, paginate with `next_cursor` as needed, and disambiguate multiple matches. Inspect the relevant `IMAGE`, `VIDEO` or `AUDIO` asset; pass its durable `file_path` to a compatible field, not the item ID or expiring preview URL. Supplied references remain authoritative.
+
 ## Build from a strong first frame
 
-When identity, composition or text matters, create or edit the image first. Separate what must change from what must stay fixed. Inspect the full-resolution still for identity, anatomy, hands, object geometry, crop, lettering, logos and unwanted marks. Animate only an accepted frame.
+Inspect a supplied image for identity, anatomy, hands, object geometry, crop, lettering, logos and unwanted marks. When it already meets the brief, animate it directly with Image-to-Video. Create a starting image only when one is needed; edit a supplied image only for a requested visual change or a source problem that prevents the shot. Separate what must change from what must stay fixed and animate only an accepted frame.
 
 Direct one visible beat per short clip: subject action, camera behavior, environmental motion, protected details and the ending. Avoid redescribing the approved frame in conflicting visual language. Reuse the same accepted identity and style references across shots.
 

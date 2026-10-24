@@ -57,6 +57,15 @@ workstream, milestone, task, blocker, or decision.
 Keep OrgX updated during live Codex execution with progress, artifacts,
 blockers, and completion events.
 
+After the matching MCP deployment, `commander` exposes the existing
+`orgx_update_work` operation for one reviewable output attachment: current work
+target, workspace, stable retry key, durable output location and optional plain
+answer, linked decisions and source notes. Inspect the stored artifact to read
+its canonical context, files and run receipt. Attaching leaves approval and
+completion pending. The runtime skill documents the bounded payload and retry
+behavior; Wizard continues to own passive capture, and the peer's terminal
+receipt outbox does not upload files.
+
 For reporting or daily-brief style questions, start with
 `get_operator_chronicle` when the live OrgX MCP tool map exposes it. Its
 `chronicle.reportingNarrative.briefMarkdown` is the canonical concise answer for
@@ -222,7 +231,8 @@ v2 success value is `authStatus: "oAuth"`. Installers that separately inspect
 The command needs no Gateway key. It exits zero only when the checkout is
 valid, Codex is ChatGPT-authenticated, current app-server RPC works, and a
 read-only, shell-disabled app-server thread proves the authenticated OrgX server
-exposes exactly the bounded `orgx_bootstrap` MCP tool. This is an MCP inventory
+exposes exactly the bounded, read-only `orgx_get_workspace_context` MCP tool
+(the hosted `v2` catalog no longer registers `orgx_bootstrap`). This is an MCP inventory
 proof, not a claim that Codex has no other non-shell native tools. Real runs
 still compare every MCP tool schema to the signed per-run manifest.
 

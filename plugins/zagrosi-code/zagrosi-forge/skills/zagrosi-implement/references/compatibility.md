@@ -48,7 +48,10 @@ cannot claim a captured before/after pair.
 ## Derive checks honestly
 
 When delegation is available, have another agent derive missing preservation
-checks from original source/callers before seeing replacement code. Record the
+checks from original source/callers before seeing replacement code; in Claude Code,
+pass `run_in_background: false` when `Agent` offers it
+([delegated agents](../../zagrosi-forge/references/providers.md#delegated-agents))
+and use its result in the same turn. Record the
 actual author and `check_provenance.source`: `existing`, `independent`, `writer`
 or `external`. Use `independent` only for separately derived checks; reviewing
 writer-authored checks or switching providers does not make them independent.
@@ -88,7 +91,10 @@ red/green tests for intended changes; do not preserve the bug merely to match a
 baseline. Retain pre-existing failures separately. If checks need correction,
 establish a fresh baseline against the unchanged original source before retrying
 the candidate. Never reset user work or rebaseline changed code to manufacture a
-pass. Origin does not refresh automatically. If the original source is unavailable,
+pass. Origin does not refresh automatically. If a required receipt is missing but
+section progress, review, verification or implementation evidence remains, setup and status
+block. Restore the original compatibility receipt; keep the surviving records.
+If the original source is unavailable,
 report the missing evidence; do not claim compatibility or substitute an attestation.
 Retain original receipts and failed attempts; never delete or rewrite state to
 clear a mismatch.
