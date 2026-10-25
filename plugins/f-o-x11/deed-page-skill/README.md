@@ -1,5 +1,7 @@
 # deed.page MCP server and agent skill
 
+[![deed.page skill on AI Agents Listing](https://aiagentslisting.com/deed-page-skill/badge.svg?claim=fa12ee67e464c1b602809f23e618375c)](https://aiagentslisting.com/mcp/deed-page-skill)
+
 deed.page publishes a file or folder to a permanent `https://<slug>.deed.page/` URL in one call. No account, API key, email code, or claim link. This repo documents the hosted remote MCP server (`https://deed.page/mcp`, see [MCP server](#mcp-server)) and contains the deed.page agent skill, which does the same with one `curl` request.
 
 It works with Claude Code, Codex, Cursor, Gemini CLI, GitHub Copilot CLI, Grok Bot, Hermes Agent, and any agent that reads `SKILL.md` files ([agentskills.io](https://agentskills.io) format).
@@ -211,7 +213,7 @@ and answers with the `url` from the JSON response. The first publish returns a `
 ## Network endpoints and credentials
 
 - The skill calls only `https://deed.page/v1/sites` with `curl`. The MCP server is `https://deed.page/mcp`. Published sites live at `https://<slug>.deed.page/`.
-- No account or API key is needed. The first publish returns a site token once; the skill keeps it in `DEEDPAGE_TOKEN` for the session and sends it only to `https://deed.page` to update or delete that site.
+- No account or API key is needed. The first publish returns a site token once; the skill saves it to `~/.config/deed-page/token` (mode 600), loads it into `DEEDPAGE_TOKEN` before later publishes so every site stays under one owner, and sends it only to `https://deed.page`.
 - No install scripts, hooks, or executable code. See [SECURITY.md](SECURITY.md).
 
 ## Privacy and support
