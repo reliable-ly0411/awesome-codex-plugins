@@ -1594,6 +1594,21 @@
       "icon": "./plugins/Cassette-Editor/oh-my-cassette/assets/logo-400.png"
     },
     {
+      "name": "oh-my-openspec",
+      "displayName": "oh-my-openspec",
+      "source": {
+        "source": "local",
+        "path": "./plugins/alexeyco/oh-my-openspec"
+      },
+      "policy": {
+        "installation": "AVAILABLE",
+        "authentication": "ON_INSTALL"
+      },
+      "category": "Development & Workflow",
+      "description": "Spec-driven development workflow for Codex CLI and OpenCode, with planning, parallel task execution, and mechanical OpenSpec validation.",
+      "icon": "./plugins/alexeyco/oh-my-openspec/assets/icon.svg"
+    },
+    {
       "name": "ontoly",
       "displayName": "Ontoly",
       "source": {
@@ -1845,6 +1860,21 @@
       "icon": "./plugins/MykytaStel/repopilot/.claude-plugin/icon.png"
     },
     {
+      "name": "research-agent-skills",
+      "displayName": "Research Agent Skills",
+      "source": {
+        "source": "local",
+        "path": "./plugins/KalarisLabs/research-agent-skills"
+      },
+      "policy": {
+        "installation": "AVAILABLE",
+        "authentication": "ON_INSTALL"
+      },
+      "category": "Development & Workflow",
+      "description": "280+ Agent Skills that turn Codex, Claude Code, Cursor and other agents into a research co-scientist across the academic research lifecycle: literature and PRISMA reviews, hypotheses, experimental design, data analysis in biology, chemistry, medicine, physics and ML, paper writing, citation verification and peer review.",
+      "icon": "./plugins/KalarisLabs/research-agent-skills/assets/icon.svg"
+    },
+    {
       "name": "reviewable-html-workbench",
       "displayName": "Reviewable HTML Workbench",
       "source": {
@@ -2065,21 +2095,6 @@
       "category": "Development & Workflow",
       "description": "Agent skill for Claude Code and Codex to split large changes into reviewable PRs, carry fixes through dependent branches, and land them in dependency order with automated Git checks.",
       "icon": "./plugins/Qabbout/stacked-prs-skill/assets/icon.svg"
-    },
-    {
-      "name": "staff-engineer-mode",
-      "displayName": "Staff Engineer Mode",
-      "source": {
-        "source": "local",
-        "path": "./plugins/sirmarkz/staff-engineer-mode"
-      },
-      "policy": {
-        "installation": "AVAILABLE",
-        "authentication": "ON_INSTALL"
-      },
-      "category": "Development & Workflow",
-      "description": "Routes engineering design, delivery, reliability, security, operations, and maintenance prompts to focused staff-level specialist guidance for AI coding agents.",
-      "icon": "./plugins/sirmarkz/staff-engineer-mode/assets/icon.png"
     },
     {
       "name": "stark",
@@ -2567,6 +2582,21 @@
       "icon": "./plugins/Sandyzzx/codex-zcode-bridge/assets/icon.png"
     },
     {
+      "name": "call-me",
+      "displayName": "/call-me",
+      "source": {
+        "source": "local",
+        "path": "./plugins/radres/call-me"
+      },
+      "policy": {
+        "installation": "AVAILABLE",
+        "authentication": "ON_INSTALL"
+      },
+      "category": "Tools & Integrations",
+      "description": "Lets Codex agents ring or text your iPhone through a hosted MCP server and read your spoken or typed reply back as text; the iPhone app is a paid subscription.",
+      "icon": "./plugins/radres/call-me/assets/icon.png"
+    },
+    {
       "name": "abuzzhive",
       "displayName": "AbuzzHive",
       "source": {
@@ -2801,21 +2831,6 @@
       "category": "Tools & Integrations",
       "description": "Manage Bitbucket repos, PRs, branches, issues, webhooks, and pipelines for Data Center and Cloud.",
       "icon": "./plugins/avivsinai/bitbucket-cli/assets/bkt-icon.svg"
-    },
-    {
-      "name": "bounty-guard",
-      "displayName": "BountyGuard",
-      "source": {
-        "source": "local",
-        "path": "./plugins/doomsday-network/bounty-guard"
-      },
-      "policy": {
-        "installation": "AVAILABLE",
-        "authentication": "ON_INSTALL"
-      },
-      "category": "Tools & Integrations",
-      "description": "Pre-flight GitHub bounty security scanner and on-chain Proof-of-Escrow MCP verifier that classifies open bounties before AI agents invest compute.",
-      "icon": "./plugins/doomsday-network/bounty-guard/assets/icon.svg"
     },
     {
       "name": "build-remote-agent",
@@ -3588,6 +3603,21 @@
       "category": "Tools & Integrations",
       "description": "GitHub CLI-style interface for Jenkins controllers with jobs, pipelines, runs, logs, artifacts, credentials, and nodes.",
       "icon": "./plugins/avivsinai/jenkins-cli/assets/jk-icon.svg"
+    },
+    {
+      "name": "jetformat",
+      "displayName": "Jetformat",
+      "source": {
+        "source": "local",
+        "path": "./plugins/jetformat/jetformat-agent"
+      },
+      "policy": {
+        "installation": "AVAILABLE",
+        "authentication": "ON_INSTALL"
+      },
+      "category": "Tools & Integrations",
+      "description": "Converts Word, Excel, and PowerPoint to PDF, PDF to Word, extracts text, and merges, extracts, or renders PDFs through the locally installed Jetformat CLI.",
+      "icon": "./plugins/jetformat/jetformat-agent/assets/logo.png"
     },
     {
       "name": "jev-social",

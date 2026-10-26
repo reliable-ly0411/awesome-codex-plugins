@@ -1,6 +1,7 @@
 # deed.page MCP server and agent skill
 
 [![deed.page skill on AI Agents Listing](https://aiagentslisting.com/deed-page-skill/badge.svg?claim=fa12ee67e464c1b602809f23e618375c)](https://aiagentslisting.com/mcp/deed-page-skill)
+[![ToolSDK MCP Registry](https://badges.toolsdk.ai/badge/@toolsdk-remote/deed-page)](https://toolsdk-ai.github.io/toolsdk-mcp-registry/#%40toolsdk-remote%2Fdeed-page)
 
 deed.page publishes a file or folder to a permanent `https://<slug>.deed.page/` URL in one call. No account, API key, email code, or claim link. This repo documents the hosted remote MCP server (`https://deed.page/mcp`, see [MCP server](#mcp-server)) and contains the deed.page agent skill, which does the same with one `curl` request.
 
@@ -57,7 +58,7 @@ Keep the token secret. `rotate_token` replaces it and `revoke_token` revokes it.
 
 ### Tools
 
-24 tools:
+26 tools:
 
 | Tool | What it does |
 | --- | --- |
@@ -80,6 +81,8 @@ Keep the token secret. `rotate_token` replaces it and `revoke_token` revokes it.
 | `remove_domain` | Remove a custom domain. |
 | `whoami` | Show the plan, limits, and usage for the token. |
 | `get_upgrade_link` | Get a checkout link for a paid plan. |
+| `set_badge` | Show or hide the "Published with deed.page" badge. Hiding it needs a paid plan. |
+| `claim_share_credit` | Free only, once per token: send the URL of the user's public X or Reddit post about deed.page for +25 sites and 50 MB per site. |
 | `rotate_token` | Issue a new owner token; every site carries over. |
 | `revoke_token` | Revoke the current token or all tokens. |
 | `create_webhook` | Register a webhook for site and domain events. |
@@ -90,7 +93,7 @@ Keep the token secret. `rotate_token` replaces it and `revoke_token` revokes it.
 
 Ask your agent to "publish this folder to deed.page" or "host this report and give me a link". The agent calls `publish_site` with the files and answers with the live URL. To change the site later, it calls `update_site` with the same slug and token.
 
-Free plan: 25 sites, 25 MB per site, 60 publishes per hour. Free sites are public, so do not publish secrets. Static files only.
+Free plan: 25 sites, 25 MB per site, 60 publishes per hour. Free sites are public, so do not publish secrets. Static files only. Free sites show a small "Published with deed.page" badge; Hobby ($3/mo) and Pro never do.
 
 ## Skill and plugins
 

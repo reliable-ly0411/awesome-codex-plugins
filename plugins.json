@@ -2,8 +2,8 @@
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "name": "awesome-codex-plugins",
   "version": "1.0.0",
-  "last_updated": "2026-10-25",
-  "total": 334,
+  "last_updated": "2026-10-26",
+  "total": 336,
   "categories": [
     "Development & Workflow",
     "Tools & Integrations"
@@ -1080,6 +1080,16 @@
       "install_url": "https://raw.githubusercontent.com/Cassette-Editor/oh-my-cassette/HEAD/.codex-plugin/plugin.json"
     },
     {
+      "name": "oh-my-openspec",
+      "url": "https://github.com/alexeyco/oh-my-openspec",
+      "owner": "alexeyco",
+      "repo": "oh-my-openspec",
+      "description": "Spec-driven development workflow for Codex CLI and OpenCode, with planning, parallel task execution, and mechanical OpenSpec validation.",
+      "category": "Development & Workflow",
+      "source": "awesome-codex-plugins",
+      "install_url": "https://raw.githubusercontent.com/alexeyco/oh-my-openspec/HEAD/plugins/oh-my-openspec/.codex-plugin/plugin.json"
+    },
+    {
       "name": "Ontoly",
       "url": "https://github.com/0xsarwagya/ontoly-codex-plugin",
       "owner": "0xsarwagya",
@@ -1250,6 +1260,16 @@
       "install_url": "https://raw.githubusercontent.com/MykytaStel/repopilot/HEAD/integrations/claude-code/repopilot/.codex-plugin/plugin.json"
     },
     {
+      "name": "Research Agent Skills",
+      "url": "https://github.com/KalarisLabs/research-agent-skills",
+      "owner": "KalarisLabs",
+      "repo": "research-agent-skills",
+      "description": "280+ Agent Skills that turn Codex, Claude Code, Cursor and other agents into a research co-scientist across the academic research lifecycle: literature and PRISMA reviews, hypotheses, experimental design, data analysis in biology, chemistry, medicine, physics and ML, paper writing, citation verification and peer review.",
+      "category": "Development & Workflow",
+      "source": "awesome-codex-plugins",
+      "install_url": "https://raw.githubusercontent.com/KalarisLabs/research-agent-skills/HEAD/.codex-plugin/plugin.json"
+    },
+    {
       "name": "Reviewable HTML Workbench",
       "url": "https://github.com/u-ichi/reviewable-html-workbench",
       "owner": "u-ichi",
@@ -1398,16 +1418,6 @@
       "category": "Development & Workflow",
       "source": "awesome-codex-plugins",
       "install_url": "https://raw.githubusercontent.com/Qabbout/stacked-prs-skill/HEAD/.codex-plugin/plugin.json"
-    },
-    {
-      "name": "Staff Engineer Mode",
-      "url": "https://github.com/sirmarkz/staff-engineer-mode",
-      "owner": "sirmarkz",
-      "repo": "staff-engineer-mode",
-      "description": "Routes engineering design, delivery, reliability, security, operations, and maintenance prompts to focused staff-level specialist guidance for AI coding agents.",
-      "category": "Development & Workflow",
-      "source": "awesome-codex-plugins",
-      "install_url": "https://raw.githubusercontent.com/sirmarkz/staff-engineer-mode/HEAD/.codex-plugin/plugin.json"
     },
     {
       "name": "Stark",
@@ -1741,6 +1751,16 @@
       "install_url": "https://raw.githubusercontent.com/Sandyzzx/codex-zcode-bridge/HEAD/plugins/codex-zcode-bridge/.codex-plugin/plugin.json"
     },
     {
+      "name": "/call-me",
+      "url": "https://github.com/radres/call-me",
+      "owner": "radres",
+      "repo": "call-me",
+      "description": "Lets Codex agents ring or text your iPhone through a hosted MCP server and read your spoken or typed reply back as text; the iPhone app is a paid subscription.",
+      "category": "Tools & Integrations",
+      "source": "awesome-codex-plugins",
+      "install_url": "https://raw.githubusercontent.com/radres/call-me/HEAD/.codex-plugin/plugin.json"
+    },
+    {
       "name": "AbuzzHive",
       "url": "https://github.com/kubec/abuzzhive.com",
       "owner": "kubec",
@@ -1899,16 +1919,6 @@
       "category": "Tools & Integrations",
       "source": "awesome-codex-plugins",
       "install_url": "https://raw.githubusercontent.com/avivsinai/bitbucket-cli/HEAD/.codex-plugin/plugin.json"
-    },
-    {
-      "name": "BountyGuard",
-      "url": "https://github.com/doomsday-network/bounty-guard",
-      "owner": "doomsday-network",
-      "repo": "bounty-guard",
-      "description": "Pre-flight GitHub bounty security scanner and on-chain Proof-of-Escrow MCP verifier that classifies open bounties before AI agents invest compute.",
-      "category": "Tools & Integrations",
-      "source": "awesome-codex-plugins",
-      "install_url": "https://raw.githubusercontent.com/doomsday-network/bounty-guard/HEAD/.codex-plugin/plugin.json"
     },
     {
       "name": "Build Remote Agent",
@@ -2429,6 +2439,16 @@
       "category": "Tools & Integrations",
       "source": "awesome-codex-plugins",
       "install_url": "https://raw.githubusercontent.com/avivsinai/jenkins-cli/HEAD/.codex-plugin/plugin.json"
+    },
+    {
+      "name": "Jetformat",
+      "url": "https://github.com/jetformat/jetformat-agent",
+      "owner": "jetformat",
+      "repo": "jetformat-agent",
+      "description": "Converts Word, Excel, and PowerPoint to PDF, PDF to Word, extracts text, and merges, extracts, or renders PDFs through the locally installed Jetformat CLI.",
+      "category": "Tools & Integrations",
+      "source": "awesome-codex-plugins",
+      "install_url": "https://raw.githubusercontent.com/jetformat/jetformat-agent/HEAD/.codex-plugin/plugin.json"
     },
     {
       "name": "Jev Social",

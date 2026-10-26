@@ -259,6 +259,7 @@ Third-party plugins built by the community. [PRs welcome](#contributing)!
 - [Nightshift](https://github.com/orwa-mahmoud/nightshift) - Accountable, time-bounded Codex shifts with a persistent punch list, parked decisions, and reviewable run history.
 - [Off the Wall](https://github.com/toranalytics/off-the-wall) - Quotes your own past corrections back to Codex, word for word, before each answer; `otw report` shows what you correct most from your local history, and subagent routing names a cheaper model per subagent. No API key.
 - [Oh My Cassette](https://github.com/Cassette-Editor/oh-my-cassette) - Turn raw local clips into a finished cut by chatting: beat-synced edits, auto-matched music, subtitles, and transitions through a local stdio MCP server, with a timeline delta and contact-sheet preview every turn before anything renders.
+- [oh-my-openspec](https://github.com/alexeyco/oh-my-openspec) - Spec-driven development workflow for Codex CLI and OpenCode, with planning, parallel task execution, and mechanical OpenSpec validation.
 - [Ontoly](https://github.com/0xsarwagya/ontoly-codex-plugin) - Deterministic Software Graph workflows for Codex: architecture review, dependency analysis, request tracing, configuration analysis, and impact analysis.
 - [Open Dynamic Workflows](https://github.com/Suraj1235/open-dynamic-workflows) - Local-first MIT dynamic multi-agent workflows for Codex, OpenCode, Antigravity, Cursor, and VS Code with a daemon, MCP bridge, Codex skills, OpenCode plugin, and bring-your-own-model support.
 - [Personal Data Protection](https://github.com/AltByteSG/personal-data-protection-skill) - Engineer-facing personal-data-protection compliance reference — Singapore PDPA, Thailand PDPA, Indonesia UU PDP, Malaysia PDPA (Act 709 + 2024 Amendments), Philippines DPA — organised by where in the stack each obligation lands, with checklists, breach-response runbook, and a developer-view divergence table across all five.
@@ -277,6 +278,7 @@ Third-party plugins built by the community. [PRs welcome](#contributing)!
 - [Registry Broker](https://github.com/hashgraph-online/registry-broker-codex-plugin) - Delegate tasks to specialist AI agents via the HOL Registry, plan, find, summon, and recover sessions.
 - [Rekall](https://github.com/DitriXNew/rekall) - Deliberate context compaction within a single Codex thread on the VS Code extension, with a verified task handoff and one-time automatic continuation.
 - [RepoPilot](https://github.com/MykytaStel/repopilot) - Snapshots each Codex session and stops the agent when it weakened tests, suppressions, or CI gates, once per signal; local and deterministic.
+- [Research Agent Skills](https://github.com/KalarisLabs/research-agent-skills) - 280+ Agent Skills that turn Codex, Claude Code, Cursor and other agents into a research co-scientist across the academic research lifecycle: literature and PRISMA reviews, hypotheses, experimental design, data analysis in biology, chemistry, medicine, physics and ML, paper writing, citation verification and peer review.
 - [Reviewable HTML Workbench](https://github.com/u-ichi/reviewable-html-workbench) - Generate reviewable HTML documents, serve previews, collect inline review comments, and feed review outcomes back into agent workflows.
 - [River Review](https://github.com/s977043/river-review) - Versioned Skill Registry of code-review skills driven by a perspective-based review agent (code, security, performance, architecture, testing, adversarial) that verifies findings against the diff.
 - [RoadmapSmith](https://github.com/PapiScholz/roadmapsmith) - Evidence-backed ROADMAP.md workflows for AI coding agents with validation, sync, and roadmap generation across any tech stack.
@@ -333,6 +335,7 @@ Third-party plugins built by the community. [PRs welcome](#contributing)!
 
 ### Tools & Integrations
 
+- [/call-me](https://github.com/radres/call-me) - Lets Codex agents ring or text your iPhone through a hosted MCP server and read your spoken or typed reply back as text; the iPhone app is a paid subscription.
 - [AbuzzHive](https://github.com/kubec/abuzzhive.com) - Remote MCP server and skill for AbuzzHive, public Q&A boards where AI agents look up errors other agents solved and help each other.
 - [Agent Message Queue](https://github.com/avivsinai/agent-message-queue) - File-based inter-agent messaging with co-op mode, cross-project federation, and orchestrator integrations.
 - [Agent Vision](https://github.com/zfifteen/agent-vision) - macOS-only local camera plugin for explicit snapshots, streaming controls, and file-backed image input.
@@ -402,6 +405,7 @@ Third-party plugins built by the community. [PRs welcome](#contributing)!
 - [GH Project](https://github.com/zfifteen/gh-project-plugin) - Create GitHub repositories from Codex with inferred defaults, native menus, explicit confirmation, and deterministic local cloning.
 - [Hermes Tweet](https://github.com/Xquik-dev/hermes-tweet) - Hermes Agent X/Twitter plugin for read-first social research, monitoring, and approval-gated actions through Xquik.
 - [Jenkins CLI](https://github.com/avivsinai/jenkins-cli) - GitHub CLI-style interface for Jenkins controllers with jobs, pipelines, runs, logs, artifacts, credentials, and nodes.
+- [Jetformat](https://github.com/jetformat/jetformat-agent) - Converts Word, Excel, and PowerPoint to PDF, PDF to Word, extracts text, and merges, extracts, or renders PDFs through the locally installed Jetformat CLI.
 - [Jev Social](https://github.com/socai-io/jev-social) - Local-first Instagram, TikTok, and LinkedIn research in the user's Chrome, with Jev choosing typed read-only operations and the socai CLI preserving captured evidence in source-cited reports.
 - [Jimeng Storyboard (即梦分镜师)](https://github.com/andreamzhang/jimeng-skills) - Full short-drama storyboard production workflow for Codex: six role subagents (script intake, dialogue, director, art, storyboard, review) with per-episode checks and derived outputs.
 - [Kachilu Browser](https://github.com/kachilu-inc/kachilu-browser) - Anti-bot-aware browser automation for AI agents with MCP tools, CAPTCHA-aware workflows, and WSL2 Windows browser support.
