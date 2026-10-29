@@ -258,6 +258,7 @@ Third-party plugins built by the community. [PRs welcome](#contributing)!
 - [Masaka for Codex](https://github.com/masakaai/codex-multiple-env) - Keeps each ChatGPT account and workspace in an isolated `CODEX_HOME`, shows official usage windows, and selects the identity used by the next native Codex process.
 - [memi](https://github.com/sarveshsea/memi) - Interface understanding and design-system memory for Codex, Claude Code, Cursor, and MCP agents with UI audits, Tailwind token extraction, shadcn registry workflows, and a bundled Codex plugin.
 - [ML Pipeline](https://github.com/jananthan30/ml-pipeline) - Enforces a strict 16-step data-first ML workflow — data inspection, EDA, and problem definition before any model training — with explicit user-permission gates, marimo notebooks, and matplotlib figures at every step; also works in Claude Code and Kimi.
+- [Multi-LLM](https://github.com/beastlabai/multi-llm-plugin) - Parallel plan, code, and commit reviews across 19 coding CLIs, with validated findings, task generation, implementation, and automated revision.
 - [Nightshift](https://github.com/orwa-mahmoud/nightshift) - Accountable, time-bounded Codex shifts with a persistent punch list, parked decisions, and reviewable run history.
 - [Off the Wall](https://github.com/toranalytics/off-the-wall) - Quotes your own past corrections back to Codex, word for word, before each answer; `otw report` shows what you correct most from your local history, and a routing rule asks the orchestrator to name a model for each subagent. No API key.
 - [Oh My Cassette](https://github.com/Cassette-Editor/oh-my-cassette) - Turn raw local clips into a finished cut by chatting: beat-synced edits, auto-matched music, subtitles, and transitions through a local stdio MCP server, with a timeline delta and contact-sheet preview every turn before anything renders.
@@ -390,6 +391,7 @@ Third-party plugins built by the community. [PRs welcome](#contributing)!
 - [Data Product Builder for dbt](https://github.com/entropy-data/dataproduct-builder-dbt) - Full data-product lifecycle on dbt for Entropy Data: scaffold, audit, and integrate projects with ODCS, ODPS, OpenLineage, and GitHub Actions.
 - [deed.page](https://github.com/f-o-x11/deed-page-skill) - Publish an HTML file or static folder from Codex to a permanent `https://{slug}.deed.page/` URL through the bundled deed.page skill and remote MCP server, with no account.
 - [deja](https://github.com/vshulcz/deja-vu) - Search the coding sessions already on your disk — Codex, Claude Code, Cursor, opencode and nineteen more — including work from before it was installed, indexed locally with no model in the loop.
+- [DESIGN:OS 3D Blender](https://github.com/jangtrinh/design-os-3d-blender) - Source-available skills and MCP server that let Codex model, render and verify mechanical parts natively in Blender 5.2 LTS, licensed under PolyForm Shield.
 - [dex](https://github.com/exmergo/dex) - Agent skills for warehouse exploration, dbt transformation and semantic modeling, and schema-drift maintenance.
 - [Digital Marketing Pro](https://github.com/indranilbanerjee/digital-marketing-pro) - Open-source AI marketing plugin for agencies — 154 skills, 25 specialist agents, 12-Part Strategy Flow, AEO/GEO, GSC AI Performance Report, Google Ads API v24, EU AI Act Article 50 / C2PA compliance.
 - [Dodo Payments](https://github.com/dodopayments/dodo-agent-plugin) - Payments integration for checkouts, subscriptions, and billing with live API and documentation MCP servers with browser OAuth.
@@ -497,6 +499,7 @@ Third-party plugins built by the community. [PRs welcome](#contributing)!
 - [unslop](https://github.com/MohamedAbdallah-14/unslop) - Strip AI writing patterns from text output — removes filler phrases, hedging language, and generic constructs to produce cleaner written content. Install: `npm install -g unslop`.
 - [Upwork Autopilot](https://github.com/klajdikkolaj/upwork-autopilot) - Controlled Upwork job search, qualification, and proposal submission sessions through a dedicated Chrome profile.
 - [Val Town](https://github.com/val-town/plugins) - Build and deploy serverless TypeScript on Val Town from Codex — hosted MCP server plus skills for HTTP vals, cron, SQLite, email, OAuth, and React UI.
+- [varg](https://github.com/vargHQ/skills) - How to make any AI video: find the skill, the options to show and the steps (no key needed), with the keyless varg how to MCP and the varg MCP for video, image, voice and music generation.
 - [VidSeeds.ai](https://github.com/CarrotGamesStudios/vidseeds-mcp) - Hosted MCP connector for pre-upload video SEO, metadata optimization, AI thumbnails, and multi-platform publishing with workflow skills for Codex agents.
 - [VoiceMoat Skills](https://github.com/prateeks367/voicemoat-skills) - Skills-only Codex plugin with 26 skills for LinkedIn and Twitter/X posts: draft in your own voice, audit before you publish, fix weak openings, draft comments and replies, read your numbers and plan the week, with no account or API key needed.
 - [WakeWire](https://github.com/glenncalleja/wakewire) - Push events from GitHub, Gmail, Slack, and any signed webhook (Linear, Sentry, ClickUp) straight into your Codex threads as new turns — event-driven triggers instead of polling, with HMAC verification, deduplication, and a durable delivery queue.
@@ -587,12 +590,15 @@ The score is best used as a quick trust signal and triage summary (not the only 
 
 ## Related Projects
 
+- [AIGrowthRank](https://aigrowthrank.com/en/skills/) - Catalog of agent skills, Codex and Claude plugins and MCP servers for marketing and sales, with dated passive code reviews where public source is available.
 - [Astra Flash Orchestrator](https://github.com/ethanplusai/astra-flash-orchestrator) - Codex skill that keeps Astra on planning and review while DeepSeek V4.1 Flash handles implementation.
 - [awesome-ai-plugins](https://github.com/hashgraph-online/awesome-ai-plugins) - Umbrella list covering Codex, Claude Code, Gemini CLI, and MCP servers.
 - [codex-patch-overlay](https://github.com/salty-flower/codex-patch-overlay) - Patched Codex CLI builds carrying community-requested features upstream has not merged yet (live TUI reasoning streaming, completion sound, WebP image input, timed CLI queueing). Ready-to-run macOS/Linux binaries plus a Nix overlay, refreshed each upstream release.
 - [Email Marketing Bible](https://github.com/CosmoBlk/email-marketing-bible) - Codex skill (SKILL.md) for email marketing: automation flows, deliverability triage, copy de-slopping, AI email design, ESP control via MCP with send-safety gates, compliance and 19 industry playbooks.
 - [HOL Plugin Registry](https://hol.org/registry/plugins) - Browse plugins with scanner-backed security analysis and trust scores.
 - [Koto](https://github.com/mehrdadxzaker/Koto) - Experimental local-first model selection for Codex with consented history, qualification checks, and skills for setup, diagnosis, and safe disconnect.
+- [PickAPlugin](https://pickaplugin.com) - Free, searchable directory of Codex and ChatGPT plugins and MCP servers, with GitHub stars, install commands and freshness for each listing.
+- [self-host](https://github.com/ajnart/self-host) - Lets your agent install self-hosted apps on your own hardware and set them up (admin accounts, API keys, apps connected to each other), asking before each step.
 - [Tura](https://github.com/Tura-AI/tura) - A local, open-source coding agent for developers who are tired of vague skill claims, token-saving extensions with no evidence, and agents that change a repository before understanding it.
 
 <!-- hol-sponsors:start -->
