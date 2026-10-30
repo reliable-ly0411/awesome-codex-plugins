@@ -1,6 +1,6 @@
 ---
 name: maintain
-description: 'Use this to find out whether an existing dbt project or semantic layer (dbt, Ossie or SLayer) is correct against its warehouse, and if not, why. `maintain verify` checks the project as it stands; against a .dex/ snapshot, `maintain check` finds schema, volume, grain, and semantic drift and `maintain reconcile` proposes the fix. Reach for it whenever an existing project is suspected wrong, whether or not anything is known to have changed: "this model is wrong, work out why", "the numbers look too high", "some rows are missing", "this column is empty", "duplicates in my fact table", "the project is broken", "diagnose why this test fails", "a test fails and nobody changed the model", "the dashboard moved but the code did not", "did anything drift", "the row count dropped", "the metric definition changed". Read-only; fixes come back as reviewable diffs and never overwrite hand-written work. Writing the fix, or repairing a model you just edited, is transform''s; a data question with no project is explore''s.'
+description: 'Use this to find out whether an existing dbt project or semantic layer (dbt, Ossie, SLayer or Cube) is correct against its warehouse, and if not, why. `maintain verify` checks the project as it stands; against a .dex/ snapshot, `maintain check` finds schema, volume, grain, and semantic drift and `maintain reconcile` proposes the fix. Reach for it whenever an existing project is suspected wrong, whether or not anything is known to have changed: "this model is wrong, work out why", "the numbers look too high", "some rows are missing", "this column is empty", "duplicates in my fact table", "the project is broken", "diagnose why this test fails", "a test fails and nobody changed the model", "the dashboard moved but the code did not", "did anything drift", "the row count dropped", "the metric definition changed". Read-only; fixes come back as reviewable diffs and never overwrite hand-written work. Writing the fix, or repairing a model you just edited, is transform''s; a data question with no project is explore''s.'
 compatibility: 'Needs a local shell and uv. On first use, uv builds the exmergo-dex-core engine from the source bundled with the plugin, or installs it from PyPI at the version scripts/run.py pins when no source is bundled. Runs in Claude Code or another agent that loads Agent Skills and has a shell, not in claude.ai chat.'
 ---
 
@@ -17,7 +17,9 @@ each project layer. Detection is read-only; only `reconcile` proposes edits, and
 
 Dex works in one loop: explore, transform, maintain. Every step runs one engine
 command, reads the single JSON envelope it prints, and decides the next step
-from that envelope.
+from that envelope. Step 1 only reads. Steps 2 to 4 write project files, commit
+and build on dev, so take them only when the task asks for a change; a task that
+asks what is in the data stops after step 1 and reports what it found.
 
 1. **Explore before you write.** Before writing or fixing SQL against a table
    whose columns, types, grain, or join keys you have not verified in this
@@ -192,6 +194,16 @@ is not described here.
   Dex's metadata. Do not run `slayer validate-models` to confirm them: it reads
   through SLayer's datasource credentials, and opening SLayer's storage can
   migrate and rewrite the model files Dex owns.
+- On a Cube layer the same four `declared_*` codes are Dex's own rules on its
+  metadata, since Cube compares a model only inside a Cube server. Never start
+  one (or Node) to confirm them. A cube on a table neither the connection nor the
+  baseline lists is named in `warnings`, not reported dropped: it is usually a
+  derived cube still pointing at a dev schema. An expression Dex could not read
+  is named there as unchecked.
+- `compiled_only_changed` means a Cube JS model, templated file or `extends`
+  changed, and Dex cannot say how. The warning that compiled-only definitions
+  were compared by content alone rides every run while the layer holds one, so
+  relay a Cube layer with one as not fully checked, never as clean.
 - On `maintain verify`, read `data.suppressed` before reading an empty
   `data.findings` as a clean bill. A project that does not compile suppresses
   every other check. A `unit`, `additivity` or `population` suppression means
@@ -230,12 +242,14 @@ is not described here.
   spellings, and the edit is the user's. On ClickHouse nullability is part of the
   type, so a column that starts accepting nulls is reported as a retype.
 - With no editable dbt project, every proposal is advisory and no plan is stored.
-  Authoring into a native semantic layer is `semantic ossie` or
-  `semantic slayer` in the transform skill, never this command. The exception
-  is a SLayer layer's own schema findings (`declared_*`): reconcile stores their
-  removals as a second plan, `data.semantic_plan_id`, through the
-  `semantic slayer update` route. Relay both plan ids; each applies with
-  `transform apply`.
+  Authoring into a native semantic layer is `semantic ossie`, `semantic slayer`
+  or `semantic cube` in the transform skill, never this command. The exception
+  is a SLayer or Cube layer's own schema findings (`declared_*`): reconcile
+  stores their removals as a second plan, `data.semantic_plan_id`, through the
+  `semantic slayer update` or `semantic cube update` route, even in a repository
+  with no dbt project. Relay both plan ids; each applies with `transform apply`.
+  On Cube, a view source whose join path walks a removed join stays advisory,
+  with that join: re-routing a view is the user's decision.
 
 ### Cost
 

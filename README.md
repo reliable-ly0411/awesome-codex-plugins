@@ -226,6 +226,7 @@ Third-party plugins built by the community. [PRs welcome](#contributing)!
 - [Dryforge](https://github.com/prekuter/dryforge) - Bounded-autonomy plugin that asks only the decisions that belong to the user, builds nothing before the intent is approved, verifies with checks that actually ran, and keeps project decisions as plain Markdown across Codex, Claude Code, Grok Build, Copilot CLI, and Antigravity CLI.
 - [ejentum-mcp](https://github.com/ejentum/ejentum-mcp) - MCP server exposing reasoning, code, anti-deception, and memory harness tools for Codex.
 - [Emulo](https://github.com/ohad6k/emulo) - Mines selected evidence from local coding-agent sessions into private work, design, and writing profiles for Codex, Claude Code, and GitHub Copilot.
+- [EndoStack](https://github.com/requie/endostack) - Security-first workflows for coding agents that threat-model, security-review and verify code changes before they ship, across Codex, Claude Code, Cursor and Copilot.
 - [Env Lint](./plugins/mturac/env-lint) - `.env` vs `.env.example` key parity — never prints values.
 - [Epic Harness](https://github.com/epicsagas/epic-harness) - Auto-trigger quality skills + self-evolving agent harness — orbit (spec-to-ship), evolve (skill mutation), team (multi-agent), TDD, check, ship, simplify, debug, perf, secure.
 - [Espresso](https://github.com/mirkobozzetto/espresso) - Concise, evidence-preserving output with bundled Ponytail, for Claude Code, Codex, Pi and OMP.
@@ -356,6 +357,7 @@ Third-party plugins built by the community. [PRs welcome](#contributing)!
 - [AxonFlow](https://github.com/getaxonflow/axonflow-codex-plugin) - Runtime governance for Codex with policy enforcement on terminal commands, advisory checks for non-terminal tools via skills, PII/secret detection, and compliance-grade audit trails. Self-hosted via Docker.
 - [BabelDOC PDF Translate](https://github.com/reliable-ly0411/babeldoc-pdf-translate) - Translate PDFs with local BabelDOC typesetting, configurable translation providers, bilingual output and custom terminology.
 - [BankBridge](https://github.com/bankbridge-money/bankbridge-plugin) - Remote MCP server and skill that give Codex read-only access to your own US bank, credit card and investment accounts, fetched live, for questions about spending, subscriptions, cashflow and holdings; paid, $5/month per connected bank.
+- [BestPrice](https://github.com/TheBestCo/bestprice-mcp) - Official remote MCP server and skill for read-only shopping decisions, product search, Greek merchant offers with delivered totals, and price history from BestPrice.gr.
 - [Bitbucket CLI](https://github.com/avivsinai/bitbucket-cli) - Manage Bitbucket repos, PRs, branches, issues, webhooks, and pipelines for Data Center and Cloud.
 - [BountyGuard](https://github.com/doomsday-network/bounty-guard) - Pre-flight GitHub bounty security scanner and on-chain Proof-of-Escrow MCP verifier that classifies open bounties before AI agents invest compute.
 - [Build Remote Agent](https://github.com/LinespottingOrg/GrokBuildRemote-Agents) - Pair a phone as spectator to a local Codex session via gbr-agent (QR / 8-char) and attach at 127.0.0.1:8788 or gbr-mcp.
@@ -407,6 +409,7 @@ Third-party plugins built by the community. [PRs welcome](#contributing)!
 - [Firecrawl](https://github.com/firecrawl/firecrawl-codex-plugin) - Search, scrape, crawl, and map the web from Codex with Firecrawl CLI skills for live research and extraction.
 - [Flow Studio Power Automate](https://github.com/ninihen1/power-automate-mcp-skills) - Debug, build, and operate Power Automate flows via FlowStudio MCP with action-level inputs and outputs.
 - [Foundry](https://github.com/mohamedOmar11111/growth-architect-foundry) - Growth ops for ad agencies: audit accounts, write English and Arabic client reports and run ROAS maths, with live Google and Meta changes locked behind a human at a terminal.
+- [Frugal](https://github.com/fainir/frugal) - Skill that has Codex check free tiers, programs, verified promo codes and cheaper alternatives before anything is bought, subscribed to or upgraded.
 - [FXMacroData](https://github.com/fxmacrodata/claude-plugin-fxmacrodata) - Official-source macro releases, central-bank rates, release calendars and FX rates for 22 currencies through the hosted FXMacroData MCP server.
 - [GH Project](https://github.com/zfifteen/gh-project-plugin) - Create GitHub repositories from Codex with inferred defaults, native menus, explicit confirmation, and deterministic local cloning.
 - [Hermes Tweet](https://github.com/Xquik-dev/hermes-tweet) - Hermes Agent X/Twitter plugin for read-first social research, monitoring, and approval-gated actions through Xquik.
@@ -429,6 +432,7 @@ Third-party plugins built by the community. [PRs welcome](#contributing)!
 - [LinkMCP](https://github.com/linkmcp-io/linkmcp) - Connects Codex to your own LinkedIn account through the hosted LinkMCP server for profile and company lookups, people and Sales Navigator search, inbox, posts, connection requests and work email finding (closed source; paid plans with a 7-day free trial).
 - [LLMSlim](https://github.com/Thanatos9404/llmslim) - Long-term memory for Codex with no LLM in the loop: a local MCP server stores messages word for word in SQLite and recalls the ones that answer a question within a token budget.
 - [LMCP](https://github.com/colibird-ai/local-mcp-releases) - Local tools that let Codex use Mail, Calendar, Contacts, Teams, Slack, WhatsApp, OneDrive, Google Drive, Notion, Outlook and Microsoft 365 mail and calendar, and Office files on Mac and Windows.
+- [Long-form Distribution](https://github.com/mrowean/long-form-distribution) - Turns a published essay or newsletter issue into LinkedIn, X and Substack Notes posts cut from the author's own sentences, checks each post against the source, and tracks what went live on a local dashboard.
 - [Loomaly](https://github.com/loomaly/loomaly) - Ranks your site's SEO problems by what to fix first, gives Codex a fix prompt for your framework to apply in your repo, and re-checks the live page once the fix is deployed, via a hosted MCP server and four skills.
 - [Maestro: Costguard](https://github.com/mbanderas/costguard) - Cost auditor for Codex that flags CI/cron and cloud-spend waste via read-only provider checks, then previews and applies surgical CI workflow fixes locally without writing to provider accounts or pushing git.
 - [Magic Hour](https://github.com/magichourhq/skills) - Create and finish AI images and videos through Magic Hour's MCP or API with reusable media workflows, output review, and account-credit requirements.
@@ -596,10 +600,11 @@ The score is best used as a quick trust signal and triage summary (not the only 
 - [codex-patch-overlay](https://github.com/salty-flower/codex-patch-overlay) - Patched Codex CLI builds carrying community-requested features upstream has not merged yet (live TUI reasoning streaming, completion sound, WebP image input, timed CLI queueing). Ready-to-run macOS/Linux binaries plus a Nix overlay, refreshed each upstream release.
 - [Email Marketing Bible](https://github.com/CosmoBlk/email-marketing-bible) - Codex skill (SKILL.md) for email marketing: automation flows, deliverability triage, copy de-slopping, AI email design, ESP control via MCP with send-safety gates, compliance and 19 industry playbooks.
 - [HOL Plugin Registry](https://hol.org/registry/plugins) - Browse plugins with scanner-backed security analysis and trust scores.
-- [Koto](https://github.com/mehrdadxzaker/Koto) - Experimental local-first model selection for Codex with consented history, qualification checks, and skills for setup, diagnosis, and safe disconnect.
+- [Koto](https://github.com/mehrdadxzaker/Koto) - Alpha multi-agent coding CLI with isolated Git worktrees, live controls, optional local models, and explicit review before integration.
 - [PickAPlugin](https://pickaplugin.com) - Free, searchable directory of Codex and ChatGPT plugins and MCP servers, with GitHub stars, install commands and freshness for each listing.
 - [self-host](https://github.com/ajnart/self-host) - Lets your agent install self-hosted apps on your own hardware and set them up (admin accounts, API keys, apps connected to each other), asking before each step.
 - [Tura](https://github.com/Tura-AI/tura) - A local, open-source coding agent for developers who are tired of vague skill claims, token-saving extensions with no evidence, and agents that change a repository before understanding it.
+- [UsageLoop](https://github.com/benthompsondev/usageloop) - Free, local-first standalone Windows/Linux desktop app (not a Codex plugin) that schedules the start of normal Codex five-hour usage windows, with usage checks, no automatic retry after an uncertain start, and no quota bypass.
 
 <!-- hol-sponsors:start -->
 <!-- hol-sponsors:end -->
