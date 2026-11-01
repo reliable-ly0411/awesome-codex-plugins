@@ -91,6 +91,8 @@ jobs:
         with:
           plugin_dir: ${{ runner.temp }}/contributed
           mode: scan
+          online: false
+          submission_enabled: false
           min_score: 80
           fail_on_severity: high
           pr_comment: off

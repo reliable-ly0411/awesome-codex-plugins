@@ -1,0 +1,82 @@
+name: Promote verified site candidate (manual)
+on:
+  workflow_dispatch:
+    inputs:
+      build_run_id:
+        description: Successful manual site build run ID
+        required: true
+        type: string
+      source_sha:
+        description: Exact source commit recorded in candidate provenance
+        required: true
+        type: string
+      artifact_sha256:
+        description: SHA256 of the original artifact.tar from the build summary
+        required: true
+        type: string
+permissions:
+  contents: read
+  actions: read
+concurrency:
+  group: manual-site-publication
+  cancel-in-progress: false
+jobs:
+  site-configuration:
+    if: github.ref == 'refs/heads/main'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 5
+    permissions:
+      contents: read
+      pages: read
+    env:
+      GH_TOKEN: ${{ github.token }}
+    steps:
+      - name: Require existing Actions-based Pages configuration
+        run: |
+          set -euo pipefail
+          mode="$(gh api "repos/$GITHUB_REPOSITORY/pages" --jq '.build_type')"
+          if [ "$mode" != workflow ]; then
+            echo '::error::Pages must already use GitHub Actions. This workflow never enables or reconfigures Pages.'
+            exit 1
+          fi
+  promote:
+    needs: site-configuration
+    if: github.ref == 'refs/heads/main'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    environment:
+      name: github-pages
+    permissions:
+      contents: read
+      actions: read
+      pages: write
+      id-token: write
+    env:
+      GH_TOKEN: ${{ github.token }}
+      BUILD_RUN_ID: ${{ inputs.build_run_id }}
+      SOURCE_SHA: ${{ inputs.source_sha }}
+      ARTIFACT_SHA256: ${{ inputs.artifact_sha256 }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: main
+          persist-credentials: false
+      - name: Check original run identity before downloading
+        run: python3 .github/automation/site_artifact.py check-run
+      - uses: actions/download-artifact@v4
+        with:
+          name: site-candidate
+          path: candidate
+          run-id: ${{ inputs.build_run_id }}
+          github-token: ${{ github.token }}
+      - name: Verify original bytes and provenance
+        run: python3 .github/automation/site_artifact.py verify
+      - name: Upload the same verified tar without rebuilding
+        uses: actions/upload-artifact@v4
+        with:
+          name: github-pages
+          path: candidate/artifact.tar
+          retention-days: 1
+          if-no-files-found: error
+      - name: Deploy verified original site
+        uses: actions/deploy-pages@v4

@@ -1,4 +1,4 @@
-name: Sync marketplace artifacts
+name: Validate marketplace artifacts
 
 on:
   pull_request:
@@ -18,12 +18,12 @@ on:
       - scripts/generate_plugins_json.py
 
 permissions:
-  contents: write
+  contents: read
   id-token: none
 
 jobs:
   sync:
-    name: Sync marketplace artifacts with README
+    name: Validate marketplace artifacts with README
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -32,21 +32,14 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: "3.12"
-      - name: Regenerate and commit if changed
+      - name: Check generated catalog consistency (no writes)
         run: |
           python3 scripts/generate_plugins_json.py
           if ! git diff --quiet -- plugins.json .agents/plugins/marketplace.json plugins; then
             echo "::notice::marketplace artifacts were out of sync"
-            if [ "${{ github.event_name }}" = "push" ]; then
-              echo "::notice::auto-committing synced artifacts"
-              git config user.name "github-actions[bot]"
-              git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-              git add plugins.json .agents/plugins/marketplace.json plugins
-              git commit -m "chore: sync marketplace artifacts with README"
-              git push
-            else
-              echo "::notice::skipping push on ${{ github.event_name }} (detached HEAD on PR merge ref)"
-            fi
+            echo "Generated artifacts differ; update them in a reviewed source commit."
+            git diff --stat -- plugins.json .agents/plugins/marketplace.json plugins
+            exit 1
           else
             echo "marketplace artifacts are up to date"
           fi

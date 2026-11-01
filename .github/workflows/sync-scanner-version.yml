@@ -1,11 +1,7 @@
 name: Sync Scanner Version
 
 on:
-  schedule:
-    # Every 6 hours — hol-guard releases 5-10×/day
-    - cron: "0 */6 * * *"
   workflow_dispatch:
-
 permissions:
   contents: write
 

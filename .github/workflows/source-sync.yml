@@ -1,0 +1,42 @@
+name: Source-only upstream sync
+on:
+  schedule:
+    - cron: '37 4 * * *'
+  workflow_dispatch:
+permissions:
+  contents: write
+concurrency:
+  group: source-only-upstream-sync
+  cancel-in-progress: false
+jobs:
+  sync:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: main
+          fetch-depth: 0
+      - name: Select source-only branch and trusted policy
+        id: trusted
+        env:
+          TARGET: sync-only/upstream-main
+        run: |
+          set -euo pipefail
+          echo "sha=$(git rev-parse HEAD)" >> "$GITHUB_OUTPUT"
+          mkdir -p "$RUNNER_TEMP/trusted-policy"
+          cp .github/automation/sync.py .github/automation/policy.json "$RUNNER_TEMP/trusted-policy/"
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          if git ls-remote --exit-code --heads origin "$TARGET" >/dev/null; then
+            git fetch --no-tags origin "refs/heads/$TARGET"
+            git checkout -B "$TARGET" FETCH_HEAD
+          else
+            status=$?
+            if [[ "$status" -ne 2 ]]; then exit "$status"; fi
+            git checkout -b "$TARGET"
+          fi
+      - name: Merge source without building or publishing
+        env:
+          POLICY_REF: ${{ steps.trusted.outputs.sha }}
+        run: python3 "$RUNNER_TEMP/trusted-policy/sync.py" --config "$RUNNER_TEMP/trusted-policy/policy.json" --policy-ref "$POLICY_REF" --push

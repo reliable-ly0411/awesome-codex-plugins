@@ -387,3 +387,7 @@ If the gate reports a catalog validation or source-repository problem, fix that 
 - Scanner action: [ai-plugin-scanner-action](https://github.com/hashgraph-online/ai-plugin-scanner-action)
 - Registry: [hol.org/registry/plugins](https://hol.org/registry/plugins)
 - Scanner questions: use the existing contribution PR thread
+
+### Downstream sync-only policy
+
+This fork receives upstream source only. Existing contribution instructions are retained as upstream project reference and for local catalog safety review; do not prepare or submit upstream PRs, comments or code. High/critical scanner findings and failed or incomplete scans remain blocking.
