@@ -17,7 +17,5 @@
       "Use AgentOps Implement for one bounded RED to GREEN experiment.",
       "Use AgentOps Validate from fresh context to judge the exact candidate."
     ]
-  },
-  "repository": "https://github.com/boshu2/agentops",
-  "license": "Apache-2.0"
+  }
 }

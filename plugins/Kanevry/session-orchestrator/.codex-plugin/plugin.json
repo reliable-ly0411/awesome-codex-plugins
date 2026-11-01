@@ -34,7 +34,5 @@
       "$session-orchestrator:go",
       "$session-orchestrator:close"
     ]
-  },
-  "repository": "https://github.com/Kanevry/session-orchestrator",
-  "license": "MIT"
+  }
 }

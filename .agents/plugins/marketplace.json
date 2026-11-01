@@ -1339,7 +1339,7 @@
       },
       "category": "Development & Workflow",
       "description": "Eight skills that audit and fix image and video delivery for Core Web Vitals, plus Sirv image CDN, 360 spin, and AI Studio workflows.",
-      "icon": "./plugins/IgorVaryvoda/image-optimization-skill/.claude-plugin/icon.catalog.webp"
+      "icon": "./plugins/IgorVaryvoda/image-optimization-skill/.claude-plugin/icon.png"
     },
     {
       "name": "jev-use",

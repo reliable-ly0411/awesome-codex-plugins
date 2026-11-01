@@ -3,11 +3,7 @@
   "version": "2.24.0",
   "description": "Install and operate codex-multi-auth for the official @openai/codex CLI with multi-account OAuth rotation, switching, health checks, and recovery tools.",
   "interface": {
-    "composerIcon": "./assets/codex-multi-auth-icon.svg",
-    "displayName": "codex-multi-auth",
-    "shortDescription": "Install and operate codex-multi-auth for the official @openai/codex CLI with multi-account OAuth rotation, switching, health checks, and recovery tools."
+    "composerIcon": "./assets/codex-multi-auth-icon.svg"
   },
-  "skills": "./skills/",
-  "repository": "https://github.com/ndycode/codex-multi-auth",
-  "license": "MIT"
+  "skills": "./skills/"
 }

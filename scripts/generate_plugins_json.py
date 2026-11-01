@@ -14,7 +14,6 @@ This script keeps three artifacts aligned:
 from __future__ import annotations
 
 import datetime
-import hashlib
 import io
 import json
 import re
@@ -370,53 +369,6 @@ def sanitize_metadata_only_manifest(manifest: dict[str, object], plugin: dict[st
     return sanitized
 
 
-def normalize_reviewed_metadata(manifest: dict, plugin: dict, root: Path) -> None:
-    """Reapply only provenance-backed, missing-field repairs after online refresh."""
-    slug = f"{plugin['owner']}/{plugin['repo']}"
-    licenses = {
-        "Kanevry/session-orchestrator": ("MIT", "MIT License"),
-        "boshu2/agentops": ("Apache-2.0", "Apache License"),
-        "ndycode/codex-multi-auth": ("MIT", "MIT License"),
-        "ndycode/oc-chatgpt-multi-auth": ("MIT", "MIT License"),
-    }
-    if slug in licenses:
-        identifier, marker = licenses[slug]
-        license_file = root / "LICENSE"
-        if license_file.is_file() and marker in license_file.read_text(encoding="utf-8"):
-            if not manifest.get("license"):
-                manifest["license"] = identifier
-        if not manifest.get("repository"):
-            manifest["repository"] = "https://github.com/" + slug
-    if slug in {"ndycode/codex-multi-auth", "ndycode/oc-chatgpt-multi-auth", "runtypelabs/skills"}:
-        interface = manifest.setdefault("interface", {})
-        if isinstance(interface, dict):
-            for key, value in (("displayName", manifest.get("displayName") or manifest.get("name")),
-                               ("shortDescription", manifest.get("description"))):
-                if not interface.get(key) and isinstance(value, str) and value.strip():
-                    interface[key] = value
-
-
-def retained_reviewed_icon(root: Path) -> bytes | None:
-    """Keep only the reviewed, byte-identical lossless derivative across refresh."""
-    icon = root / ".claude-plugin/icon.catalog.webp"
-    if icon.is_file():
-        data = icon.read_bytes()
-        if hashlib.sha256(data).hexdigest() == "7c188179d7b388e97687633dc29690a3ab6c71fe0bf4e615a1fd2c9e2e992c27":
-            return data
-    return None
-
-
-def restore_reviewed_icon(manifest: dict, root: Path, data: bytes | None) -> None:
-    original = root / ".claude-plugin/icon.png"
-    interface = manifest.get("interface", {})
-    if (data is not None and original.is_file() and isinstance(interface, dict)
-            and interface.get("composerIcon") == "./.claude-plugin/icon.png"
-            and hashlib.sha256(original.read_bytes()).hexdigest()
-            == "d5f2ef419bd531246c2a645e804edf00439325305dfdb8f9fc1db469f9e15a57"):
-        (root / ".claude-plugin/icon.catalog.webp").write_bytes(data)
-        interface["composerIcon"] = "./.claude-plugin/icon.catalog.webp"
-
-
 def mirror_plugin_bundle(plugin: dict[str, str]) -> tuple[dict[str, object], str, str]:
     owner_repo = f"{plugin['owner']}/{plugin['repo']}"
     try:
@@ -442,8 +394,6 @@ def mirror_plugin_bundle(plugin: dict[str, str]) -> tuple[dict[str, object], str
     destination_root = PLUGINS_ROOT / plugin["owner"] / plugin["repo"]
     if use_subpath and plugin_root_relative:
         destination_root = destination_root / PurePosixPath(plugin_root_relative)
-    retained_icon = (retained_reviewed_icon(destination_root)
-                     if owner_repo == "IgorVaryvoda/image-optimization-skill" else None)
     # Clear destination to avoid stale files from previous runs (Thread 2 fix)
     if destination_root.exists():
         shutil.rmtree(destination_root)
@@ -460,10 +410,6 @@ def mirror_plugin_bundle(plugin: dict[str, str]) -> tuple[dict[str, object], str
             )
         else:
             destination_path.write_bytes(archive.read(archive_name))
-
-    normalize_reviewed_metadata(mirrored_manifest, plugin, destination_root)
-    restore_reviewed_icon(mirrored_manifest, destination_root, retained_icon)
-    write_json(destination_root / ".codex-plugin/plugin.json", mirrored_manifest)
 
     marketplace_path = f"./plugins/{plugin['owner']}/{plugin['repo']}"
     if use_subpath and plugin_root_relative:

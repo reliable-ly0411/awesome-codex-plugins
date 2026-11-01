@@ -8,9 +8,6 @@ on:
       - .agents/plugins/marketplace.json
       - plugins/**
       - scripts/generate_plugins_json.py
-      - scripts/check_catalog_snapshot.py
-      - tests/test_catalog_snapshot.py
-      - tests/test_reviewed_normalization.py
   push:
     branches: [main]
     paths:
@@ -19,9 +16,6 @@ on:
       - .agents/plugins/marketplace.json
       - plugins/**
       - scripts/generate_plugins_json.py
-      - scripts/check_catalog_snapshot.py
-      - tests/test_catalog_snapshot.py
-      - tests/test_reviewed_normalization.py
 
 permissions:
   contents: read
@@ -38,7 +32,14 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: "3.12"
-      - name: Test snapshot and refresh validation
-        run: python3 -m unittest discover -s tests -v
-      - name: Check committed catalog consistency (offline, no writes)
-        run: python3 scripts/check_catalog_snapshot.py
+      - name: Check generated catalog consistency (no writes)
+        run: |
+          python3 scripts/generate_plugins_json.py
+          if ! git diff --quiet -- plugins.json .agents/plugins/marketplace.json plugins; then
+            echo "::notice::marketplace artifacts were out of sync"
+            echo "Generated artifacts differ; update them in a reviewed source commit."
+            git diff --stat -- plugins.json .agents/plugins/marketplace.json plugins
+            exit 1
+          else
+            echo "marketplace artifacts are up to date"
+          fi
