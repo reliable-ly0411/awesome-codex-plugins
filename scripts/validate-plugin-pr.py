@@ -31,6 +31,7 @@ import subprocess
 import sys
 import zipfile
 from pathlib import Path, PurePosixPath
+from urllib.parse import urlsplit, urlunsplit
 from urllib.request import Request, urlopen
 
 REPO_ROOT = Path(__file__).parent.parent
@@ -47,9 +48,49 @@ USER_AGENT = "awesome-codex-plugins-validator"
 # Regex for README plugin entries
 README_ENTRY_RE = re.compile(
     r"^- \[([^\]]+)\]\((https://github\.com/"
-    r"([^/]+)/([^)#]+?))(?:[?#][^)]*)?\)\s*[-\u2013]\s*(.+)",
+    r"([^/]+)/([^/?#)]+)(?:/tree/[^/]+/[^)?#]+)?/?(?:[?#][^)]*)?)\)\s*[-\u2013]\s*(.+)",
     re.MULTILINE,
 )
+
+
+def normalize_github_repo_url(url: str) -> str:
+    """Normalize GitHub URLs so trailing-slash edits are not new listings."""
+
+    parsed = urlsplit(url)
+    path_parts = parsed.path.rstrip("/").split("/")
+    if len(path_parts) >= 3 and path_parts[0] == "":
+        path_parts[1] = path_parts[1].lower()
+        repo = path_parts[2]
+        if repo.lower().endswith(".git"):
+            repo = repo[:-4]
+        path_parts[2] = repo.lower()
+    path = "/".join(path_parts)
+    return urlunsplit(
+        (parsed.scheme.lower(), parsed.netloc.lower(), path, parsed.query, parsed.fragment)
+    )
+
+
+def community_plugin_urls(readme: str) -> set[str]:
+    """Return repository URLs listed in the Community Plugins section."""
+    urls: set[str] = set()
+    in_community_plugins = False
+
+    for line in readme.splitlines():
+        heading = re.match(r"^(#{1,6})\s+(.+?)\s*#*\s*$", line)
+        if heading:
+            heading_level = len(heading.group(1))
+            if heading_level <= 2:
+                in_community_plugins = (
+                    heading_level == 2
+                    and heading.group(2).strip().casefold() == "community plugins"
+                )
+            continue
+        if in_community_plugins:
+            match = README_ENTRY_RE.match(line.strip())
+            if match:
+                urls.add(normalize_github_repo_url(match.group(2)))
+
+    return urls
 
 
 def git(*args: str) -> str:
@@ -279,7 +320,7 @@ def get_changed_plugin_dirs(base_ref: str) -> list[Path]:
 
 
 def get_new_readme_entries(base_ref: str) -> list[dict[str, str]]:
-    """Find new plugin entries added to README.md in this PR.
+    """Find new Community Plugins entries added to README.md in this PR.
 
     Returns list of dicts with keys: display_name, url, owner, repo, description.
     """
@@ -288,11 +329,12 @@ def get_new_readme_entries(base_ref: str) -> list[dict[str, str]]:
     if not diff:
         return []
 
-    # Get the base version of README to detect only truly new URLs
+    # Only the Community Plugins section contains Codex plugin listings.
+    # Other sections such as Related Projects can link to non-plugin projects.
     base_readme = git("show", f"{base_ref}:README.md")
-    base_urls = set()
-    if base_readme:
-        base_urls = {m.group(2) for m in README_ENTRY_RE.finditer(base_readme)}
+    current_readme = README_PATH.read_text(encoding="utf-8") if README_PATH.exists() else ""
+    base_urls = community_plugin_urls(base_readme)
+    current_urls = community_plugin_urls(current_readme)
 
     # Extract added lines matching the plugin entry pattern
     new_entries: list[dict[str, str]] = []
@@ -306,9 +348,10 @@ def get_new_readme_entries(base_ref: str) -> list[dict[str, str]]:
         if not match:
             continue
         display_name, url, owner, repo = match.group(1), match.group(2), match.group(3), match.group(4)
-        if url in seen_urls or url in base_urls:
+        normalized_url = normalize_github_repo_url(url)
+        if normalized_url not in current_urls or normalized_url in seen_urls or normalized_url in base_urls:
             continue
-        seen_urls.add(url)
+        seen_urls.add(normalized_url)
         new_entries.append({
             "display_name": display_name,
             "url": url,

@@ -73,11 +73,34 @@ Apply these to every review, scripted or manual. They are the rules most often s
    concrete input, request, or command and observed the behavior; capture it.
    A finding reasoned from the code is suspected, even with a candidate input;
    give that input and rank it below proven findings.
+5. **Snapshot scope.** Name the exact snapshot (commit, or working tree on a
+   stated HEAD) and the path scope. List inputs you did not read separately as
+   unread, deleted or outside scope; none of them counts as clean. Keep impact
+   inside the snapshot: a finding that needs absent code, a future change or an
+   unread path is a hypothesis and is labeled so. When the remaining budget
+   cannot finish another full pass, stop opening new leads and report the hunt
+   as unconverged.
+6. **Shipped scope for a share or publish question.** When asked whether
+   content is safe to make public or hand to another party (a repository, an
+   export, a package), the snapshot is what the recipient will receive: the
+   built artifact or output tree, every commit reachable in the history that
+   travels with it, and derived copies such as indexes, caches and generated
+   files. Content removed at HEAD is still exposed in earlier commits. Report
+   history exposure with its fix class (credential rotation, fresh history or
+   an owner-authorized rewrite) and perform none of them.
+
+For each finding, explain the attacker path and relevant protective control in
+the fields below. Read [attacker-path evidence](references/attacker-path-evidence.md)
+only when reachability, control effectiveness, or claimed test completion needs
+closer support for that finding.
 
 ```text
 target:   <paths, endpoints, or binary>; authorization: <boundary>
+snapshot: <commit | working tree on HEAD>; unread: <paths> | deleted: <paths> | outside scope: <paths>
 findings: <id> <severity> <file:line> <class>: <what>
           proven: <input run> | suspected: <candidate input, why not run>
+          path: <attacker input> -> <reachable behavior> -> <trust boundary> -> <impact>
+          control: <relevant protection challenged and outcome, or none identified>
           fix class: <a few words>
 coverage: <class> -> finding <ids> | clean | not assessed (<why>)
 tools:    <scanner or command> -> ran | missing | error
@@ -154,7 +177,7 @@ action, approval, release, ship, or retry decision.
 - [ ] Target and authorization boundary are explicit; collection stayed within them.
 - [ ] Every applicable class has a result; unvisited classes are listed as not assessed.
 - [ ] Scanner availability and skipped/error coverage are visible in the report.
-- [ ] Findings include severity, location, proven-or-suspected evidence, and a remediation class, with no patch, plan, owner, or priority.
+- [ ] Findings include severity, location, proven-or-suspected evidence, attacker path, relevant control outcome, and a remediation class, with no patch, plan, owner, or priority.
 - [ ] Artifacts contain no newly exposed secrets or unredacted sensitive payloads.
 - [ ] The report distinguishes a passing scan from permission to promote, ship, or release.
 - [ ] Suppressions, policy changes, baselines, and risk acceptance require explicit judgment.
@@ -183,6 +206,7 @@ For a bounded suite smoke test, use an owned binary and a temporary output direc
 
 ## Reference Documents
 
+- [references/attacker-path-evidence.md](references/attacker-path-evidence.md) — finding reachability, controls, and evidence limits
 - [references/security-suite-runbook.md](references/security-suite-runbook.md) — binary/policy/baseline/redteam commands and artifacts
 - [references/security.feature](references/security.feature) — repository-gate executable spec
 - [references/security-suite.feature](references/security-suite.feature) — composable-suite executable spec

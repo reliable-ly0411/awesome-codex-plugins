@@ -1,7 +1,7 @@
 ---
 name: studio-setup
 description: "Set up a Homie studio (one repository with games/, apps/, music/, videos/ and posts/, and a site with public game rooms on the studio's own Cloudflare) with the AI handling setup and defaults: setup status first (accounts and tools, what each unlocks, the exact fix), choose editable defaults, plan the requested game or app, build it with progress the person can watch, playtest, put it online and list it in the homie.rocks directory. Use when someone asks to set up, create or start a studio or a game studio, asks what they need or whether they are set up, or says \"set up a game studio called X\" (with or without \"and make a multiplayer game\")."
-compatibility: Node 22. Reads, and offers only when a feature needs them, each provider's own tools (Wrangler (Cloudflare, pinned in the studio), the GitHub CLI, the ElevenLabs CLI, a fal key, Ollama for Clef on this computer, and as an option the stripe CLI's Stripe Projects). The plugin's providers.json lists them.
+compatibility: Node 22. Reads, and offers only when a feature needs them, each provider's own tools (Wrangler (Cloudflare, pinned in the studio), the GitHub CLI, official fal and ElevenLabs MCP connections, Cloudflare's official plugin, Stripe for the optional shop, and Ollama for Clef on this computer). The plugin's providers.json lists them.
 metadata:
   providers: cloudflare github elevenlabs fal stripe ollama
 ---
@@ -26,7 +26,8 @@ Show brief progress, not a form. Choose the name from the request, otherwise "My
 The demo and small-change lesson below are optional, only for someone who asks for a tutorial.
 Plan from the premise with sensible engineering and design defaults; the person changes them later
 by asking. A business or non-profit may need an app or site: do not force a game or game interview.
-Use phone and computer controls, a small first version, local sound and CC0 art. Build with one agent
+Use phone and computer controls, a small first version, local sound and CC0 art. New games
+use rules plus view with the server as host; read the game skill and RULES.md before coding. Build with one agent
 unless parallel work was requested. Keep provider approvals, paid budgets and required host holds.
 An existing request to go live or list is authorization; do not ask again outside those holds.
 
@@ -302,32 +303,16 @@ session: say nothing was sent and carry on. Never make help wait on it, never of
 a file, code or anyone's name in it, and a reply address only if they typed it. When they ask to tell Homie
 something themselves, draft it with `offered: false`.
 
-### Another way: Cloudflare (and ElevenLabs) through Stripe Projects
+### Official provider connections
 
-`npx wrangler login` stays the way. Offer this only when the person has **no Cloudflare account** (and wants songs but
-has no ElevenLabs either), and would rather have both made for them in one go: Stripe Projects
-(docs.stripe.com/projects), Stripe's CLI plugin, makes or links provider accounts on the person's own Stripe sign-in
-and hands the credentials to the studio folder. It is a prototype in this version (`setup --via stripe-projects`).
-
-1. Say it in two lines: Stripe signs them in; Cloudflare makes a free account for their Stripe email (or, if they
-   have one, shows its own approval page once); on their own accounts; they accept Cloudflare's terms
-   (and ElevenLabs': whose free plan has **no commercial licence**, so songs made on it are not for sale).
-2. `npx --no-install homie-studio setup --via stripe-projects [--with elevenlabs] --dry-run`: what it would do.
-3. Run it without `--dry-run`. It stops at each step that is the person's and says which, as `needs`:
-   - `stripe-cli` / `projects-plugin`: run the command it names (the person approves the install);
-   - `projects-init`: run `stripe projects init --yes`; Stripe opens its sign-in in their browser. It must be **their
-     own** Stripe account (a new free one is fine). If the Stripe CLI on this computer is signed in to some other
-     account (a work or client one), stop and ask; never use it;
-   - `accept-terms`: ask the person; only after their yes, run it again with `--accept-tos`;
-   - `link-cloudflare`: run `stripe projects link cloudflare`; their browser shows Cloudflare's approval page;
-   - `paid`: stop. Nothing paid is ever added; this is theirs to decide in Stripe Projects, not yours.
-4. When it answers ok, `npm run deploy` as usual: Wrangler deploys with the Projects token.
-
-What it keeps where: the Cloudflare account id goes in `studio.json` (`cloudflare.auth: "stripe-projects"`); the token
-stays in Projects' vault and the git-ignored `.env` it syncs, and the toolkit hands it to Wrangler itself. Follow
-Projects' own rules: never print, read out or `cat` an env value (`stripe projects env --json` lists names only), never
-commit `.env`, `.env.*` or `.projects/vault/` (the command checks `.gitignore`), never hand-edit `.projects/`. If a
-later deploy says the token is not accepted: `stripe projects env --pull` in the studio folder, then deploy again.
+Read [official integrations](references/OFFICIAL-MEDIA.md). The AI discovers the
+client's official fal, ElevenLabs and Cloudflare tools and verifies an authenticated
+read. Pass `integrations: {fal: "connected", elevenlabs: "unavailable", cloudflare:
+"unknown"}` to `setup_status` using actual session evidence. Omit unknown providers;
+never infer a connection from a local executable or credentials. The card shows the
+shortest browser connection flow for each. Optional media connections never block setup.
+Wrangler login remains the deployment connection. Do not provision provider credentials
+through Stripe Projects; its old Homie setup wrapper has been removed.
 
 The live address `deploy` prints is on `workers.dev`, which names the person's Cloudflare account;
 `deploy` keeps it in `.studio/local.json` (git-ignored). Never write it into a committed file. A custom
@@ -337,7 +322,7 @@ existing Cloudflare sign-in to create DNS and TLS. Never ask the person for a zo
 or wildcard route already on that domain belongs to another site there, and the deploy's warning gives the
 one line to add instead (the `publish` skill has the rest).
 
-**The directory, only when asked.** Going online never lists a studio: listing in the homie.rocks directory
+**The directory, only when asked.** A deploy never opts a studio in by itself: listing in the homie.rocks directory
 is its own step, it is public, and it is the person's to ask for. When they asked to be listed (in their first
 message or now), or say yes when you offer it once the site is live, call the Homie MCP tool `studio_publish`
 with the live site address (without the connector, `npx --no-install homie-studio publish`). It lists the
@@ -410,3 +395,21 @@ there (checked by SHA-256, at the same addresses); `homie-studio media move --dr
 - Never ask the person to type a command.
 - Never send a note to Homie (`homie_feedback`) the person has not seen word for word and said yes to, and never
   offer one more than once in a session.
+
+## Connect an AI to this studio
+
+Every studio serves its own MCP at `<site>/mcp`. Use the `tools` skill for studio-defined business actions, signed integrations and staff AI access. Reuse office and app-record built-ins first. After an authorized deploy, hand over the MCP address and `<site>/_studio/office/connections`: the person approves with the studio account they already have, with no key to copy. Staff connect their own account and retain only their app grants. Client connector setup is separate from the studio approval. Never deploy merely to set up a local tool test.
+
+For a business or cause, use `studio_scaffold {name, kind:"business"}` or `homie-studio new <folder> --kind cause`. Continue directly with the app skill and the appropriate `app new --from` starter; no game demo or planning interview unless requested.
+
+## Resuming setup (0.51.1)
+
+If `homie-studio new` was interrupted, rerun it in the same folder with the same name
+and slug. It fills missing generated files and retries installation, preserving files
+already there. A different studio or unrelated nonempty folder is still refused.
+New studios do not request a directory listing by default; set `homie.directory: true`
+or a directory URL only when the person chooses listing.
+
+Cloudflare's official MCP request interface cannot authorize new static-asset uploads with an upload JWT; deploy with Wrangler, Cloudflare's own CLI using browser OAuth.
+
+An owner's existing Wrangler login can connect another studio without a new browser approval: in that studio run `homie-studio connector --tools <exact-tool-names> --out <private-config.json>`, then load the file directly into the AI client's connector configuration. Never print the bearer or paste the file in chat. Revoke with `homie-studio connector --revoke <id>`. See the installed `docs/toolkit-place-patterns.md` for scope and expiry.

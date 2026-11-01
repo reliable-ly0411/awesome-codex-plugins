@@ -1,6 +1,16 @@
 ---
 name: zagrosi-implement
 description: Build admitted Forge sections with minimal code, targeted TDD/review, resumable records, and final verification.
+allowed-tools:
+  - Bash(python3 "${CLAUDE_PLUGIN_ROOT}/scripts/zagrosi_skills.py" team status *)
+  - Bash(python3 "${CLAUDE_PLUGIN_ROOT}/scripts/zagrosi_skills.py" status *)
+  - Bash(python3 "${CLAUDE_PLUGIN_ROOT}/scripts/zagrosi_skills.py" next-section *)
+  - Bash(python "${CLAUDE_PLUGIN_ROOT}/scripts/zagrosi_skills.py" team status *)
+  - Bash(python "${CLAUDE_PLUGIN_ROOT}/scripts/zagrosi_skills.py" status *)
+  - Bash(python "${CLAUDE_PLUGIN_ROOT}/scripts/zagrosi_skills.py" next-section *)
+  - Bash(py -3 "${CLAUDE_PLUGIN_ROOT}/scripts/zagrosi_skills.py" team status *)
+  - Bash(py -3 "${CLAUDE_PLUGIN_ROOT}/scripts/zagrosi_skills.py" status *)
+  - Bash(py -3 "${CLAUDE_PLUGIN_ROOT}/scripts/zagrosi_skills.py" next-section *)
 ---
 
 # Zagrosi Implement
@@ -17,10 +27,13 @@ code golf. Read the admitted plan's depth;
 use it as `{depth}` throughout. Require `sections/index.md`; its parent is
 `planning_dir`; `target_dir` defaults to the repo.
 
-Resolve `plugin_root` from this loaded `SKILL.md`'s enclosing plugin directory
-containing `scripts/zagrosi_skills.py`, never from the target repo. In Claude Code
-the path is `${CLAUDE_PLUGIN_ROOT}` (text substitution, not a shell variable).
-Use Python 3.11+ (`python3` below; `python` or `py -3` on Windows).
+Resolve absolute `plugin_root`: the plugin directory two levels above this skill's
+folder, containing `scripts/zagrosi_skills.py`; never the target repo. Claude Code
+substitutes it when loading this skill: `${CLAUDE_PLUGIN_ROOT}`. Literal text there
+means the file was read directly: derive the path; no such shell variable exists.
+Run every helper command, including returned argv arrays, with the exact prefix
+`python3 "{plugin_root}/scripts/zagrosi_skills.py"` (Python 3.11+; `python` or
+`py -3` on Windows); host pre-approvals match that text.
 
 ## Mode
 
@@ -45,6 +58,11 @@ only with actual results. After recording, use the returned `entry` for the next
 section. `recorded: true` means the record is saved even if that entry needs repair.
 Parallelize only disjoint files and serialize records.
 
+When the user supplies cumulative verification time, or a resumed plan reports
+a saved allowance, follow [verification allowance](references/verification.md).
+Do not infer a cap from depth or elapsed effort; extend only with explicit user
+authorization. Keep fresh evidence reusable and unfinished checks visible.
+
 1. Read index once, current section, original source excerpts, linked contracts,
    and relevant callers. Resolve assumptions that contradict the source first.
    For required [compatibility checks](references/compatibility.md), activate this
@@ -67,6 +85,9 @@ Parallelize only disjoint files and serialize records.
    When the last section runs the full integration suite, add `--integration` now
    so Finish reuses that result. Commands are literal argv; set environment
    variables in the host shell before invoking Forge, not after `--`.
+   Give each capture a host command timeout above its `--timeout` (default 540 s;
+   Claude Code's shell defaults to 120 s and allows 600 s in the foreground), or run
+   long captures, such as the full suite, in the background with a larger `--timeout`.
 5. Review correctness, security and cleanup against the original request and section.
    Challenge changed contracts with a concrete input, call sequence or failure
    path and a distinguishing check. Verify findings against source/contracts;
@@ -91,6 +112,12 @@ integration receipt from the last section; otherwise capture the full
 `test_command` once with `implement-verify` **without** `--section`. Run one final
 postflight without `--run-tests`. The receipt must match final code and contracts;
 later edits require refreshed verification.
+
+Ordinary verification preserves superseded receipt bytes under
+`implementation/verification/history/<receipt-stem>/<sha256>.json`, including
+bounded output tails. Identical bytes are stored once per scope; archives cannot
+establish run counts or cumulative execution time. Only current receipts determine
+completion. Archives are never pruned automatically.
 
 For externally run checks or inspection-only changes, explicitly label the source
 and outcome (`attestation` or `inspection`, `passed`) with actual evidence;
