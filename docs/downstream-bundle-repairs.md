@@ -1,8 +1,10 @@
 # Downstream bundle metadata repairs
 
 These changes repair mirrored catalog metadata only. They do not change plugin
-execution code, grant admission, or override source scans. Upstream generation
-may replace mirrored files; revalidate provenance before reapplying them.
+execution code, grant admission, or override source scans. Online generation reapplies only the bounded missing-field repairs below.
+Existing upstream values win; license fields require the bundled license evidence.
+The reviewed icon derivative is retained only when both derivative and source
+match the exact reviewed SHA-256 hashes; changed artwork requires fresh review.
 
 ## Provenance
 
@@ -25,3 +27,18 @@ The remaining missing icons, missing interface definitions, and oversized icons
 are not repaired by inventing branding, changing source behavior, removing
 catalog entries, or weakening validation. Scanner findings remain independently
 blocking. A metadata repair is not a security audit pass.
+
+## Snapshot validation versus online refresh
+
+`python3 scripts/check_catalog_snapshot.py` checks the committed README, catalog,
+marketplace, manifests, and icon paths without network access or writes. It checks
+all README entries, duplicates, counts, ordering, metadata, policies, and safe local
+paths; missing bundles are errors, not an allowlist. Snapshot dates are validated
+as dates rather than compared to the clock. Bundle and source security checks stay
+independent and unchanged.
+
+`python3 scripts/generate_plugins_json.py` remains the explicit online refresh
+command. It fetches mutable upstream HEADs and writes a new reviewed source
+snapshot; it is not a reproducibility check. The prior CI step refreshed 1,122
+files in the merge-head run, then rejected the drift. No automated publication or
+cross-repository contribution is introduced by separating these operations.
