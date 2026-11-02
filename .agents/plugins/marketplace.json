@@ -1431,6 +1431,36 @@
       "icon": "./plugins/shitianfang/jev-use/assets/icon.svg"
     },
     {
+      "name": "joxo",
+      "displayName": "Joxo",
+      "source": {
+        "source": "local",
+        "path": "./plugins/JoxoAI/joxo"
+      },
+      "policy": {
+        "installation": "AVAILABLE",
+        "authentication": "ON_INSTALL"
+      },
+      "category": "Development & Workflow",
+      "description": "Setup skill that joins Codex to a team's shared Joxo project, where teammates' coding agents share one task board, decisions and handoffs.",
+      "icon": "./plugins/JoxoAI/joxo/assets/icon.png"
+    },
+    {
+      "name": "keep-mac-awake",
+      "displayName": "Keep Mac Awake",
+      "source": {
+        "source": "local",
+        "path": "./plugins/bartdudzic/keepmacawake"
+      },
+      "policy": {
+        "installation": "AVAILABLE",
+        "authentication": "ON_INSTALL"
+      },
+      "category": "Development & Workflow",
+      "description": "Lets Codex keep a MacBook awake with the lid closed while long tasks run, by starting and stopping timed sessions of the Keep Mac Awake macOS app (a paid app with a free trial).",
+      "icon": "./plugins/bartdudzic/keepmacawake/assets/icon.png"
+    },
+    {
       "name": "kernel",
       "displayName": "Kernel",
       "source": {
@@ -1608,6 +1638,21 @@
       "description": "Enforces a strict 16-step data-first ML workflow — data inspection, EDA, and problem definition before any model training — with explicit user-permission gates, marimo notebooks, and matplotlib figures at every step; also works in Claude Code and Kimi."
     },
     {
+      "name": "model-salt",
+      "displayName": "Model Salt",
+      "source": {
+        "source": "local",
+        "path": "./plugins/modelsalt/model-salt"
+      },
+      "policy": {
+        "installation": "AVAILABLE",
+        "authentication": "ON_INSTALL"
+      },
+      "category": "Development & Workflow",
+      "description": "Gives the model randomness from outside it before a creative task, so one prompt gives different answers that still do what was asked.",
+      "icon": "./plugins/modelsalt/model-salt/assets/icon.png"
+    },
+    {
       "name": "multi-llm",
       "displayName": "Multi-LLM",
       "source": {
@@ -1755,6 +1800,21 @@
       "category": "Development & Workflow",
       "description": "Give Codex lasting project context in an Obsidian vault you control.",
       "icon": "./plugins/DuncanMain/project-memory-core/assets/icon.svg"
+    },
+    {
+      "name": "ponder",
+      "displayName": "Ponder",
+      "source": {
+        "source": "local",
+        "path": "./plugins/Quinnod345/ponder"
+      },
+      "policy": {
+        "installation": "AVAILABLE",
+        "authentication": "ON_INSTALL"
+      },
+      "category": "Development & Workflow",
+      "description": "Coverage-gated, multi-pass deliberative review CLI and skill for Codex and Claude Code where four perspectives argue across passes, retract unverified findings, and block stopping until every unit in scope is graded.",
+      "icon": "./plugins/Quinnod345/ponder/assets/icon.svg"
     },
     {
       "name": "praxis",
@@ -3667,21 +3727,6 @@
       "icon": "./plugins/sergebulaev/exotic-car-rental-skills/assets/icon.svg"
     },
     {
-      "name": "fair-value-calculator",
-      "displayName": "Fair Value Calculator",
-      "source": {
-        "source": "local",
-        "path": "./plugins/petz00711/fair-value-calculator-mcp"
-      },
-      "policy": {
-        "installation": "AVAILABLE",
-        "authentication": "ON_INSTALL"
-      },
-      "category": "Tools & Integrations",
-      "description": "Fair value, quality score, uptrend and the three buy rules for 40,000+ stocks, plus your watchlist and alerts, through the hosted Fair Value Calculator MCP server.",
-      "icon": "./plugins/petz00711/fair-value-calculator-mcp/assets/logo.png"
-    },
-    {
       "name": "fantasy-football-manager",
       "displayName": "Fantasy Football Manager",
       "source": {
@@ -4142,6 +4187,21 @@
       "icon": "./plugins/loomaly/loomaly/assets/logo-plate.svg"
     },
     {
+      "name": "looot",
+      "displayName": "looot",
+      "source": {
+        "source": "local",
+        "path": "./plugins/loootai/looot-plugin"
+      },
+      "policy": {
+        "installation": "AVAILABLE",
+        "authentication": "ON_INSTALL"
+      },
+      "category": "Tools & Integrations",
+      "description": "Search, price and run paid data APIs for SEO, enrichment, email verification and social from one prepaid balance through the hosted looot MCP server and one skill, with browser sign-in and no provider keys.",
+      "icon": "./plugins/loootai/looot-plugin/plugins/claude-code/looot/.claude-plugin/icon.png"
+    },
+    {
       "name": "costguard",
       "displayName": "Maestro: Costguard",
       "source": {
@@ -4200,6 +4260,21 @@
       "category": "Tools & Integrations",
       "description": "Connects Codex to MATLAB and Simulink through a local MCP server for model inspection, script execution, and engineering workflow automation.",
       "icon": "./plugins/summer521521/MATLAB_Simulink_plugin/assets/icon.svg"
+    },
+    {
+      "name": "metamask-agent-wallet",
+      "displayName": "MetaMask Agent Wallet",
+      "source": {
+        "source": "local",
+        "path": "./plugins/MetaMask/agent-skills"
+      },
+      "policy": {
+        "installation": "AVAILABLE",
+        "authentication": "ON_INSTALL"
+      },
+      "category": "Tools & Integrations",
+      "description": "Official MetaMask plugin that gives Codex a self-custodial wallet to swap, bridge, trade Hyperliquid perps and Polymarket markets, earn yield, and pay x402 APIs within user-set limits.",
+      "icon": "./plugins/MetaMask/agent-skills/assets/logo.svg"
     },
     {
       "name": "mnemoverse",
