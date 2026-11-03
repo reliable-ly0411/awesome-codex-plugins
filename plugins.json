@@ -2,8 +2,8 @@
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "name": "awesome-codex-plugins",
   "version": "1.0.0",
-  "last_updated": "2026-11-02",
-  "total": 361,
+  "last_updated": "2026-11-03",
+  "total": 367,
   "categories": [
     "Development & Workflow",
     "Tools & Integrations"
@@ -1101,6 +1101,16 @@
       "install_url": "https://raw.githubusercontent.com/sarveshsea/memi/HEAD/plugins/memoire/.codex-plugin/plugin.json"
     },
     {
+      "name": "memtomem",
+      "url": "https://github.com/memtomem/memtomem",
+      "owner": "memtomem",
+      "repo": "memtomem",
+      "description": "Markdown-first long-term memory for Codex that searches, recalls, saves and indexes project notes, and resumes work from a handoff another session or agent wrote.",
+      "category": "Development & Workflow",
+      "source": "awesome-codex-plugins",
+      "install_url": "https://raw.githubusercontent.com/memtomem/memtomem/HEAD/plugins/memtomem/.codex-plugin/plugin.json"
+    },
+    {
       "name": "ML Pipeline",
       "url": "https://github.com/jananthan30/ml-pipeline",
       "owner": "jananthan30",
@@ -1942,6 +1952,16 @@
       "install_url": "https://raw.githubusercontent.com/mustafaakmese/agentmart-plugins/HEAD/.codex-plugin/plugin.json"
     },
     {
+      "name": "Ahel",
+      "url": "https://github.com/ahel-technologies/ahel",
+      "owner": "ahel-technologies",
+      "repo": "ahel",
+      "description": "Remote MCP server for data tasks: company and people enrichment, SEO and SERP data, social media data and official EU business registers, each call priced before it runs and paid from a prepaid balance. Website: https://ahel.ai",
+      "category": "Tools & Integrations",
+      "source": "awesome-codex-plugins",
+      "install_url": "https://raw.githubusercontent.com/ahel-technologies/ahel/HEAD/plugins/ahel/.codex-plugin/plugin.json"
+    },
+    {
       "name": "Aident Loadout",
       "url": "https://github.com/Aident-AI/aident-skill",
       "owner": "Aident-AI",
@@ -2290,6 +2310,17 @@
       "category": "Tools & Integrations",
       "source": "awesome-codex-plugins",
       "install_url": "https://raw.githubusercontent.com/cometchat/cometchat-skills/HEAD/.codex-plugin/plugin.json"
+    },
+    {
+      "name": "ComputeFirst",
+      "url": "https://github.com/321zz321/computefirst-skill/tree/add-codex-plugin",
+      "owner": "321zz321",
+      "repo": "computefirst-skill",
+      "description": "Free hosted MCP server and skill for versioned, deterministic checks, conversions and data transforms, with no API key.",
+      "category": "Tools & Integrations",
+      "source": "awesome-codex-plugins",
+      "install_url": "https://raw.githubusercontent.com/321zz321/computefirst-skill/add-codex-plugin/.codex-plugin/plugin.json",
+      "source_ref": "add-codex-plugin"
     },
     {
       "name": "Computer Usage Summary",
@@ -2912,6 +2943,16 @@
       "install_url": "https://raw.githubusercontent.com/mobazha/mobazha-skills/HEAD/.codex-plugin/plugin.json"
     },
     {
+      "name": "Mobbin",
+      "url": "https://github.com/mobbin/skills",
+      "owner": "mobbin",
+      "repo": "skills",
+      "description": "Search 600,000+ real iOS and web app screens, flows and website sections from Codex through the hosted Mobbin MCP server (OAuth; paid plans), with skills that redesign a screen from patterns real apps ship.",
+      "category": "Tools & Integrations",
+      "source": "awesome-codex-plugins",
+      "install_url": "https://raw.githubusercontent.com/mobbin/skills/HEAD/.codex-plugin/plugin.json"
+    },
+    {
       "name": "MoltNode by Chord",
       "url": "https://github.com/tuantqse90/moltnode-mcp",
       "owner": "tuantqse90",
@@ -3272,6 +3313,16 @@
       "install_url": "https://raw.githubusercontent.com/AddisonHoff/sendsets/HEAD/.codex-plugin/plugin.json"
     },
     {
+      "name": "Seonix",
+      "url": "https://github.com/seonix-ai/mcp",
+      "owner": "seonix-ai",
+      "repo": "mcp",
+      "description": "Connects Codex to your Seonix SEO project through the hosted Seonix MCP server with OAuth sign-in (Site Health and fix plan, Google Search Console, keyword clusters, draft scoring, eleven SEO playbooks) plus three skills that fix the site in code and ship content; writes run only after you confirm, and the server requires a paid Seonix plan.",
+      "category": "Tools & Integrations",
+      "source": "awesome-codex-plugins",
+      "install_url": "https://raw.githubusercontent.com/seonix-ai/mcp/HEAD/plugins/seonix/.codex-plugin/plugin.json"
+    },
+    {
       "name": "Serply",
       "url": "https://github.com/serply-inc/skills",
       "owner": "serply-inc",
@@ -3470,6 +3521,16 @@
       "category": "Tools & Integrations",
       "source": "awesome-codex-plugins",
       "install_url": "https://raw.githubusercontent.com/henu-wang/tokrepo-codex-plugin/HEAD/.codex-plugin/plugin.json"
+    },
+    {
+      "name": "Treza",
+      "url": "https://github.com/treza-labs/treza-plugin",
+      "owner": "treza-labs",
+      "repo": "treza-plugin",
+      "description": "Make AI videos from Codex through Treza's hosted MCP server: one clip from a description, edits to media you have, and pipelines that render and post to YouTube and TikTok on a schedule.",
+      "category": "Tools & Integrations",
+      "source": "awesome-codex-plugins",
+      "install_url": "https://raw.githubusercontent.com/treza-labs/treza-plugin/HEAD/.codex-plugin/plugin.json"
     },
     {
       "name": "Unified AI System",
