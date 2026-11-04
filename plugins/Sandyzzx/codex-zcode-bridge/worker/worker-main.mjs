@@ -142,8 +142,8 @@ import path3 from "node:path";
 function isTransientLockFsError(error62) {
   return TRANSIENT_LOCK_FS_CODES.has(error62?.code ?? "");
 }
-function pauseBriefly() {
-  Atomics.wait(new Int32Array(new SharedArrayBuffer(4)), 0, 0, RETRY_PAUSE_MS);
+function pauseBriefly(delayMs = RETRY_PAUSE_MS) {
+  Atomics.wait(new Int32Array(new SharedArrayBuffer(4)), 0, 0, delayMs);
 }
 async function withProcessLock(directory, operation, timeoutMs = 3e4) {
   const deadline = Date.now() + timeoutMs;
@@ -198,7 +198,7 @@ function tryAcquireProcessLockWithRetry(directory, retries) {
         return acquireExistingLock(directory);
       }
       if (retries < PUBLICATION_RETRY_ATTEMPTS) {
-        pauseBriefly();
+        pauseBriefly(PUBLICATION_RETRY_PAUSE_MS);
         return tryAcquireProcessLockWithRetry(directory, retries + 1);
       }
       throw error62;
@@ -339,14 +339,15 @@ function removeSharedGuard(guard) {
     }
   }
 }
-var selfIdentity, TRANSIENT_LOCK_FS_CODES, DESTINATION_PRESENT_CONTENTION_CODES, PUBLICATION_RETRY_ATTEMPTS, WITHDRAW_RETRY_MS, SHARED_GUARD_RETRY_MS, PRIVATE_CLEANUP_RETRY_MS, RETRY_PAUSE_MS;
+var selfIdentity, TRANSIENT_LOCK_FS_CODES, DESTINATION_PRESENT_CONTENTION_CODES, PUBLICATION_RETRY_ATTEMPTS, PUBLICATION_RETRY_PAUSE_MS, WITHDRAW_RETRY_MS, SHARED_GUARD_RETRY_MS, PRIVATE_CLEANUP_RETRY_MS, RETRY_PAUSE_MS;
 var init_process_lock = __esm({
   "src/store/process-lock.ts"() {
     "use strict";
     selfIdentity = null;
     TRANSIENT_LOCK_FS_CODES = /* @__PURE__ */ new Set(["EEXIST", "EPERM", "EACCES", "EBUSY", "ENOTEMPTY"]);
     DESTINATION_PRESENT_CONTENTION_CODES = /* @__PURE__ */ new Set(["EEXIST", "ENOTEMPTY"]);
-    PUBLICATION_RETRY_ATTEMPTS = 3;
+    PUBLICATION_RETRY_ATTEMPTS = 5;
+    PUBLICATION_RETRY_PAUSE_MS = 50;
     WITHDRAW_RETRY_MS = 5e3;
     SHARED_GUARD_RETRY_MS = 2e3;
     PRIVATE_CLEANUP_RETRY_MS = 1e3;
@@ -2502,16 +2503,28 @@ function verdict(state, reason, now) {
 function failedQuery(reason) {
   return { ok: false, reason, fingerprints: /* @__PURE__ */ new Map() };
 }
-function windowsBatchQuery(pids, timeoutMs) {
+function windowsPowerShellExecutable() {
+  const systemRoot = Object.entries(process.env).find(([key]) => key.toLowerCase() === "systemroot")?.[1];
+  return systemRoot ? `${systemRoot}\\System32\\WindowsPowerShell\\v1.0\\powershell.exe` : "powershell.exe";
+}
+function windowsBatchQuery(pids, timeoutMs, onFailure) {
   return new Promise((resolve) => {
-    const script = `$ErrorActionPreference = 'Stop'; Get-Process -Id ${pids.join(",")} -ErrorAction SilentlyContinue | ForEach-Object { "{0}|{1}" -f $_.Id, $_.StartTime.Ticks }; 'bridge_probe_complete_v1'`;
-    const child = spawn("powershell.exe", ["-NoProfile", "-NonInteractive", "-ExecutionPolicy", "Bypass", "-Command", script], {
+    const script = `$ErrorActionPreference = 'Stop'; foreach ($id in @(${pids.join(",")})) { try { $target = [System.Diagnostics.Process]::GetProcessById($id); try { [Console]::Out.WriteLine(("{0}|{1}" -f $id, $target.StartTime.Ticks)) } finally { $target.Dispose() } } catch [System.ArgumentException] { } }; [Console]::Out.WriteLine('bridge_probe_complete_v1')`;
+    const child = spawn(windowsPowerShellExecutable(), ["-NoProfile", "-NonInteractive", "-ExecutionPolicy", "Bypass", "-Command", script], {
       stdio: ["ignore", "pipe", "pipe"],
       windowsHide: true,
       shell: false
     });
     let stdout = "";
     let settled = false;
+    const fail = (reason) => {
+      if (settled) return;
+      try {
+        onFailure?.(reason);
+      } catch {
+      }
+      finish(failedQuery(reason));
+    };
     const finish = (query) => {
       if (settled) return;
       settled = true;
@@ -2523,7 +2536,7 @@ function windowsBatchQuery(pids, timeoutMs) {
         child.kill("SIGKILL");
       } catch {
       }
-      finish(failedQuery("timeout"));
+      fail("timeout");
     }, timeoutMs);
     timer.unref();
     child.stdout.setEncoding("utf8");
@@ -2535,19 +2548,27 @@ function windowsBatchQuery(pids, timeoutMs) {
     child.stdout.on("data", (chunk) => {
       if (stdout.length < 1e6) stdout += chunk;
     });
-    child.on("error", () => finish(failedQuery("spawn_error")));
+    child.on("error", () => fail("spawn_error"));
     child.on("close", (code) => {
       const map2 = /* @__PURE__ */ new Map();
       const lines = stdout.trim().split(/\r?\n/u);
-      if (code !== 0 || stderrBytes > 0 || lines.pop() !== "bridge_probe_complete_v1") {
-        finish(failedQuery("query_error"));
+      if (code !== 0) {
+        fail("nonzero_exit");
+        return;
+      }
+      if (stderrBytes > 0) {
+        fail("stderr");
+        return;
+      }
+      if (lines.pop() !== "bridge_probe_complete_v1") {
+        fail("missing_completion_marker");
         return;
       }
       for (const line of lines) {
         if (!line.trim()) continue;
         const match = /^(\d+)\|(\d+)$/u.exec(line.trim());
         if (!match || !pids.includes(Number(match[1])) || map2.has(Number(match[1]))) {
-          finish(failedQuery("query_error"));
+          fail("malformed_output");
           return;
         }
         map2.set(Number(match[1]), match[2]);
@@ -2623,7 +2644,7 @@ function createPlatformProbe(options = {}) {
     if (requests.length === 0) return [];
     const distinct = [...new Set(requests.map((request) => request.pid).filter((pid) => Number.isInteger(pid) && pid > 0))];
     const query = await schedule(async () => {
-      if (process.platform === "win32") return windowsBatchQuery(distinct, timeoutMs);
+      if (process.platform === "win32") return windowsBatchQuery(distinct, timeoutMs, options.onWindowsQueryFailure);
       if (process.platform === "darwin") return darwinQuery(distinct, timeoutMs);
       if (process.platform === "linux") {
         const map2 = /* @__PURE__ */ new Map();
@@ -2664,7 +2685,7 @@ function createPlatformProbe(options = {}) {
   };
   const fingerprintOfPid = async (pid) => {
     const query = await schedule(async () => {
-      if (process.platform === "win32") return windowsBatchQuery([pid], timeoutMs);
+      if (process.platform === "win32") return windowsBatchQuery([pid], timeoutMs, options.onWindowsQueryFailure);
       if (process.platform === "darwin") return darwinQuery([pid], timeoutMs);
       if (process.platform === "linux") {
         const map2 = /* @__PURE__ */ new Map();
@@ -3019,28 +3040,197 @@ var init_errors = __esm({
   }
 });
 
-// src/runtime/resolver.ts
-import { accessSync, existsSync as existsSync5, readFileSync as readFileSync5, statSync as statSync3 } from "node:fs";
-import { homedir as homedir2 } from "node:os";
+// src/runtime/paths.ts
+import { existsSync as existsSync5, readFileSync as readFileSync5 } from "node:fs";
 import path7 from "node:path";
+function resolveUserHome(env, options = {}) {
+  const platform = options.platform ?? process.platform;
+  const pathImpl = platform === "win32" ? path7.win32 : path7.posix;
+  const homeRaw = env["HOME"]?.trim() || null;
+  const userProfileRaw = env["USERPROFILE"]?.trim() || null;
+  if (platform !== "win32") {
+    if (homeRaw) {
+      return { userHome: pathImpl.resolve(homeRaw), source: "HOME", homeRaw, homeConflict: null };
+    }
+    const fallback2 = userProfileRaw ?? options.fallbackHomeDir ?? "";
+    if (!fallback2) {
+      throw new Error("no user home directory available (HOME is empty and no fallback provided)");
+    }
+    return { userHome: pathImpl.resolve(fallback2), source: userProfileRaw ? "USERPROFILE" : "FALLBACK", homeRaw: null, homeConflict: null };
+  }
+  if (homeRaw) {
+    const rooted = isWindowsAbsolutePath(homeRaw);
+    const matchesUserProfile = userProfileRaw !== null && sameCleanPath(homeRaw, userProfileRaw, pathImpl, true);
+    if (rooted && matchesUserProfile) {
+      return { userHome: pathImpl.resolve(homeRaw), source: "HOME", homeRaw, homeConflict: null };
+    }
+    const conflict = !rooted ? "HOME is set but is not an absolute path" : userProfileRaw === null ? "HOME is set but USERPROFILE is not, so HOME cannot be verified as the current Windows user directory" : "HOME is set but does not match USERPROFILE (test or WSL directories must not override the Windows user directory)";
+    if (userProfileRaw) {
+      return { userHome: pathImpl.resolve(userProfileRaw), source: "USERPROFILE", homeRaw, homeConflict: conflict };
+    }
+    const fallback2 = options.fallbackHomeDir;
+    if (!fallback2) {
+      throw new Error("no Windows user directory available (HOME is invalid and no USERPROFILE or fallback provided)");
+    }
+    return { userHome: pathImpl.resolve(fallback2), source: "FALLBACK", homeRaw, homeConflict: conflict };
+  }
+  if (userProfileRaw) {
+    return { userHome: pathImpl.resolve(userProfileRaw), source: "USERPROFILE", homeRaw: null, homeConflict: null };
+  }
+  const fallback = options.fallbackHomeDir;
+  if (!fallback) {
+    throw new Error("no Windows user directory available (HOME and USERPROFILE are unset and no fallback provided)");
+  }
+  return { userHome: pathImpl.resolve(fallback), source: "FALLBACK", homeRaw: null, homeConflict: null };
+}
+function discoverZCodeData(env, options = {}) {
+  const platform = options.platform ?? process.platform;
+  const pathImpl = platform === "win32" ? path7.win32 : path7.posix;
+  const readFile2 = options.readFile ?? ((filePath) => readFileSync5(filePath, "utf8"));
+  const fileExists = options.fileExists ?? existsSync5;
+  const home = resolveUserHome(env, options);
+  const settingFile = pathImpl.join(home.userHome, ".zcode", "v2", "setting.json");
+  let settingStatus = "ok";
+  let settingError = null;
+  let configuredDataBaseDir = null;
+  if (!fileExists(settingFile)) {
+    settingStatus = "absent";
+  } else {
+    let text;
+    try {
+      text = readFile2(settingFile);
+    } catch (error62) {
+      settingStatus = isPermissionDeniedCode(error62) ? "permission_denied" : "unreadable";
+      settingError = error62 instanceof Error ? error62.message : String(error62);
+      text = "";
+    }
+    if (settingStatus === "ok") {
+      let parsed;
+      try {
+        parsed = JSON.parse(text);
+      } catch (error62) {
+        settingStatus = "invalid_json";
+        settingError = error62 instanceof Error ? error62.message : String(error62);
+      }
+      if (settingStatus === "ok") {
+        if (typeof parsed !== "object" || parsed === null || Array.isArray(parsed)) {
+          settingStatus = "invalid_shape";
+          settingError = "setting.json must contain a JSON object";
+        } else {
+          const raw = parsed["dataBaseDir"];
+          if (raw === void 0 || raw === null) {
+          } else if (typeof raw !== "string") {
+            settingStatus = "invalid_shape";
+            settingError = "dataBaseDir must be a string when present";
+          } else {
+            const trimmed = raw.trim();
+            if (trimmed && isAbsolutePathForPlatform(trimmed, platform)) {
+              configuredDataBaseDir = pathImpl.resolve(trimmed);
+            } else if (trimmed) {
+              settingError = "dataBaseDir is a relative path and was ignored";
+            }
+          }
+        }
+      }
+    }
+  }
+  const dataBaseDir = configuredDataBaseDir ?? home.userHome;
+  return {
+    userHome: home.userHome,
+    settingFile,
+    settingStatus,
+    settingError,
+    configuredDataBaseDir,
+    dataBaseDir,
+    dataBaseDirSource: configuredDataBaseDir ? "setting.json" : "default",
+    zcodeDataDir: pathImpl.join(dataBaseDir, ".zcode"),
+    zcodeV2Dir: pathImpl.join(dataBaseDir, ".zcode", "v2"),
+    migrated: configuredDataBaseDir !== null
+  };
+}
+function isWindowsAbsolutePath(value) {
+  return /^[A-Za-z]:[\\/]/u.test(value) || /^\/\/[^\\/]+[\\/][^\\/]+(?:[\\/].*)?$/u.test(value) || /^\\\\[^\\/]+[\\/][^\\/]+(?:[\\/].*)?$/u.test(value);
+}
+function isAbsolutePathForPlatform(value, platform = process.platform) {
+  return platform === "win32" ? isWindowsAbsolutePath(value) : path7.isAbsolute(value);
+}
+function isPermissionDeniedCode(error62) {
+  const code = error62?.code;
+  return code === "EACCES" || code === "EPERM";
+}
+function discoverZCodeInstall(env, options = {}) {
+  const platform = options.platform ?? process.platform;
+  const pathImpl = platform === "win32" ? path7.win32 : path7.posix;
+  const fileExists = options.fileExists ?? existsSync5;
+  const requireBuiltin = options.requireBuiltin ?? true;
+  const roots = [];
+  const explicit = env["ZCODE_WINDOWS_APP_INSTALL_DIR"]?.trim();
+  if (explicit) roots.push({ root: explicit, source: "ZCODE_WINDOWS_APP_INSTALL_DIR" });
+  const localAppData = env["LOCALAPPDATA"]?.trim();
+  if (localAppData) roots.push({ root: pathImpl.join(localAppData, "Programs", "ZCode"), source: "LOCALAPPDATA" });
+  const programFiles = env["ProgramFiles"]?.trim() ?? env["PROGRAMFILES"]?.trim();
+  if (programFiles) roots.push({ root: pathImpl.join(programFiles, "ZCode"), source: "ProgramFiles" });
+  const candidates = roots.map(({ root, source }) => ({
+    root,
+    source,
+    runtimeExists: fileExists(pathImpl.join(root, "resources", "glm", "zcode.cjs")),
+    builtinExists: fileExists(pathImpl.join(root, "resources", "config", "provider", "zcode-builtin.json"))
+  }));
+  for (const candidate of candidates) {
+    if (!candidate.runtimeExists) continue;
+    if (requireBuiltin && !candidate.builtinExists) continue;
+    return {
+      installDir: candidate.root,
+      source: candidate.source,
+      zcodeEntrypoint: pathImpl.join(candidate.root, "resources", "glm", "zcode.cjs"),
+      builtinConfigFile: requireBuiltin || candidate.builtinExists ? pathImpl.join(candidate.root, "resources", "config", "provider", "zcode-builtin.json") : null,
+      candidates
+    };
+  }
+  return { installDir: null, source: null, zcodeEntrypoint: null, builtinConfigFile: null, candidates };
+}
+function builtinConfigForRuntime(zcodeEntrypoint, platform = process.platform) {
+  const pathImpl = platform === "win32" ? path7.win32 : path7.posix;
+  const resourcesDir = pathImpl.dirname(pathImpl.dirname(zcodeEntrypoint));
+  return pathImpl.join(resourcesDir, "config", "provider", "zcode-builtin.json");
+}
+function sameFileSystemPath(left, right, platform = process.platform) {
+  const pathImpl = platform === "win32" ? path7.win32 : path7.posix;
+  return sameCleanPath(left, right, pathImpl, platform === "win32");
+}
+function sameCleanPath(left, right, pathImpl, caseInsensitive) {
+  const cleanLeft = pathImpl.normalize(left);
+  const cleanRight = pathImpl.normalize(right);
+  return caseInsensitive ? cleanLeft.toLowerCase() === cleanRight.toLowerCase() : cleanLeft === cleanRight;
+}
+var init_paths = __esm({
+  "src/runtime/paths.ts"() {
+    "use strict";
+  }
+});
+
+// src/runtime/resolver.ts
+import { accessSync, existsSync as existsSync6, readFileSync as readFileSync6, statSync as statSync3 } from "node:fs";
+import { homedir as homedir2 } from "node:os";
+import path8 from "node:path";
 import { fileURLToPath } from "node:url";
 function loadPersistedRuntimeEnvironment(source, homeDir = homedir2(), host = codexHostProfile(homeDir)) {
   validateHostProfile(host);
-  const settingsPaths = [host.settingsDirectory, ...host.legacySettingsDirectories ?? []].map((directory) => path7.join(directory, "runtime-config.json"));
+  const settingsPaths = [host.settingsDirectory, ...host.legacySettingsDirectories ?? []].map((directory) => path8.join(directory, "runtime-config.json"));
   const legacyDataRoot = source["ZCODE_BRIDGE_DATA_DIR"]?.trim();
-  if (legacyDataRoot && path7.isAbsolute(legacyDataRoot)) {
-    settingsPaths.push(path7.join(legacyDataRoot, "runtime-config.json"));
+  if (legacyDataRoot && path8.isAbsolute(legacyDataRoot)) {
+    settingsPaths.push(path8.join(legacyDataRoot, "runtime-config.json"));
   }
   let parsed = null;
   const seenPaths = /* @__PURE__ */ new Set();
   for (const settingsPath of settingsPaths) {
-    const normalized = path7.resolve(settingsPath);
+    const normalized = path8.resolve(settingsPath);
     const identity = process.platform === "win32" ? normalized.toLocaleLowerCase("en-US") : normalized;
     if (seenPaths.has(identity)) continue;
     seenPaths.add(identity);
     try {
       if (statSync3(normalized).size > 64 * 1024) throw new Error("runtime settings exceed 64 KB");
-      const candidate = JSON.parse(readFileSync5(normalized, "utf8"));
+      const candidate = JSON.parse(readFileSync6(normalized, "utf8"));
       if (isPlainObject2(candidate)) {
         parsed = candidate;
         break;
@@ -3062,37 +3252,14 @@ function loadPersistedRuntimeEnvironment(source, homeDir = homedir2(), host = co
   }
   return env;
 }
-function installCandidates(env, relative) {
-  const roots = [
-    env["ZCODE_WINDOWS_APP_INSTALL_DIR"]?.trim(),
-    env["LOCALAPPDATA"]?.trim() ? path7.join(env["LOCALAPPDATA"].trim(), "Programs", "ZCode") : null,
-    env["ProgramFiles"]?.trim() ? path7.join(env["ProgramFiles"].trim(), "ZCode") : null
-  ].filter((root) => Boolean(root));
-  return roots.map((root) => path7.join(root, ...relative));
-}
-function configuredDataBaseDirs(homeDir) {
-  const candidates = [path7.join(homeDir, ".zcode", "v2", "setting.json")];
-  for (const settingPath of candidates) {
-    try {
-      const parsed = JSON.parse(readFileSync5(settingPath, "utf8"));
-      if (!isPlainObject2(parsed)) continue;
-      const dataBaseDir = parsed["dataBaseDir"];
-      if (typeof dataBaseDir === "string" && path7.isAbsolute(dataBaseDir.trim())) {
-        return [path7.normalize(dataBaseDir.trim())];
-      }
-    } catch {
-    }
-  }
-  return [];
-}
 function resolveZcodeHome(env) {
   const configured = env["ZCODE_HOME"]?.trim();
   if (!configured) return null;
-  if (!path7.isAbsolute(configured)) {
+  if (!isAbsolutePathForPlatform(configured)) {
     throw new BridgeError("provider_config_invalid", "ZCODE_HOME must be an absolute path");
   }
-  const resolved = path7.normalize(configured);
-  if (path7.basename(resolved).toLowerCase() !== ".zcode") {
+  const resolved = path8.normalize(configured);
+  if (path8.basename(resolved).toLowerCase() !== ".zcode") {
     throw new BridgeError(
       "provider_config_invalid",
       "ZCODE_HOME must name a .zcode directory so app-server can use the same data root"
@@ -3109,13 +3276,13 @@ function resolveZcodeHome(env) {
   return resolved;
 }
 function samePath(left, right) {
-  const resolvedLeft = path7.resolve(left);
-  const resolvedRight = path7.resolve(right);
+  const resolvedLeft = path8.resolve(left);
+  const resolvedRight = path8.resolve(right);
   return process.platform === "win32" ? resolvedLeft.toLowerCase() === resolvedRight.toLowerCase() : resolvedLeft === resolvedRight;
 }
 function isReadableFile(filePath) {
   try {
-    if (!existsSync5(filePath) || !statSync3(filePath).isFile()) return false;
+    if (!existsSync6(filePath) || !statSync3(filePath).isFile()) return false;
     accessSync(filePath);
     return true;
   } catch {
@@ -3123,12 +3290,12 @@ function isReadableFile(filePath) {
   }
 }
 function findPackageRoot(startDir) {
-  let current = startDir ?? path7.dirname(fileURLToPath(import.meta.url));
+  let current = startDir ?? path8.dirname(fileURLToPath(import.meta.url));
   for (let depth = 0; depth < 10; depth++) {
-    if (existsSync5(path7.join(current, "package.json"))) {
+    if (existsSync6(path8.join(current, "package.json"))) {
       return current;
     }
-    const parent = path7.dirname(current);
+    const parent = path8.dirname(current);
     if (parent === current) break;
     current = parent;
   }
@@ -3153,6 +3320,7 @@ var init_resolver = __esm({
   "src/runtime/resolver.ts"() {
     "use strict";
     init_errors();
+    init_paths();
     init_profile();
     PERSISTED_RUNTIME_KEYS = [
       "ZCODE_BRIDGE_NODE",
@@ -3185,7 +3353,18 @@ var init_resolver = __esm({
       }
       async resolve() {
         const env = loadPersistedRuntimeEnvironment(this.#env, this.#homeDir, this.#host);
+        const data = discoverZCodeData(env, { fallbackHomeDir: this.#homeDir });
         const zcodeHome = resolveZcodeHome(env);
+        const explicitDataBaseDir = env["ZCODE_DATA_BASE_DIR"]?.trim() || null;
+        if (explicitDataBaseDir && !isAbsolutePathForPlatform(explicitDataBaseDir)) {
+          throw new BridgeError("provider_config_invalid", "ZCODE_DATA_BASE_DIR must be an absolute path");
+        }
+        if (zcodeHome && explicitDataBaseDir && !sameFileSystemPath(path8.dirname(zcodeHome), explicitDataBaseDir)) {
+          throw new BridgeError(
+            "provider_config_invalid",
+            `ZCODE_HOME (${zcodeHome}) and ZCODE_DATA_BASE_DIR (${explicitDataBaseDir}) conflict; ZCODE_HOME must name <ZCODE_DATA_BASE_DIR>/.zcode. Fix one of them instead of relying on silent selection.`
+          );
+        }
         let nodeExecutable = "node";
         const nodeOverride = env["ZCODE_BRIDGE_NODE"]?.trim();
         if (nodeOverride) {
@@ -3195,7 +3374,10 @@ var init_resolver = __esm({
           );
           nodeExecutable = nodeOverride;
         }
+        const builtinEnv = env["ZCODE_BUILTIN_PROVIDER_CONFIG_FILE"]?.trim() || null;
+        const personalEnv = env["ZCODE_PERSONAL_PROVIDER_CONFIG_FILE"]?.trim() || null;
         let zcodeEntrypoint;
+        let explicitRuntime = false;
         const entryOverride = env["ZCODE_BRIDGE_ZCODE_CJS"]?.trim();
         if (entryOverride) {
           this.#assertReadableFile(
@@ -3203,19 +3385,17 @@ var init_resolver = __esm({
             "ZCODE_BRIDGE_ZCODE_CJS is set but is not a readable file"
           );
           zcodeEntrypoint = entryOverride;
+          explicitRuntime = true;
         } else {
-          const candidates = installCandidates(env, ["resources", "glm", "zcode.cjs"]);
-          const discovered = candidates.find(isReadableFile);
-          if (!discovered) {
+          const install = discoverZCodeInstall(env, { requireBuiltin: !builtinEnv });
+          if (!install.zcodeEntrypoint) {
             throw new BridgeError(
               "runtime_not_found",
-              `zcode.cjs was not found; searched: ${candidates.join(", ") || "(no installation roots available)"}`
+              `zcode.cjs${builtinEnv ? "" : " with a same-install zcode-builtin.json"} was not found; searched: ` + (install.candidates.map((candidate) => `${candidate.root} (runtime: ${candidate.runtimeExists}, builtin: ${candidate.builtinExists})`).join(", ") || "(no installation roots available)")
             );
           }
-          zcodeEntrypoint = discovered;
+          zcodeEntrypoint = install.zcodeEntrypoint;
         }
-        const builtinEnv = env["ZCODE_BUILTIN_PROVIDER_CONFIG_FILE"]?.trim() || null;
-        const personalEnv = env["ZCODE_PERSONAL_PROVIDER_CONFIG_FILE"]?.trim() || null;
         let builtinConfigFile;
         let personalConfigFile;
         if (builtinEnv && personalEnv) {
@@ -3227,33 +3407,37 @@ var init_resolver = __esm({
           if (builtinEnv) {
             this.#validateBuiltinConfig(builtinEnv);
             builtinConfigFile = builtinEnv;
-          } else {
-            const candidates = installCandidates(env, [
-              "resources",
-              "config",
-              "provider",
-              "zcode-builtin.json"
-            ]);
-            const discovered = candidates.find(isReadableFile);
-            if (!discovered) {
+          } else if (explicitRuntime) {
+            const derived2 = builtinConfigForRuntime(zcodeEntrypoint);
+            if (!isReadableFile(derived2)) {
               throw new BridgeError(
                 "provider_config_missing",
-                "ZCODE_BUILTIN_PROVIDER_CONFIG_FILE is not set and no builtin provider config was found in the ZCode installation; searched: " + (candidates.join(", ") || "(no installation roots available)")
+                `ZCODE_BUILTIN_PROVIDER_CONFIG_FILE is not set and the builtin config was not found next to the configured runtime; expected: ${derived2}`
               );
             }
-            this.#validateBuiltinConfig(discovered);
-            builtinConfigFile = discovered;
+            this.#validateBuiltinConfig(derived2);
+            builtinConfigFile = derived2;
+          } else {
+            const install = discoverZCodeInstall(env, { requireBuiltin: true });
+            if (!install.builtinConfigFile) {
+              throw new BridgeError(
+                "provider_config_missing",
+                "ZCODE_BUILTIN_PROVIDER_CONFIG_FILE is not set and no builtin provider config was found in the ZCode installation; searched: " + (install.candidates.map((candidate) => `${candidate.root} (runtime: ${candidate.runtimeExists}, builtin: ${candidate.builtinExists})`).join(", ") || "(no installation roots available)")
+              );
+            }
+            this.#validateBuiltinConfig(install.builtinConfigFile);
+            builtinConfigFile = install.builtinConfigFile;
           }
           if (personalEnv) {
             this.#validatePersonalConfig(personalEnv);
             personalConfigFile = personalEnv;
           } else {
-            const candidates = zcodeHome ? [path7.join(zcodeHome, "v2", "provider_config.json")] : [
-              env["ZCODE_DATA_BASE_DIR"]?.trim(),
-              ...configuredDataBaseDirs(this.#homeDir),
-              this.#homeDir
-            ].filter((base) => Boolean(base)).filter((base, index, values) => values.indexOf(base) === index).map((base) => path7.join(base, ".zcode", "v2", "provider_config.json"));
-            const existing = candidates.filter((candidate) => existsSync5(candidate));
+            const candidates = zcodeHome ? [path8.join(zcodeHome, "v2", "provider_config.json")] : [
+              explicitDataBaseDir,
+              data.configuredDataBaseDir,
+              data.userHome
+            ].filter((base) => Boolean(base)).filter((base, index, values) => values.indexOf(base) === index).map((base) => path8.join(base, ".zcode", "v2", "provider_config.json"));
+            const existing = candidates.filter((candidate) => existsSync6(candidate));
             if (existing.length === 0) {
               throw new BridgeError(
                 "provider_config_missing",
@@ -3280,7 +3464,7 @@ var init_resolver = __esm({
             personalConfigFile = accepted;
           }
         }
-        if (zcodeHome && !samePath(personalConfigFile, path7.join(zcodeHome, "v2", "provider_config.json"))) {
+        if (zcodeHome && !samePath(personalConfigFile, path8.join(zcodeHome, "v2", "provider_config.json"))) {
           throw new BridgeError(
             "provider_config_invalid",
             `ZCODE_PERSONAL_PROVIDER_CONFIG_FILE must be ZCODE_HOME/v2/provider_config.json (${zcodeHome})`
@@ -3289,12 +3473,12 @@ var init_resolver = __esm({
         const dataOverride = env["ZCODE_BRIDGE_DATA_DIR"]?.trim();
         let dataRoot;
         if (dataOverride) {
-          if (!path7.isAbsolute(dataOverride)) {
+          if (!path8.isAbsolute(dataOverride)) {
             throw new Error(
               `ZCODE_BRIDGE_DATA_DIR must be an absolute path when set, got: ${dataOverride}`
             );
           }
-          dataRoot = path7.normalize(dataOverride);
+          dataRoot = path8.normalize(dataOverride);
         } else {
           dataRoot = this.#packageRoot ?? findPackageRoot();
         }
@@ -3349,7 +3533,7 @@ var init_resolver = __esm({
         }
         let text;
         try {
-          text = readFileSync5(filePath, "utf8");
+          text = readFileSync6(filePath, "utf8");
         } catch (error62) {
           throw new BridgeError(
             "provider_config_invalid",
@@ -4404,11 +4588,19 @@ var init_process_spawn = __esm({
 });
 
 // src/runtime/child-env.ts
-function createMinimalOsEnv(source) {
-  const allowed = process.platform === "win32" ? WINDOWS_OS_ENV : POSIX_OS_ENV;
+function createMinimalOsEnv(source, options = {}) {
+  const platform = options.platform ?? process.platform;
+  const allowed = platform === "win32" ? WINDOWS_OS_ENV : POSIX_OS_ENV;
   const env = {};
   for (const [key, value] of Object.entries(source)) {
     if (allowed.has(key.toUpperCase()) && value !== void 0) env[key] = value;
+  }
+  if (platform === "win32") {
+    try {
+      const home = resolveUserHome(source, { platform });
+      if (home.userHome) env["HOME"] = home.userHome;
+    } catch {
+    }
   }
   return env;
 }
@@ -4416,6 +4608,7 @@ var WINDOWS_OS_ENV, POSIX_OS_ENV;
 var init_child_env = __esm({
   "src/runtime/child-env.ts"() {
     "use strict";
+    init_paths();
     WINDOWS_OS_ENV = /* @__PURE__ */ new Set([
       "PATH",
       "SYSTEMROOT",
@@ -4457,17 +4650,17 @@ var init_child_env = __esm({
 
 // src/runtime/account-provider.ts
 import { createHash as createHash4 } from "node:crypto";
-import { existsSync as existsSync6, readFileSync as readFileSync6 } from "node:fs";
-import path8 from "node:path";
+import { existsSync as existsSync7, readFileSync as readFileSync7 } from "node:fs";
+import path9 from "node:path";
 function buildAccountProviderPayload(config2) {
   const table = readJson(config2.providerBuiltinConfigFile);
   const providerRules = readProviderRules(table).filter(isRecord2).map((rule) => rule).filter((rule) => rule.config?.access?.type === "zhipu-account" && typeof rule.providerId === "string");
   if (!providerRules.length) return null;
   const dataDir = zcodeV2DataDir(config2.providerPersonalConfigFile);
   if (!dataDir) return null;
-  const credentials = readJson(path8.join(dataDir, "config.json"));
+  const credentials = readJson(path9.join(dataDir, "config.json"));
   const credentialProviders = asRecord(credentials?.provider);
-  const cache = readJson(path8.join(dataDir, "coding-plan-cache.json"));
+  const cache = readJson(path9.join(dataDir, "coding-plan-cache.json"));
   const cacheItems = asRecord(asRecord(cache?.entryStatus).items);
   const providers = {};
   const states = {};
@@ -4489,7 +4682,7 @@ function buildAccountProviderPayload(config2) {
     };
   }
   const revision = typeof table?.revision === "number" ? table.revision : 0;
-  const resolvedBuiltinPath = path8.resolve(config2.providerBuiltinConfigFile);
+  const resolvedBuiltinPath = path9.resolve(config2.providerBuiltinConfigFile);
   return {
     revision: `account:codex-zcode-bridge:${Date.now()}`,
     basedOnZCodeBuiltinRevision: `zcode-builtin:${revision}:${createHash4("sha256").update(resolvedBuiltinPath).digest("hex")}`,
@@ -4537,8 +4730,8 @@ function runtimeAuthReply(providerId, config2) {
   const legacyId = configProviderId(providerId, rule);
   const dataDir = zcodeV2DataDir(config2.providerPersonalConfigFile);
   if (!dataDir) return unavailable;
-  const credentials = readJson(path8.join(dataDir, "config.json"));
-  const cache = readJson(path8.join(dataDir, "coding-plan-cache.json"));
+  const credentials = readJson(path9.join(dataDir, "config.json"));
+  const cache = readJson(path9.join(dataDir, "coding-plan-cache.json"));
   const status = asRecord(asRecord(asRecord(cache?.entryStatus).items)[legacyId]).status;
   const provider = asRecord(asRecord(credentials?.provider)[legacyId]);
   const options = asRecord(provider.options);
@@ -4548,19 +4741,19 @@ function runtimeAuthReply(providerId, config2) {
 }
 function zcodeDataBaseDir(personalProviderConfigFile) {
   const dataDir = zcodeV2DataDir(personalProviderConfigFile);
-  return dataDir ? path8.dirname(path8.dirname(dataDir)) : null;
+  return dataDir ? path9.dirname(path9.dirname(dataDir)) : null;
 }
 function zcodeTasksIndexPath(personalProviderConfigFile) {
   const dataDir = zcodeV2DataDir(personalProviderConfigFile);
-  return dataDir ? path8.join(dataDir, "tasks-index.sqlite") : null;
+  return dataDir ? path9.join(dataDir, "tasks-index.sqlite") : null;
 }
 function zcodeV2DataDir(personalProviderConfigFile) {
-  const absolute = path8.resolve(personalProviderConfigFile);
-  if (path8.basename(absolute).toLowerCase() !== "provider_config.json") return null;
-  const v2Dir = path8.dirname(absolute);
-  if (path8.basename(v2Dir).toLowerCase() !== "v2") return null;
-  const zcodeDir = path8.dirname(v2Dir);
-  if (path8.basename(zcodeDir).toLowerCase() !== ".zcode") return null;
+  const absolute = path9.resolve(personalProviderConfigFile);
+  if (path9.basename(absolute).toLowerCase() !== "provider_config.json") return null;
+  const v2Dir = path9.dirname(absolute);
+  if (path9.basename(v2Dir).toLowerCase() !== "v2") return null;
+  const zcodeDir = path9.dirname(v2Dir);
+  if (path9.basename(zcodeDir).toLowerCase() !== ".zcode") return null;
   return v2Dir;
 }
 function configProviderId(providerId, rule) {
@@ -4575,8 +4768,8 @@ function readProviderRules(table) {
 }
 function readJson(filePath) {
   try {
-    if (!existsSync6(filePath)) return null;
-    const value = JSON.parse(readFileSync6(filePath, "utf8"));
+    if (!existsSync7(filePath)) return null;
+    const value = JSON.parse(readFileSync7(filePath, "utf8"));
     return isRecord2(value) ? value : null;
   } catch {
     return null;
@@ -4706,7 +4899,7 @@ var init_task_timeout = __esm({
 });
 
 // src/adapters/task-index-sync.ts
-import { existsSync as existsSync7 } from "node:fs";
+import { existsSync as existsSync8 } from "node:fs";
 async function loadDatabaseSync() {
   databaseSyncPromise ??= import("node:sqlite").then((module) => module.DatabaseSync).catch(() => null);
   return databaseSyncPromise;
@@ -4813,7 +5006,7 @@ function requireTaskTable(database) {
   }
 }
 async function withDatabase(databasePath, operation) {
-  if (!existsSync7(databasePath)) {
+  if (!existsSync8(databasePath)) {
     throw new Error("ZCode Desktop tasks-index database does not exist");
   }
   const DatabaseSync = await loadDatabaseSync();
@@ -5078,10 +5271,10 @@ function mergeDefs(...defs) {
 function cloneDef(schema) {
   return mergeDefs(schema._zod.def);
 }
-function getElementAtPath(obj, path11) {
-  if (!path11)
+function getElementAtPath(obj, path12) {
+  if (!path12)
     return obj;
-  return path11.reduce((acc, key) => acc?.[key], obj);
+  return path12.reduce((acc, key) => acc?.[key], obj);
 }
 function promiseAllObject(promisesObj) {
   const keys = Object.keys(promisesObj);
@@ -5340,11 +5533,11 @@ function explicitlyAborted(x, startIndex = 0) {
   }
   return false;
 }
-function prefixIssues(path11, issues) {
+function prefixIssues(path12, issues) {
   return issues.map((iss) => {
     var _a3;
     (_a3 = iss).path ?? (_a3.path = []);
-    iss.path.unshift(path11);
+    iss.path.unshift(path12);
     return iss;
   });
 }
@@ -5865,16 +6058,16 @@ function flattenError(error62, mapper = (issue2) => issue2.message) {
 }
 function formatError(error62, mapper = (issue2) => issue2.message) {
   const fieldErrors = { _errors: [] };
-  const processError = (error63, path11 = []) => {
+  const processError = (error63, path12 = []) => {
     for (const issue2 of error63.issues) {
       if (issue2.code === "invalid_union" && issue2.errors.length) {
-        issue2.errors.map((issues) => processError({ issues }, [...path11, ...issue2.path]));
+        issue2.errors.map((issues) => processError({ issues }, [...path12, ...issue2.path]));
       } else if (issue2.code === "invalid_key") {
-        processError({ issues: issue2.issues }, [...path11, ...issue2.path]);
+        processError({ issues: issue2.issues }, [...path12, ...issue2.path]);
       } else if (issue2.code === "invalid_element") {
-        processError({ issues: issue2.issues }, [...path11, ...issue2.path]);
+        processError({ issues: issue2.issues }, [...path12, ...issue2.path]);
       } else {
-        const fullpath = [...path11, ...issue2.path];
+        const fullpath = [...path12, ...issue2.path];
         if (fullpath.length === 0) {
           fieldErrors._errors.push(mapper(issue2));
         } else {
@@ -5913,17 +6106,17 @@ function formatError(error62, mapper = (issue2) => issue2.message) {
 }
 function treeifyError(error62, mapper = (issue2) => issue2.message) {
   const result = { errors: [] };
-  const processError = (error63, path11 = []) => {
+  const processError = (error63, path12 = []) => {
     var _a3;
     for (const issue2 of error63.issues) {
       if (issue2.code === "invalid_union" && issue2.errors.length) {
-        issue2.errors.map((issues) => processError({ issues }, [...path11, ...issue2.path]));
+        issue2.errors.map((issues) => processError({ issues }, [...path12, ...issue2.path]));
       } else if (issue2.code === "invalid_key") {
-        processError({ issues: issue2.issues }, [...path11, ...issue2.path]);
+        processError({ issues: issue2.issues }, [...path12, ...issue2.path]);
       } else if (issue2.code === "invalid_element") {
-        processError({ issues: issue2.issues }, [...path11, ...issue2.path]);
+        processError({ issues: issue2.issues }, [...path12, ...issue2.path]);
       } else {
-        const fullpath = [...path11, ...issue2.path];
+        const fullpath = [...path12, ...issue2.path];
         if (fullpath.length === 0) {
           result.errors.push(mapper(issue2));
           continue;
@@ -5962,8 +6155,8 @@ function treeifyError(error62, mapper = (issue2) => issue2.message) {
 }
 function toDotPath(_path) {
   const segs = [];
-  const path11 = _path.map((seg) => typeof seg === "object" ? seg.key : seg);
-  for (const seg of path11) {
+  const path12 = _path.map((seg) => typeof seg === "object" ? seg.key : seg);
+  for (const seg of path12) {
     if (typeof seg === "number")
       segs.push(`[${seg}]`);
     else if (typeof seg === "symbol")
@@ -23959,13 +24152,13 @@ function resolveRef(ref, ctx) {
   if (!ref.startsWith("#")) {
     throw new Error("External $ref is not supported, only local refs (#/...) are allowed");
   }
-  const path11 = ref.slice(1).split("/").filter(Boolean);
-  if (path11.length === 0) {
+  const path12 = ref.slice(1).split("/").filter(Boolean);
+  if (path12.length === 0) {
     return ctx.rootSchema;
   }
   const defsKey = ctx.version === "draft-2020-12" ? "$defs" : "definitions";
-  if (path11[0] === defsKey) {
-    const key = path11[1] === void 0 ? void 0 : decodeJSONPointerSegment(path11[1]);
+  if (path12[0] === defsKey) {
+    const key = path12[1] === void 0 ? void 0 : decodeJSONPointerSegment(path12[1]);
     if (!key || !ctx.defs[key]) {
       throw new Error(`Reference not found: ${ref}`);
     }
@@ -26157,8 +26350,8 @@ var init_host = __esm({
 });
 
 // src/browser/load-backend.ts
-import { existsSync as existsSync8 } from "node:fs";
-import path9 from "node:path";
+import { existsSync as existsSync9 } from "node:fs";
+import path10 from "node:path";
 import { fileURLToPath as fileURLToPath2, pathToFileURL } from "node:url";
 function devRuntimeSpecifier() {
   return ["./runtime", "js"].join(".");
@@ -26175,9 +26368,9 @@ function asBackendModule(imported, label) {
   throw new Error(`${label} does not export createManagedCdpBrowserRuntime`);
 }
 async function loadBackendModule() {
-  const moduleDir = path9.dirname(fileURLToPath2(import.meta.url));
-  const vendorEntry = path9.join(moduleDir, "vendor", "pkg", "browser-host.cjs");
-  if (existsSync8(vendorEntry)) {
+  const moduleDir = path10.dirname(fileURLToPath2(import.meta.url));
+  const vendorEntry = path10.join(moduleDir, "vendor", "pkg", "browser-host.cjs");
+  if (existsSync9(vendorEntry)) {
     return asBackendModule(
       await import(pathToFileURL(vendorEntry).href),
       "Vendor browser backend bundle"
@@ -26211,7 +26404,7 @@ __export(zcode_app_server_adapter_exports, {
 });
 import { spawn as spawn3 } from "node:child_process";
 import { homedir as homedir3 } from "node:os";
-import path10 from "node:path";
+import path11 from "node:path";
 import { randomUUID as randomUUID4 } from "node:crypto";
 function publicUsage(value) {
   if (!isRecord3(value)) return null;
@@ -26241,7 +26434,7 @@ function browserHostClosedResult() {
   };
 }
 function sameWorkspacePath(left, right) {
-  const normalize = (value) => path10.normalize(value).replace(/[/\\]+/gu, (match) => match.includes("\\") || process.platform === "win32" ? "\\" : "/");
+  const normalize = (value) => path11.normalize(value).replace(/[/\\]+/gu, (match) => match.includes("\\") || process.platform === "win32" ? "\\" : "/");
   const resolvedLeft = normalize(left);
   const resolvedRight = normalize(right);
   return process.platform === "win32" ? resolvedLeft.toLocaleLowerCase("en-US") === resolvedRight.toLocaleLowerCase("en-US") : resolvedLeft === resolvedRight;
@@ -26320,14 +26513,14 @@ function readEffectiveReasoningLevel(snapshot) {
   const level = thoughtLevel.current;
   return typeof level === "string" && level.trim() ? level.trim() : null;
 }
-function nestedString(record2, path11) {
+function nestedString(record2, path12) {
   let value = record2;
-  for (const part of path11) value = asRecord2(value)[part];
+  for (const part of path12) value = asRecord2(value)[part];
   return typeof value === "string" ? value : null;
 }
-function nestedNumber(record2, path11) {
+function nestedNumber(record2, path12) {
   let value = record2;
-  for (const part of path11) value = asRecord2(value)[part];
+  for (const part of path12) value = asRecord2(value)[part];
   return typeof value === "number" && Number.isFinite(value) ? value : null;
 }
 function asRecord2(value) {
@@ -26416,6 +26609,7 @@ var init_zcode_app_server_adapter = __esm({
       #onOutcomeCheckpoint;
       #onInteractionState;
       #terminateProcessTree;
+      #usesDefaultProcessTerminator;
       #verifyTreeClean;
       #onCleanupDecisionTrace;
       #turnBindingCompatMs;
@@ -26440,6 +26634,7 @@ var init_zcode_app_server_adapter = __esm({
         this.#resolveInteraction = options.resolveInteraction;
         this.#onOutcomeCheckpoint = options.onOutcomeCheckpoint;
         this.#onInteractionState = options.onInteractionState;
+        this.#usesDefaultProcessTerminator = options.terminateProcessTreeImpl === void 0;
         this.#terminateProcessTree = options.terminateProcessTreeImpl ?? terminateProcessTree;
         this.#verifyTreeClean = options.verifyTreeClean ?? verifyProcessTreeClaimantsClean;
         this.#onCleanupDecisionTrace = options.onCleanupDecisionTrace;
@@ -27191,6 +27386,12 @@ var init_zcode_app_server_adapter = __esm({
         child.once("spawn", () => {
           spawned = true;
         });
+        let cleanupTransaction = null;
+        const prewarmCleanup = () => {
+          if (process.platform !== "win32" || !this.#usesDefaultProcessTerminator || cleanupTransaction || closed || !child.pid) return;
+          cleanupTransaction = openPowerShellTreeTransaction();
+          void cleanupTransaction.catch(() => void 0);
+        };
         let spawnFailure = null;
         const pending = /* @__PURE__ */ new Map();
         let protocolFatal = null;
@@ -27348,15 +27549,41 @@ var init_zcode_app_server_adapter = __esm({
           const identity = entry.childIdentity?.pid === child.pid ? entry.childIdentity : null;
           if (!terminationStarted && entry.childExitSeen && identity?.fingerprint) {
             traceRootExitedDecision();
+            const pendingTransaction = cleanupTransaction;
+            cleanupTransaction = null;
+            if (pendingTransaction) await (await pendingTransaction).close();
             throw new WindowsTreeCleanupError("process_tree_root_exited", "process_tree_root_exited: original child exit observed; recorded-tree verification required (no termination transaction started)", [child.pid]);
           }
           terminationStarted = true;
           try {
-            const terminated = await this.#terminateProcessTree(child.pid, {
-              graceMs: 500,
-              killWaitMs: 5e3,
-              expectedRootFingerprint: identity?.fingerprint ?? null
-            });
+            let terminated;
+            const pendingTransaction = cleanupTransaction;
+            cleanupTransaction = null;
+            if (pendingTransaction) {
+              try {
+                const transaction = await pendingTransaction;
+                terminated = {
+                  pid: child.pid,
+                  signal: "SIGKILL",
+                  verified: true,
+                  windows: await terminateWindowsProcessTree(child.pid, identity?.fingerprint ?? null, 5e3, {
+                    open: async () => transaction
+                  })
+                };
+              } catch {
+                terminated = await this.#terminateProcessTree(child.pid, {
+                  graceMs: 500,
+                  killWaitMs: 5e3,
+                  expectedRootFingerprint: identity?.fingerprint ?? null
+                });
+              }
+            } else {
+              terminated = await this.#terminateProcessTree(child.pid, {
+                graceMs: 500,
+                killWaitMs: 5e3,
+                expectedRootFingerprint: identity?.fingerprint ?? null
+              });
+            }
             return terminated.windows ?? null;
           } catch (error62) {
             if (error62?.code === "process_tree_root_exited") traceRootExitedDecision();
@@ -27378,11 +27605,7 @@ var init_zcode_app_server_adapter = __esm({
             await identityCapture;
           }
           if (process.platform === "win32" && child.pid) {
-            try {
-              return await closeWindowsTree();
-            } finally {
-              child.stdin.end();
-            }
+            return await closeWindowsTree();
           }
           child.stdin.end();
           await new Promise((resolve) => {
@@ -27403,7 +27626,7 @@ var init_zcode_app_server_adapter = __esm({
           }
           return null;
         };
-        return { child, request, replayEvents, close, get stderr() {
+        return { child, request, replayEvents, prewarmCleanup, close, get stderr() {
           return stderr;
         } };
       }
@@ -27794,6 +28017,7 @@ var init_zcode_app_server_adapter = __esm({
        * (ADR-008); the full text has already streamed through model_output events
        * up to the event-log capacity. */
       #resolveTurnCompleted(entry, payload, event) {
+        if (process.platform === "win32") entry.client?.prewarmCleanup();
         if (entry.turnBinding === "pending") entry.turnBinding = entry.turnId ? "strict" : "compat";
         const rawResponse = typeof payload.response === "string" ? payload.response : "";
         entry.resolveTurn({
@@ -29493,7 +29717,7 @@ init_profile();
 init_json_writer_quiescence();
 init_process_probe();
 import { createHash as createHash7, randomUUID as randomUUID5 } from "node:crypto";
-import { closeSync as closeSync4, createWriteStream, readFileSync as readFileSync7, writeFileSync as writeFileSync4 } from "node:fs";
+import { closeSync as closeSync4, createWriteStream, readFileSync as readFileSync8, writeFileSync as writeFileSync4 } from "node:fs";
 import { Socket } from "node:net";
 var workerArgs = process.argv.slice(2);
 var bridgeLaunchMarker = workerArgs.at(-1) === BRIDGE_WORKER_LAUNCH_MARKER;
@@ -29588,7 +29812,13 @@ async function runClaimOnlyHandshake(options) {
   options.onStage?.("process probe module load");
   const { createPlatformProbe: createPlatformProbe2 } = await Promise.resolve().then(() => (init_process_probe(), process_probe_exports));
   options.onStage?.("process probe initialization");
-  const probe = createPlatformProbe2({ timeoutMs: 1e4 });
+  let processProbeFailure;
+  const probe = createPlatformProbe2({
+    timeoutMs: 1e4,
+    onWindowsQueryFailure: (reason) => {
+      processProbeFailure = reason;
+    }
+  });
   options.onStage?.("identity platform check");
   if (probe.platform !== "win32") throw new Error("claim-only identity requires verified Windows process identity");
   options.onStage?.("process identity probe");
@@ -29596,7 +29826,9 @@ async function runClaimOnlyHandshake(options) {
   options.onStage?.("process identity validation");
   if (identity.platform !== "win32" || identity.fingerprint_precision !== "exact" || typeof identity.fingerprint !== "string" || !identity.fingerprint) {
     options.onStage?.(`process identity rejected platform=${identity.platform} precision=${identity.fingerprint_precision} fingerprint=${identity.fingerprint ? "present" : "missing"}`);
-    throw new Error("worker identity unavailable");
+    const error62 = new Error("worker identity unavailable");
+    error62.code = `worker_identity_${processProbeFailure ?? "unknown"}`;
+    throw error62;
   }
   const report = {
     worker_id: randomUUID5(),
@@ -29830,7 +30062,7 @@ function digestProvenance(value) {
   return createHash7("sha256").update(canonical, "utf8").digest("hex");
 }
 function readPrivateFrame(fd, maximum) {
-  const frame = readFileSync7(fd);
+  const frame = readFileSync8(fd);
   closeSync4(fd);
   if (frame.byteLength > maximum) throw new Error("private frame exceeded limit");
   return frame;
