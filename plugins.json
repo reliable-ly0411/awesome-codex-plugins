@@ -2,8 +2,8 @@
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "name": "awesome-codex-plugins",
   "version": "1.0.0",
-  "last_updated": "2026-11-04",
-  "total": 370,
+  "last_updated": "2026-11-05",
+  "total": 372,
   "categories": [
     "Development & Workflow",
     "Tools & Integrations"
@@ -2202,6 +2202,16 @@
       "install_url": "https://raw.githubusercontent.com/getclera/mcp/HEAD/.codex-plugin/plugin.json"
     },
     {
+      "name": "Clickwise",
+      "url": "https://github.com/softdevfz/clickwise-api",
+      "owner": "softdevfz",
+      "repo": "clickwise-api",
+      "description": "Affiliate programs, deals, tracked links and product search, plus merchant program setup tools.",
+      "category": "Tools & Integrations",
+      "source": "awesome-codex-plugins",
+      "install_url": "https://raw.githubusercontent.com/softdevfz/clickwise-api/HEAD/.codex-plugin/plugin.json"
+    },
+    {
       "name": "Codex Be Serious",
       "url": "https://github.com/lulucatdev/codex-be-serious",
       "owner": "lulucatdev",
@@ -2417,7 +2427,7 @@
       "url": "https://github.com/vshulcz/deja-vu",
       "owner": "vshulcz",
       "repo": "deja-vu",
-      "description": "Search the coding sessions already on your disk — Codex, Claude Code, Cursor, opencode and nineteen more — including work from before it was installed, indexed locally with no model in the loop.",
+      "description": "Search the coding sessions already on your disk — Codex, Claude Code, Cursor, opencode and thirty-nine more — including work from before it was installed, indexed locally with no model in the loop.",
       "category": "Tools & Integrations",
       "source": "awesome-codex-plugins",
       "install_url": "https://raw.githubusercontent.com/vshulcz/deja-vu/HEAD/codex-plugin/.codex-plugin/plugin.json"
@@ -2941,6 +2951,16 @@
       "category": "Tools & Integrations",
       "source": "awesome-codex-plugins",
       "install_url": "https://raw.githubusercontent.com/MetaMask/agent-skills/HEAD/.codex-plugin/plugin.json"
+    },
+    {
+      "name": "Metis Check",
+      "url": "https://github.com/MetisFoundry/metis-plugins",
+      "owner": "MetisFoundry",
+      "repo": "metis-plugins",
+      "description": "Checks the citations in an answer at the registries that issue them and files a signed report anyone can recheck; hosted MCP with OAuth sign-in, free for 5 checks a month.",
+      "category": "Tools & Integrations",
+      "source": "awesome-codex-plugins",
+      "install_url": "https://raw.githubusercontent.com/MetisFoundry/metis-plugins/HEAD/plugins/metis-check/.codex-plugin/plugin.json"
     },
     {
       "name": "Mnemoverse Memory",

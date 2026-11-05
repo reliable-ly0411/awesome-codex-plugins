@@ -14,6 +14,118 @@ SPEC.loader.exec_module(MODULE)
 
 
 class GeneratedBundleCleanupTests(unittest.TestCase):
+    def test_agent_harness_mirror_preserves_shared_resources_and_validation(self):
+        manifest = {
+            "name": "agent-harness-skills", "version": "0.2.0",
+            "skills": "./skills/",
+            "interface": {"composerIcon": "./assets/icon.svg"},
+        }
+        resources = {
+            "skills/validation-harness-design/SKILL.md":
+                b"Read `../../references/harness-patterns.md`.\n",
+            "references/harness-patterns.md": b"# Shared patterns\n",
+            "references/harness-profiles.json": b'{"templateDirectory": "templates"}\n',
+            "templates/validation-matrix.md": b"# Validation matrix\n",
+            "scripts/check_skill_closure.py": b"print('passed')\n",
+            "scripts/test_check_skill_closure.py": b"# Validator tests\n",
+            ".opencode/plugins/agent-harness-skills.js": b"export default async () => ({});\n",
+            ".claude-plugin/plugin.json": b'{"name": "agent-harness-skills"}\n',
+            ".cursor-plugin/plugin.json": b'{"name": "agent-harness-skills"}\n',
+            "gemini-extension.json": b'{"contextFileName": "GEMINI.md"}\n',
+            "AGENTS.md": b"# Repository instructions\n",
+            "INDEX.md": b"# Skill routing\n",
+            "GEMINI.md": b"Read INDEX.md.\n",
+            "README.zh-CN.md": b"# Translated README\n",
+            "CONTRIBUTING.md": b"# Contributing\n",
+            "CODE_OF_CONDUCT.md": b"# Code of conduct\n",
+            "docs/scenario-tests.md": b"# Scenario evidence\n",
+            "assets/icon.svg": b"<svg/>\n",
+            "package.json": b'{"scripts": {"validate": "python3 scripts/check_skill_closure.py"}}\n',
+        }
+        with tempfile.TemporaryDirectory() as scratch:
+            buffer = io.BytesIO()
+            with MODULE.zipfile.ZipFile(buffer, "w") as archive:
+                archive.writestr("archive/.codex-plugin/plugin.json", json.dumps(manifest))
+                for path, content in resources.items():
+                    archive.writestr("archive/" + path, content)
+                archive.writestr("archive/unrelated/data.txt", b"not part of the plugin")
+            with MODULE.zipfile.ZipFile(io.BytesIO(buffer.getvalue())) as archive, patch.object(
+                MODULE, "fetch_repo_archive", return_value=archive
+            ), patch.object(MODULE, "PLUGINS_ROOT", Path(scratch)):
+                MODULE.mirror_plugin_bundle({"owner": "yfge", "repo": "agent-harness-skills"})
+            output = Path(scratch) / "yfge/agent-harness-skills"
+            for path, content in resources.items():
+                self.assertTrue((output / path).is_file(), path)
+                self.assertEqual((output / path).read_bytes(), content)
+            self.assertFalse((output / "unrelated/data.txt").exists())
+
+    def test_complete_metis_bundle_is_mirrored_verbatim(self):
+        files = {
+            ".codex-plugin/plugin.json": b'{"name":"metis-check","version":"1.0.3","skills":"./skills/","mcpServers":"./.mcp.json"}\n',
+            ".claude-plugin/plugin.json": b'{"name":"metis-check"}\n',
+            ".mcp.json": b'{"mcpServers":{}}\n',
+            "mcp.json": b'{"servers":{}}\n',
+            "plugin.json": b'{"name":"metis-check"}\n',
+            "LICENSE": b"complete unmodified bundle mirroring permitted\n",
+            "README.md": b"installation instructions\n",
+            "assets/README.txt": b"asset attribution\n",
+            "assets/icon-codex.png": b"codex icon",
+            "assets/icon.png": b"other client icon",
+            "assets/logo.png": b"logo",
+            "skills/metis-check/SKILL.md": b"check citations\n",
+            "skills/setup/SKILL.md": b"configure the service\n",
+            "future/new.json": b'{"keep":"new bundle files too"}\n',
+        }
+        with tempfile.TemporaryDirectory() as scratch:
+            buffer = io.BytesIO()
+            with MODULE.zipfile.ZipFile(buffer, "w") as archive:
+                for path, content in files.items():
+                    archive.writestr("archive/plugins/metis-check/" + path, content)
+                archive.writestr("archive/dist/music.mp3", b"not licensed for mirroring")
+            with MODULE.zipfile.ZipFile(io.BytesIO(buffer.getvalue())) as archive, patch.object(
+                MODULE, "fetch_repo_archive", return_value=archive
+            ), patch.object(MODULE, "PLUGINS_ROOT", Path(scratch)):
+                MODULE.mirror_plugin_bundle({"owner": "MetisFoundry", "repo": "metis-plugins"})
+            output = Path(scratch) / "MetisFoundry/metis-plugins"
+            actual = {p.relative_to(output).as_posix(): p.read_bytes()
+                      for p in output.rglob("*") if p.is_file()}
+            self.assertEqual(actual, files)
+
+    def test_deja_hook_mirror_keeps_executable_wrapper_and_dark_logo(self):
+        manifest = {
+            "name": "deja-vu", "version": "1.0.0",
+            "hooks": "./hooks/hooks.json",
+            "interface": {"logoDark": "./assets/logo-dark.svg"},
+        }
+        with tempfile.TemporaryDirectory() as scratch:
+            buffer = io.BytesIO()
+            with MODULE.zipfile.ZipFile(buffer, "w") as archive:
+                prefix = "archive/codex-plugin/"
+                archive.writestr(prefix + ".codex-plugin/plugin.json", json.dumps(manifest))
+                archive.writestr(prefix + "hooks/hooks.json", '{"hooks": {}}')
+                wrapper = MODULE.zipfile.ZipInfo(prefix + "hooks/deja.sh")
+                wrapper.external_attr = 0o100755 << 16
+                archive.writestr(wrapper, b'#!/bin/sh\nexec deja "$@"\n')
+                archive.writestr(prefix + "assets/logo-dark.svg", b"<svg/>\n")
+                archive.writestr("archive/unrelated.txt", b"not bundled")
+            with MODULE.zipfile.ZipFile(io.BytesIO(buffer.getvalue())) as archive, patch.object(
+                MODULE, "fetch_repo_archive", return_value=archive
+            ), patch.object(MODULE, "PLUGINS_ROOT", Path(scratch)):
+                MODULE.mirror_plugin_bundle({"owner": "vshulcz", "repo": "deja-vu"})
+            output = Path(scratch) / "vshulcz/deja-vu"
+            self.assertEqual((output / "hooks/deja.sh").read_bytes(), b'#!/bin/sh\nexec deja "$@"\n')
+            self.assertEqual((output / "hooks/deja.sh").stat().st_mode & 0o777, 0o755)
+            self.assertEqual((output / "assets/logo-dark.svg").read_bytes(), b"<svg/>\n")
+            self.assertFalse((output / "unrelated.txt").exists())
+
+    def test_metadata_only_mirror_keeps_dark_logo(self):
+        root = MODULE.PurePosixPath("archive")
+        selected = MODULE.collect_metadata_only_paths(
+            {"interface": {"logoDark": "./assets/logo-dark.svg"}},
+            {"archive/assets/logo-dark.svg", "archive/unrelated.txt"}, root,
+        )
+        self.assertEqual(selected, {".codex-plugin/plugin.json", "assets/logo-dark.svg"})
+
     def test_suede_inline_mcp_keeps_runtime_and_sibling_dependencies(self):
         runtime = {
             "mcp/suede-skills-mcp.mjs": b"import './copy-check.mjs';\n",

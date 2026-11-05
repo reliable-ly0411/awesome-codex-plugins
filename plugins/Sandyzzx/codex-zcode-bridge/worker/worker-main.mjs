@@ -4180,7 +4180,7 @@ function windowsTreeTransactionScript() {
 async function openPowerShellTreeTransaction() {
   return PowerShellTreeTransaction.start();
 }
-var CIM_REPRESENTATION_INTERVAL_TICKS, WindowsTreeCleanupError, TRANSPORT_MAX_LINE_BYTES, TRANSPORT_MAX_BUFFERED_BYTES, TRANSPORT_MAX_BUFFERED_LINES, TRANSPORT_MAX_ENUM_ROWS, TRANSPORT_TOTAL_SESSION_MS_DEFAULT, PowerShellTreeTransaction;
+var CIM_REPRESENTATION_INTERVAL_TICKS, WindowsTreeCleanupError, TRANSPORT_MAX_LINE_BYTES, TRANSPORT_MAX_BUFFERED_BYTES, TRANSPORT_MAX_BUFFERED_LINES, TRANSPORT_MAX_ENUM_ROWS, TRANSPORT_TOTAL_SESSION_MS_DEFAULT, TRANSPORT_HELPER_STARTUP_MS_DEFAULT, PowerShellTreeTransaction;
 var init_windows_process_cleanup = __esm({
   "src/adapters/windows-process-cleanup.ts"() {
     "use strict";
@@ -4200,6 +4200,7 @@ var init_windows_process_cleanup = __esm({
     TRANSPORT_MAX_BUFFERED_LINES = 65536;
     TRANSPORT_MAX_ENUM_ROWS = 4096;
     TRANSPORT_TOTAL_SESSION_MS_DEFAULT = 12e4;
+    TRANSPORT_HELPER_STARTUP_MS_DEFAULT = 6e4;
     PowerShellTreeTransaction = class _PowerShellTreeTransaction {
       #child;
       #bounds;
@@ -4275,6 +4276,7 @@ var init_windows_process_cleanup = __esm({
           this.#fail(new Error("process_tree_transport_stderr"));
         });
         child.on("error", (error62) => this.#fail(new Error(`process_tree_transport_error: ${String(error62.message)}`)));
+        child.stdin.on("error", () => this.#fail(new Error("process_tree_transport_stdin_error")));
         child.on("close", (code, signal) => {
           this.#closed = true;
           this.#exitCode = code;
@@ -4325,7 +4327,7 @@ var init_windows_process_cleanup = __esm({
           this.#waiters.push({ resolve, reject, timer });
         });
       }
-      static async start(timeoutMs = 2e4) {
+      static async start(timeoutMs = TRANSPORT_HELPER_STARTUP_MS_DEFAULT) {
         const encoded = Buffer.from(windowsTreeTransactionScript(), "utf16le").toString("base64");
         const child = spawn2("powershell.exe", ["-NoProfile", "-NonInteractive", "-ExecutionPolicy", "Bypass", "-EncodedCommand", encoded], {
           shell: false,
@@ -26423,6 +26425,14 @@ function readFactsCandidate(error62) {
   if (!(error62 instanceof Error)) return null;
   return error62[FACTS_CANDIDATE] ?? null;
 }
+function retryAfterMilliseconds(value) {
+  if (typeof value === "number" && Number.isFinite(value)) return value * 1e3;
+  if (typeof value !== "string" || !value.trim()) return null;
+  const seconds = Number(value);
+  if (Number.isFinite(seconds)) return seconds * 1e3;
+  const dateMs = Date.parse(value);
+  return Number.isFinite(dateMs) ? Math.max(0, dateMs - Date.now()) : null;
+}
 function interactionDecline(method, reason) {
   return method === "interaction/requestPermission" ? { decision: "deny", reason } : { action: "decline", reason };
 }
@@ -26571,7 +26581,7 @@ function stableSerialize(value) {
   }
   return JSON.stringify(value) ?? "undefined";
 }
-var FACTS_CANDIDATE, RPC_TIMEOUT_MS, MAX_CAPTURE_CHARS, MAX_FRAME_BYTES, ZCodeAppServerAdapter;
+var FACTS_CANDIDATE, PROVIDER_RETRY_LIMIT, MAX_PROVIDER_RETRY_AFTER_MS, RPC_TIMEOUT_MS, MAX_CAPTURE_CHARS, MAX_FRAME_BYTES, ZCodeAppServerAdapter;
 var init_zcode_app_server_adapter = __esm({
   "src/adapters/zcode-app-server-adapter.ts"() {
     "use strict";
@@ -26593,6 +26603,8 @@ var init_zcode_app_server_adapter = __esm({
     init_host();
     init_load_backend();
     FACTS_CANDIDATE = /* @__PURE__ */ Symbol("zcodeFailureFactsCandidate");
+    PROVIDER_RETRY_LIMIT = 2;
+    MAX_PROVIDER_RETRY_AFTER_MS = 6e4;
     RPC_TIMEOUT_MS = 3e4;
     MAX_CAPTURE_CHARS = 2e6;
     MAX_FRAME_BYTES = 16 * 1024 * 1024;
@@ -26616,6 +26628,7 @@ var init_zcode_app_server_adapter = __esm({
       #replayIdleMs;
       #onFailureFacts;
       #nativeSendCorrelationVerified;
+      #providerRetryLimit;
       #onSendBoundary;
       #browser;
       #probe;
@@ -26642,6 +26655,7 @@ var init_zcode_app_server_adapter = __esm({
         this.#replayIdleMs = options.replayIdleMs ?? 1e4;
         this.#onFailureFacts = options.onFailureFacts;
         this.#nativeSendCorrelationVerified = options.nativeSendCorrelationVerified === true;
+        this.#providerRetryLimit = options.providerRetryLimit ?? PROVIDER_RETRY_LIMIT;
         this.#onSendBoundary = options.onSendBoundary;
         this.#browser = options.browser;
       }
@@ -26741,6 +26755,9 @@ var init_zcode_app_server_adapter = __esm({
           acceptingTurn: false,
           turnId: null,
           awaitingTurnStart: false,
+          prompt: null,
+          providerSendNumber: 0,
+          providerRetryTimer: null,
           rpcAcceptedAt: null,
           turnStartedAt: null,
           turnCompletedAt: null,
@@ -27010,9 +27027,13 @@ var init_zcode_app_server_adapter = __esm({
             afterSeq: runtimeSeq
           });
           entry.acceptingTurn = true;
+          entry.prompt = prompt;
+          entry.providerSendNumber = 1;
           await client.request("session/send", { sessionId, content: prompt });
           entry.rpcAcceptedAt = this.#now().toISOString();
-          entry.onEvent({ type: "turn_started", summary: "ZCode accepted the task and started a turn", details: { rpc_accepted: true, ...entry.turnId ? { turn_id: entry.turnId } : {} } });
+          if (!entry.turnStartedAt) {
+            entry.onEvent({ type: "turn_started", summary: "ZCode accepted the task and started a turn", details: { rpc_accepted: true, ...entry.turnId ? { turn_id: entry.turnId } : {} } });
+          }
           entry.bindingTimer = setTimeout(() => {
             if (!entry.awaitingTurnStart) return;
             entry.awaitingTurnStart = false;
@@ -27062,6 +27083,10 @@ var init_zcode_app_server_adapter = __esm({
             if (entry.pendingTimer) {
               clearTimeout(entry.pendingTimer);
               entry.pendingTimer = null;
+            }
+            if (entry.providerRetryTimer) {
+              clearTimeout(entry.providerRetryTimer);
+              entry.providerRetryTimer = null;
             }
           }
           entry.turnCompletedAt = turnResult.completedAt;
@@ -27422,6 +27447,8 @@ var init_zcode_app_server_adapter = __esm({
         child.stdout.setEncoding("utf8");
         child.stderr.setEncoding("utf8");
         child.stdin.on("error", () => void 0);
+        child.stdout.on("error", () => void 0);
+        child.stderr.on("error", () => void 0);
         child.stdout.on("data", (chunk) => {
           if (protocolFatal) return;
           stdoutBuffer += chunk;
@@ -27771,6 +27798,11 @@ var init_zcode_app_server_adapter = __esm({
               ...extraction
             };
             const quotaExhausted = classification.category === "quota_exhausted";
+            const retryDelayMs = quotaExhausted ? null : this.#preTurnProviderRetryDelayMs(entry, asRecord2(payload.error), extraction, classification.category);
+            if (retryDelayMs !== null) {
+              this.#schedulePreTurnProviderRetry(entry, retryDelayMs);
+              return;
+            }
             const failure2 = quotaExhausted ? new BridgeError(
               "zcode_usage_exhausted",
               "ZCode \u63D0\u4F9B\u65B9\u660E\u786E\u62A5\u544A\u7528\u91CF\u989D\u5EA6\u5DF2\u8017\u5C3D\uFF1B\u5F53\u524D\u6267\u884C\u5DF2\u4E2D\u65AD\u3002\u8BF7\u7ACB\u5373\u505C\u6B62\u5F53\u524D\u4EFB\u52A1\u5E76\u544A\u77E5\u7528\u6237\uFF1B\u4E0D\u8981\u7EE7\u7EED\u5DE5\u4F5C\u3001\u81EA\u52A8\u91CD\u8BD5\u6216\u7EED\u4F5C\uFF0C\u7B49\u5F85\u7528\u6237\u786E\u8BA4\u989D\u5EA6\u6062\u590D\u540E\u518D\u7EE7\u7EED\u3002"
@@ -28032,6 +28064,75 @@ var init_zcode_app_server_adapter = __esm({
         });
         void event;
       }
+      #preTurnProviderRetryDelayMs(entry, error62, extraction, category) {
+        if (entry.providerSendNumber > this.#providerRetryLimit || entry.turnStartedAt || entry.turnId || entry.turnBinding !== "pending" || !entry.prompt || entry.cancelRequested || entry.timedOut) return null;
+        if (entry.acceptedEvidence !== "no") return null;
+        if (extraction.retryableBooleans.includes(false)) return null;
+        const explicitRateLimitRejection = category === "rate_limited" && extraction.httpStatus === 429;
+        if (!explicitRateLimitRejection) return null;
+        const attribution = asRecord2(error62.attribution);
+        const retryAfterMs = typeof error62.retryAfterMs === "number" && Number.isFinite(error62.retryAfterMs) ? error62.retryAfterMs : typeof attribution.retryAfterMs === "number" && Number.isFinite(attribution.retryAfterMs) ? attribution.retryAfterMs : retryAfterMilliseconds(error62.retryAfter ?? attribution.retryAfter);
+        if (retryAfterMs !== null && (retryAfterMs < 0 || retryAfterMs > MAX_PROVIDER_RETRY_AFTER_MS)) return null;
+        return retryAfterMs ?? 1e3;
+      }
+      #schedulePreTurnProviderRetry(entry, delayMs) {
+        const attemptNumber = entry.providerSendNumber + 1;
+        entry.providerSendNumber = attemptNumber;
+        entry.acceptingTurn = false;
+        if (entry.bindingTimer) {
+          clearTimeout(entry.bindingTimer);
+          entry.bindingTimer = null;
+        }
+        this.#publishSessionEvent("provider_retry_scheduled", {
+          attempt: attemptNumber,
+          delay_ms: delayMs,
+          scope: "pre_turn"
+        }, entry, {});
+        entry.providerRetryTimer = setTimeout(() => {
+          entry.providerRetryTimer = null;
+          void this.#retryPreTurnProviderSend(entry, attemptNumber);
+        }, delayMs);
+        entry.providerRetryTimer.unref();
+      }
+      async #retryPreTurnProviderSend(entry, attemptNumber) {
+        if (entry.finished || entry.cancelRequested || entry.timedOut || !entry.client || !entry.sessionId || !entry.prompt) return;
+        entry.acceptingTurn = true;
+        entry.awaitingTurnStart = entry.sendSeqBaseline !== null;
+        entry.turnBinding = "pending";
+        entry.turnId = null;
+        try {
+          await entry.client.request("session/send", { sessionId: entry.sessionId, content: entry.prompt });
+          entry.rpcAcceptedAt = this.#now().toISOString();
+          entry.acceptingTurn = true;
+          entry.turnBinding = "pending";
+          entry.turnId = null;
+          this.#publishSessionEvent("provider_retry_send_accepted", {
+            attempt: attemptNumber,
+            scope: "pre_turn"
+          }, entry, {});
+          entry.bindingTimer = setTimeout(() => {
+            if (!entry.awaitingTurnStart) return;
+            entry.awaitingTurnStart = false;
+            entry.turnBinding = "compat";
+            entry.onEvent({
+              type: "turn_binding_compat",
+              summary: "turn.started did not arrive after the provider retry; binding degraded to the documented compatibility mode"
+            });
+            this.#settlePendingCompletion(entry);
+          }, Math.max(this.#turnBindingCompatMs, 5e3));
+          entry.bindingTimer.unref();
+        } catch (error62) {
+          entry.acceptingTurn = false;
+          entry.rejectTurn(withFactsCandidate(error62 instanceof Error ? error62 : new Error("ZCode provider retry failed"), {
+            kind: "turn",
+            input: {
+              source: "turn_event",
+              phase: "turn_terminal",
+              accepted: entry.acceptedEvidence
+            }
+          }));
+        }
+      }
       #modelProfile(entry) {
         if (!entry.selectedModel && !entry.selectedModelSelection) return null;
         return {
@@ -28180,6 +28281,16 @@ var init_zcode_app_server_adapter = __esm({
             type: "tool_status",
             summary: `${name}: ${state}`,
             details: { tool_name: name, state, ...callId ? { tool_call_id: callId } : {} }
+          });
+        } else if (type === "provider_retry_scheduled" || type === "provider_retry_send_accepted") {
+          entry.onEvent({
+            type,
+            summary: type === "provider_retry_scheduled" ? `ZCode transient provider failure scheduled pre-turn retry ${Number(payload.attempt)}` : `ZCode pre-turn provider retry ${Number(payload.attempt)} accepted`,
+            details: {
+              attempt: Number(payload.attempt),
+              retry_scope: payload.scope,
+              ...type === "provider_retry_scheduled" && typeof payload.delay_ms === "number" ? { retry_after_ms: payload.delay_ms } : {}
+            }
           });
         } else if (type === "turn.completed") {
           entry.onEvent({
@@ -29717,7 +29828,7 @@ init_profile();
 init_json_writer_quiescence();
 init_process_probe();
 import { createHash as createHash7, randomUUID as randomUUID5 } from "node:crypto";
-import { closeSync as closeSync4, createWriteStream, readFileSync as readFileSync8, writeFileSync as writeFileSync4 } from "node:fs";
+import { closeSync as closeSync4, createWriteStream, readFileSync as readFileSync8, writeFileSync as writeFileSync4, writeSync } from "node:fs";
 import { Socket } from "node:net";
 var workerArgs = process.argv.slice(2);
 var bridgeLaunchMarker = workerArgs.at(-1) === BRIDGE_WORKER_LAUNCH_MARKER;
@@ -29727,11 +29838,31 @@ var positionalArgs = bridgeLaunchMarker ? workerArgs.slice(0, -1).filter((argume
 if (bridgeLaunchMarker && positionalArgs.length === 0) {
   let claimOnlyStage = "start";
   let interactionStreamsCreated = false;
+  const writeFatalDiagnostic = (origin, error62) => {
+    const message = error62 instanceof Error ? `${error62.name}: ${error62.message}` : String(error62);
+    const frames = error62 instanceof Error && typeof error62.stack === "string" ? error62.stack.split("\n").slice(1, 6).join("\n") : "";
+    writeDiagnostic(`[bridge-worker] fatal ${origin} at ${claimOnlyStage}: ${message.slice(0, 300)}
+${frames.slice(0, 1200)}
+`);
+  };
+  const reallyExit = process.reallyExit.bind(process);
+  process.on("exit", (code) => {
+    writeDiagnostic(`[bridge-worker] exit code=${String(code)}
+`);
+  });
+  process.on("uncaughtException", (error62) => {
+    writeFatalDiagnostic("uncaught_exception", error62);
+    reallyExit(1);
+  });
+  process.on("unhandledRejection", (reason) => {
+    writeFatalDiagnostic("unhandled_rejection", reason);
+    reallyExit(1);
+  });
   try {
     if (dropAfterPrepared && !interactionMode) throw new Error("interaction test mode required");
     await runClaimOnlyHandshake({ interactionMode, dropAfterPrepared, onStage: (stage) => {
       claimOnlyStage = stage;
-      if (interactionMode) process.stderr.write(`[bridge-worker] claim-only stage=${stage}
+      if (interactionMode) writeDiagnostic(`[bridge-worker] claim-only stage=${stage}
 `);
     }, onInteractionStreamsCreated: () => {
       interactionStreamsCreated = true;
@@ -29747,9 +29878,11 @@ if (bridgeLaunchMarker && positionalArgs.length === 0) {
       }
     }
     const failureCode = error62 && typeof error62 === "object" && "code" in error62 && typeof error62.code === "string" ? error62.code : "unclassified";
-    console.error(`[bridge-worker] claim-only handshake rejected${interactionMode ? ` at ${claimOnlyStage} code=${failureCode}` : ""}`);
+    writeDiagnostic(`[bridge-worker] claim-only handshake rejected${interactionMode ? ` at ${claimOnlyStage} code=${failureCode}` : ""}
+`);
     process.exitCode = 3;
   }
+  process.exit(process.exitCode ?? 0);
 } else {
   const [dataRoot, taskId, attemptText] = positionalArgs;
   if (positionalArgs.length !== 3 || !dataRoot || !taskId || !attemptText || !/^[1-9]\d*$/u.test(attemptText) || !Number.isSafeInteger(Number(attemptText))) {
@@ -29950,7 +30083,18 @@ async function runZCodeAdapter(bootstrap, execution, interaction) {
   const adapter = new ZCodeAppServerAdapter2({
     host: execution.host_profile,
     executionProfileId: execution.execution_profile_id,
-    onEvent: () => void 0,
+    onEvent: (event) => {
+      if (!interactionMode) return;
+      if (event.type === "cleanup_unverified") {
+        const summary = event.summary;
+        const reason = summary.startsWith("Managed browser cleanup") ? "browser_cleanup" : summary.includes("process_tree_root_exited") ? "root_exited_scan_unverified" : summary.includes("Identity-bound Windows process-tree cleanup receipt") ? "receipt_unavailable" : "unclassified";
+        writeDiagnostic(`[bridge-worker] adapter event=${event.type} reason=${reason} summary=${summary.slice(0, 500)}
+`);
+        return;
+      }
+      writeDiagnostic(`[bridge-worker] adapter event=${event.type}
+`);
+    },
     resolveInteraction: interaction ? async (request, signal) => {
       if (signal.aborted) return { action: "decline" };
       await interaction.sendRequest(request);
@@ -30043,6 +30187,12 @@ function requiredStringArray(value, error62) {
 }
 function nullableString(value) {
   return typeof value === "string" ? value : null;
+}
+function writeDiagnostic(line) {
+  try {
+    writeSync(2, line);
+  } catch {
+  }
 }
 async function closeOwnedStreams(streams) {
   await Promise.all(streams.map((stream) => new Promise((resolve) => {

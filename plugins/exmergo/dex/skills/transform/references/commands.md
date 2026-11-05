@@ -135,6 +135,18 @@ See the cost-controls reference for the shared budget mechanism.
   `semantic.cube.files`. Per model,
   `carried` and `not_carried` account for every declared field. Absent when no
   declared mart was touched. Shape and statuses in `declarations.md`.
+- `data.model_versions`: for each native dbt versioned model the plan touches
+  (its YAML entry, a version's file, or a model that refs it), each version's
+  `label`, `file`, `file_source` and `relation`, the `default` an unversioned
+  `ref()` resolves to before and after, every consumer's `ref` and what it
+  resolves to before and after (`changed`), `relation_changes`,
+  `contract_changes`, and `manifest`. dbt's parse of the post-change project
+  confirms node ids, files, relations and each consumer's `depends_on`:
+  `confirmed`, `contradicted` with coded `mismatches`, or `unchecked` with a
+  `reason_code`. A version with no file, two versions on one file, or a plain
+  entry beside a version is refused by code. A promotion and a moved relation
+  are warnings. `independent_models` names a new `<model>_v<N>` copy that is not
+  a version. Recipe: [model-versions.md](model-versions.md).
 
 ## `transform apply [plan-id]` and `transform plans`
 
@@ -142,6 +154,17 @@ See the cost-controls reference for the shared budget mechanism.
 when no id is given. If a human edited a file after planning, nothing is written
 and the divergence comes back as diffs with `needs_confirmation`. `plans` lists
 stored plans, pending and applied, newest first.
+
+When no id is given, the envelope names the plan it picked:
+`data.resolved_plan` is `{plan_id, intent, created_at, resolved_from:
+"latest_unapplied"}`, and a `warnings` line names the same plan, on a refusal
+after the pick too. Check that it is the plan you meant. `export`, `ground`, `classify` and `compare` take the same
+default and report it the same way. An id that is given but empty (`apply ""`,
+which is what `apply "$(dex transform plan ...)"` passes when the plan failed) is
+refused with `reason: request`, as are an empty `--plan-file`, `--for-plan` and
+`--for-plan-file`. An unquoted empty substitution leaves no argument at all, so
+it still means "latest": take the id from the plan's envelope, or quote the
+substitution.
 
 An apply that wrote at least one file returns `data.commit_trailer`, the line
 `Co-authored-by: Dex <dex@exmergo.com>`. End the message of the commit that
@@ -233,7 +256,9 @@ Proposes declarations for models that already exist, as one plan. Each selected
 model gets only the measured facts its YAML does not state, plus any intent the
 payload's `declarations` supply. Every model not proposed is listed in
 `data.skipped` with the reason. The plan is capped at 25 models (`--limit` only
-narrows), and a second run after apply moves to the next batch. Fields, skip
+narrows), and a second run after apply moves to the next batch. A versioned
+model is selected by version (`dim_teams.v2`, or every version with
+`dim_teams`) and proposed into that version's `versions:` item. Fields, skip
 reasons and the cap: `declarations.md`, "Declaring models that already exist".
 
 ## `transform build --target dev [--select <s>] [--full-refresh] [--verify] [--for-plan <id>] [--no-install-deps]`
@@ -274,7 +299,8 @@ Runs `dbt build` against a dev target, with a cost preflight first.
   is needed by hand.
 - Each node in `data.nodes` carries dbt's `unique_id` beside a readable `name`.
 - `data.outcome` says what the run established: `empty_selection`, `unrelated`,
-  `stale`, or `validated`. `--for-plan <id>` adds `coverage`.
+  `stale`, or `validated`. `--for-plan <id>` adds `coverage`; an empty one is
+  refused rather than read as absent.
 - `data.completion` is the first key of `data`: a bounded summary of all of the
   above. Read it first. See below.
 
@@ -354,6 +380,13 @@ incremental model and seed instead of adding to it. Use it after you change an
 incremental model's logic: an incremental run only adds or merges new rows, so
 the rows the old logic wrote stay in the dev table until the model is rebuilt.
 It is not a routine build. A full rebuild scans the model's whole history.
+
+A full refresh runs only the model's full program, never its
+`{% if is_incremental() %}` branch. When the defect is in what the next
+incremental run skips or duplicates, a green full refresh is not the evidence:
+test the branch with the incremental unit test `transform test --scaffold`
+writes, and build again without the flag. Recipe:
+[incremental-repairs.md](incremental-repairs.md).
 
 - Name the model with `--select`. With no `--select`, every incremental model
   and seed dbt's default selection reaches is rebuilt: the whole project, unless
@@ -439,6 +472,16 @@ test over the smaller result.
   `maintain verify` does: `data.verification.join_coverage` holds one record
   per join, and `join_no_match`, `join_orphans`, `join_zero_overlap`,
   `join_field_all_null` and `join_field_newly_null` are its findings.
+- With `--for-plan` or `--for-plan-file`, it holds each versioned model the
+  plan touches to the manifest this build wrote, with no statement:
+  `data.verification.model_versions` has one record per version (`check:
+  version`, its `unique_id` and `build_status`), per default (`check: default`)
+  and per consumer (`check: ref`, its `depends_on`), each `satisfied`,
+  `contradicted` (`version_missing`, `version_not_built`,
+  `version_file_mismatch`, `version_default_contradicted`,
+  `version_ref_misresolved`) or `unchecked`, and each reaches
+  `data.completion.obligations`. Deliverables name versions by label, so one
+  version building never answers for another.
 - It compares each built model's columns with its `schema.yml`, using the
   detector `maintain verify` runs: `column_missing`, `column_undeclared` and
   `column_type_mismatch`. This reads metadata only, so it adds no statement and no
@@ -474,6 +517,10 @@ stored plan, keyed by model, so `transform apply` and a `transform build
 --for-plan` report whether each rewrite was compared and what came back. The
 latest comparison of a model replaces the earlier one. Recording moves no plan
 digest: the portable document carries the edits alone.
+
+With no plan id, `compare` uses the latest unapplied plan and names it in
+`data.resolved_plan` and a `warnings` line on every verdict; an empty id is
+refused.
 
 Before compiling anything, it reads the last build's `run_results.json`: a parent
 of the compared model that the last build tried and that errored or was skipped is
@@ -540,6 +587,39 @@ Plans a `unit_tests:` skeleton: a `given` block per `ref()`/`source()` input
 carrying only the columns the model reads, typed from the cache, and an `expect:`
 stub that fails until filled in.
 
+- A `RANGE` frame with a day or week interval bound, ordered by a date or
+  timestamp column of one input, gets boundary rows for that input: the current
+  day, the last day the window includes, the first it excludes, and a gap a
+  row-count frame would cross. The partition is held constant and the aggregated
+  column is numbered 1, 10, 100, 1000. `data.window_boundaries` says what each
+  date tests; you still write `expect:`.
+- A window it cannot reach (an ordering expression, a month unit, a non-temporal
+  column, a bare-number `RANGE` bound such as BigQuery's over `unix_date`) is a
+  warning with a reason code, and the input keeps one example row.
+- The full loop, with a worked example: `${CLAUDE_SKILL_DIR}/references/test-strength.md`.
+
+On a model whose only jinja control flow is `{% if is_incremental() %}` (with an
+optional `{% else %}`), it plans two tests in the one file:
+
+- `test_<model>`, the full build, with dbt's `is_incremental: false` override,
+  which dbt requires on every unit test of an incremental model.
+- `test_<model>_incremental`, with `is_incremental: true` and a `this` fixture
+  written as typed SQL (`format: sql`), so it runs before the model was ever
+  built. A `this` column is typed from the input column the full build passes
+  through to it, then from the cached profile of the model's own relation;
+  otherwise the scaffold refuses and names the `explore profile ... --target dev`
+  that would type it.
+
+`data.incremental` is `{tests, watermark}`, and absent for any other model.
+`watermark` is `{column, operator, input, this_column}` where the branch compares
+one column with a subquery over `{{ this }}` (`operator` as read with the column
+on the left), or `null`. Where it is read, the watermark's input gets one row
+before, on and after the current watermark plus one NULL, each commented with
+what it probes. Where it is not, or where Dex cannot place the boundary (more
+than one input reads the watermark column, or the column is text or boolean),
+the input gets the single example row the full test has: read the fixture, and
+add the boundary rows yourself. Recipe: [incremental-repairs.md](incremental-repairs.md).
+
 ## `transform test --mutate <model> [--max-mutants <n>] [--check-equivalence|--no-check-equivalence] [--downstream|--no-downstream]`
 
 Plants one standard analytics defect at a time in the model's compiled SQL (a
@@ -558,6 +638,12 @@ the model's own tests against each, and reports which defects nothing caught.
   Snowflake it needs `--check-equivalence` and joins the same single estimate;
   other connectors report `not_checked`, which carries a `reason`.
 - `score` is a ratio of two small integers over one model.
+- A window frame bound moves one step wider. An interval bound also moves one
+  unit narrower, and each window mutant carries `frame`: `last_included` and
+  `first_excluded` are the offsets a boundary fixture needs rows at, in `unit`.
+- `data.unsupported_sites` lists the frame bounds no mutant moved, each with a
+  `reason_code` (a column or expression offset, a fraction, a compound
+  interval, the frame's other bound). Their boundaries are untested; say so.
 - `--downstream` also runs the tests of the models that read this one, against
   each mutant (on by default on DuckDB, opt-in and priced into the same estimate
   elsewhere). A defect only those caught is `caught_downstream`, named in
