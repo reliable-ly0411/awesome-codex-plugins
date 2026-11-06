@@ -48,7 +48,8 @@ An installer build does **not** put the client on `PATH`, so a bare `mysql`
 gives `mysql: command not found`. Take the path from `credentials.txt`:
 
 ```bash
-VSQL_CLIENT="$HOME/.villagesql/prebuilt/bin/mysql"  # installer build
+VSQL_CLIENT="$HOME/.villagesql/prebuilt/bin/mysql"  # installer, prebuilt
+VSQL_CLIENT="$HOME/.villagesql/build/bin/mysql"     # installer, source build
 VSQL_CLIENT=mysql                                   # Docker, or a client already on PATH
 ```
 
@@ -398,6 +399,7 @@ instead:
 | An MCP server for AI agents | `vsql_mcp` (preview) |
 | JWT login from an OAuth2/OIDC provider | `vsql_oauth2` (preview) |
 | Per-statement telemetry to ClickHouse | `vsql_stat_ch` (preview) |
+| Queries over Parquet, CSV or JSON files in object storage | `vsql_duckdb` (preview) |
 
 Not every one of these is bundled. For an extension missing from your
 `veb_dir` listing, follow the build steps in the README of its repository,
