@@ -501,7 +501,7 @@ narrower than the task, so tell them which access level covers it. `401` /
 `invalid_token`: call a Webly tool again to re-trigger sign-in; don't start a
 second attempt while one is waiting. Other people and agents may edit the
 same site at once, and people may edit text (on static sites too), styles,
-sections and component props in the dashboard (History shows them as Editor). Prefer `str_replace` for small edits. Send `baseVersion`
+sections, new elements and images, and component props in the dashboard (History shows them as Editor). Prefer `str_replace` for small edits. Send `baseVersion`
 (the `version` your read returned) with `put_source_file` /
 `delete_source_file`: their edits to other lines are merged with yours;
 `409 merge_conflict` means you both changed the same lines — read the file
@@ -527,7 +527,8 @@ before asking again. Never `git push`; write through the tools.
 Hobby and Pro, in both workspaces (`402 plan_required` otherwise: give the
 person `details.upgradeUrl`). `duplicate_website` copies a site 1:1: every
 version, media, CMS, form submissions and settings, passwords; it is published
-if the original is, gets its own addresses, and custom domains stay with the
+if the original is (`publish.status: "building"` means a bigger site is still
+building and goes live by itself: tell your person it is still working), gets its own addresses, and custom domains stay with the
 original. `move_website` moves a site into another workspace your person
 admins, at once: everything comes along, it gets a **new** webly.site address
 there and the old one stops working, so confirm first and share the new

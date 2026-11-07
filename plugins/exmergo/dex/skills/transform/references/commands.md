@@ -17,8 +17,16 @@ compilation stores no plan. The
 authored Jinja remains the reviewable edit. Compile-time SELECTs from
 `run_query`, statement blocks and `adapter.execute` pass through Dex's query
 firewall, scoped read-only connector, PII screening, query limits and cost guard.
-`get_relation()` and `is_incremental()` use Dex's scoped inventory; direct
-database handles and other unsupported adapter introspection refuse. A truncated
+`get_relation()` and `is_incremental()` use Dex's scoped inventory, and
+`adapter.get_columns_in_relation()` (what `dbt_utils.star`,
+`get_filtered_columns_in_relation` and Fivetran's `fill_staging_columns` call) is
+answered from that inventory's column metadata: names and types, no rows, free on
+every connector. Each listing counts toward `query.max_statements` and is named in
+`warnings`; a relation outside the inventory is answered with no columns and named.
+A raw `DESCRIBE`, `SUMMARIZE`, `SHOW`, `PRAGMA` or `information_schema` read, the
+dispatched `get_columns_in_relation` macro called directly included, still
+refuses, naming `adapter.get_columns_in_relation`. Direct database handles and
+other unsupported adapter introspection refuse. A truncated
 macro result refuses rather than producing an incomplete model.
 
 Compilation that reads no warehouse data needs no spend confirmation. For
@@ -548,6 +556,10 @@ test over the smaller result.
   `data.verification.temporal_contracts`), and a declared grain no `unique` test
   in the build covers (`grain_broken`, `source: declaration`). See
   declarations.md, "Checked against the built relation".
+- It reads the dev namespace, and the namespaces dbt derived from it for this
+  build's manifest (`<dev schema>_<name>`, where a package or a folder sets
+  `+schema`), so a package parent or a joined package model built there is
+  judged rather than reported unbuilt (#1155). `notes` names each one read.
 - It measures the coverage of every equality join the built models write, as
   `maintain verify` does: `data.verification.join_coverage` holds one record
   per join, and `join_no_match`, `join_orphans`, `join_zero_overlap`,

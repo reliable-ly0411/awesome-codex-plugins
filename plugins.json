@@ -2,8 +2,8 @@
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "name": "awesome-codex-plugins",
   "version": "1.0.0",
-  "last_updated": "2026-11-06",
-  "total": 375,
+  "last_updated": "2026-11-07",
+  "total": 384,
   "categories": [
     "Development & Workflow",
     "Tools & Integrations"
@@ -188,6 +188,16 @@
       "category": "Development & Workflow",
       "source": "awesome-codex-plugins",
       "install_url": "https://raw.githubusercontent.com/biefan/anchor/HEAD/.codex-plugin/plugin.json"
+    },
+    {
+      "name": "Andon",
+      "url": "https://github.com/PrimeFoldTools/Andon",
+      "owner": "PrimeFoldTools",
+      "repo": "Andon",
+      "description": "Stop hooks that stop a coding agent from claiming \"done\" without proof, using a same-session verification log, warn or block mode, and a public defect ledger.",
+      "category": "Development & Workflow",
+      "source": "awesome-codex-plugins",
+      "install_url": "https://raw.githubusercontent.com/PrimeFoldTools/Andon/HEAD/.codex-plugin/plugin.json"
     },
     {
       "name": "Antigravity Workspace Template",
@@ -821,6 +831,16 @@
       "install_url": "https://raw.githubusercontent.com/vinicq/falsegreen-skill/HEAD/.codex-plugin/plugin.json"
     },
     {
+      "name": "fanout",
+      "url": "https://github.com/Breadstick-Crumbs/fanout",
+      "owner": "Breadstick-Crumbs",
+      "repo": "fanout",
+      "description": "Tests parallel Codex and Claude Code sessions’ branches merged together before main, and stops two sessions doing the same task.",
+      "category": "Development & Workflow",
+      "source": "awesome-codex-plugins",
+      "install_url": "https://raw.githubusercontent.com/Breadstick-Crumbs/fanout/HEAD/.codex-plugin/plugin.json"
+    },
+    {
       "name": "Figma Maxxing",
       "url": "https://github.com/thiagoxikota/figma-maxxing",
       "owner": "thiagoxikota",
@@ -1229,6 +1249,16 @@
       "category": "Development & Workflow",
       "source": "awesome-codex-plugins",
       "install_url": "https://raw.githubusercontent.com/pixeltable/pixeltable-skill/HEAD/.codex-plugin/plugin.json"
+    },
+    {
+      "name": "Plugin Stack",
+      "url": "https://github.com/theopenapps/plugin-stack",
+      "owner": "theopenapps",
+      "repo": "plugin-stack",
+      "description": "Six agent skills for getting an AI plugin into the ChatGPT, Claude and Cursor stores and found there: submission checks, listing copy, discoverability audits, widget critique and competitor tracking, on live store data from [OpenApps](https://theopenapps.com?ref=plugin-stack).",
+      "category": "Development & Workflow",
+      "source": "awesome-codex-plugins",
+      "install_url": "https://raw.githubusercontent.com/theopenapps/plugin-stack/HEAD/.codex-plugin/plugin.json"
     },
     {
       "name": "PMC",
@@ -2082,6 +2112,16 @@
       "install_url": "https://raw.githubusercontent.com/TheBestCo/bestprice-mcp/HEAD/.codex-plugin/plugin.json"
     },
     {
+      "name": "Bifrost",
+      "url": "https://github.com/gobifrost/bifrost",
+      "owner": "gobifrost",
+      "repo": "bifrost",
+      "description": "Build MSP automation workflows, forms, agents, apps, and Solutions with the Bifrost SDK and CLI through bundled skills for development, setup, migration, and Microsoft 365 Copilot Cowork packaging.",
+      "category": "Tools & Integrations",
+      "source": "awesome-codex-plugins",
+      "install_url": "https://raw.githubusercontent.com/gobifrost/bifrost/HEAD/.codex-plugin/plugin.json"
+    },
+    {
       "name": "Bitbucket CLI",
       "url": "https://github.com/avivsinai/bitbucket-cli",
       "owner": "avivsinai",
@@ -2090,6 +2130,16 @@
       "category": "Tools & Integrations",
       "source": "awesome-codex-plugins",
       "install_url": "https://raw.githubusercontent.com/avivsinai/bitbucket-cli/HEAD/.codex-plugin/plugin.json"
+    },
+    {
+      "name": "Bowmark",
+      "url": "https://github.com/bowmark-ai/plugin",
+      "owner": "bowmark-ai",
+      "repo": "plugin",
+      "description": "Typed, tested functions for live websites like LinkedIn, YouTube and Amazon, from Codex. Start with a free $10.",
+      "category": "Tools & Integrations",
+      "source": "awesome-codex-plugins",
+      "install_url": "https://raw.githubusercontent.com/bowmark-ai/plugin/HEAD/.codex-plugin/plugin.json"
     },
     {
       "name": "BrewPage",
@@ -2681,6 +2731,26 @@
       "category": "Tools & Integrations",
       "source": "awesome-codex-plugins",
       "install_url": "https://raw.githubusercontent.com/Xquik-dev/hermes-tweet/HEAD/.codex-plugin/plugin.json"
+    },
+    {
+      "name": "host0",
+      "url": "https://github.com/host0-ai/skills",
+      "owner": "host0-ai",
+      "repo": "skills",
+      "description": "Publishes files, sites and apps with a shared database to a link you can share, and manages them through a remote MCP server.",
+      "category": "Tools & Integrations",
+      "source": "awesome-codex-plugins",
+      "install_url": "https://raw.githubusercontent.com/host0-ai/skills/HEAD/.codex-plugin/plugin.json"
+    },
+    {
+      "name": "Imagera",
+      "url": "https://github.com/alexadams6ix/imagera-skills",
+      "owner": "alexadams6ix",
+      "repo": "imagera-skills",
+      "description": "Generate and edit images, video, voice and music through the hosted Imagera MCP server (OAuth sign-in) and 37 skills, with the credit cost stated before each run. Website: https://imagera.ai/mcp",
+      "category": "Tools & Integrations",
+      "source": "awesome-codex-plugins",
+      "install_url": "https://raw.githubusercontent.com/alexadams6ix/imagera-skills/HEAD/.codex-plugin/plugin.json"
     },
     {
       "name": "Jenkins CLI",
@@ -3353,6 +3423,16 @@
       "install_url": "https://raw.githubusercontent.com/hyprh/self-starter/HEAD/codex-plugin/.codex-plugin/plugin.json"
     },
     {
+      "name": "Seltz",
+      "url": "https://github.com/seltz-ai/seltz-codex-plugin",
+      "owner": "seltz-ai",
+      "repo": "seltz-codex-plugin",
+      "description": "Live web search and page fetch for current, source-backed answers in Codex through Seltz's hosted MCP server, with browser sign-in to a Seltz account and usage drawn from the account's balance.",
+      "category": "Tools & Integrations",
+      "source": "awesome-codex-plugins",
+      "install_url": "https://raw.githubusercontent.com/seltz-ai/seltz-codex-plugin/HEAD/.codex-plugin/plugin.json"
+    },
+    {
       "name": "SEO Dungeon",
       "url": "https://github.com/avalonreset/seo-dungeon",
       "owner": "avalonreset",
@@ -3491,6 +3571,16 @@
       "category": "Tools & Integrations",
       "source": "awesome-codex-plugins",
       "install_url": "https://raw.githubusercontent.com/Hugo0/swarmmemo/HEAD/plugins/swarmmemo/.codex-plugin/plugin.json"
+    },
+    {
+      "name": "sync. labs",
+      "url": "https://github.com/synchronicity-labs/skills",
+      "owner": "synchronicity-labs",
+      "repo": "skills",
+      "description": "Official sync. labs plugin: lipsync a video to new audio or a script, make a photo talk, dub videos into other languages with matching lips and fix spoken words in the speaker's own voice, through ten skills and the hosted sync. MCP server with OAuth sign-in and no API key. Paid steps are quoted and confirmed first.",
+      "category": "Tools & Integrations",
+      "source": "awesome-codex-plugins",
+      "install_url": "https://raw.githubusercontent.com/synchronicity-labs/skills/HEAD/.codex-plugin/plugin.json"
     },
     {
       "name": "Synta MCP",
