@@ -67,6 +67,16 @@ agy plugin install https://github.com/mnemoverse/claude-plugin/tree/main/antigra
 
 The plugin installs enabled, and Antigravity opens the browser for the sign-in when the server first connects; there the server is named `mnemoverse_mnemoverse`. Details in [antigravity/README.md](antigravity/README.md). Installing the whole repository with `agy plugin install https://github.com/mnemoverse/claude-plugin` also works: Antigravity reads the server from the root `mcp_config.json` and converts the Claude Code commands into skills.
 
+## Skills in other coding agents (skills.sh)
+
+The seven skills also install on their own into Codex, Cursor, OpenCode and the other coding agents that the [skills](https://skills.sh) CLI supports (Node.js 22.20 or later):
+
+```sh
+npx skills add mnemoverse/claude-plugin
+```
+
+The CLI asks which skills and which agents to install to; skills go into the current project by default, and `-g` makes them available across projects. This adds the skills only, not the memory server: connect the server in that agent with its own steps from [Install by host](https://mnemoverse.com/docs/api/install-by-host).
+
 ## First run: sign in once, no API key
 
 The server at `https://mcp.mnemoverse.com/mcp` uses OAuth 2.1 with PKCE. In Claude Code, installing the plugin does not open anything by itself: run `/mcp`, select the Mnemoverse server (from this plugin it is listed as `plugin:mnemoverse:mnemoverse`) and choose Authenticate, then sign in to your Mnemoverse account in the browser (free tier at [console.mnemoverse.com](https://console.mnemoverse.com?utm_source=github&utm_medium=readme&utm_campaign=claude-plugin), no credit card) and grant the requested scopes, which include `memory:read` and `memory:write`. There is no API key to paste. To disconnect, remove the server from your client; resetting your password in the console can also disconnect all connected apps at once. The bundled `setup` skill walks the agent through the current host's sign-in flow if anything goes wrong.
@@ -89,11 +99,11 @@ After sign-in, ask the agent to check the connection with `memory_stats`. A succ
 - `setup`: guides the current host through connecting and troubleshooting the MCP server.
 - `memory-search`: searches memory before answering, then rates which recalled memories helped.
 - `memory-save`: saves a decision, preference, correction or lesson as one self-contained fact, never a secret.
-- `memory-catch-up`: lists what was added since a given time, in personal memory or in a shared room (beta).
+- `memory-catch-up`: lists what was added since a given time, in personal memory or in a shared room.
 - `memory-onboard`: seeds memory with a project's conventions and decisions from its README, CLAUDE.md and AGENTS.md.
 - `mnemoverse-docs`: for developers adding Mnemoverse memory to their own app or agent; picks the form and points to the docs page.
 
-**The tools come from the remote server itself**: reading and writing memories, a newest-first listing, stats, usefulness feedback, shared rooms (beta), and a vault alias listing (aliases only, values are never returned). The current list, with descriptions and schemas, is at the server's [card](https://mcp.mnemoverse.com/.well-known/mcp/server-card.json).
+**The tools come from the remote server itself**: reading and writing memories, a newest-first listing, stats, usefulness feedback, shared rooms, and a vault alias listing (aliases only, values are never returned). The current list, with descriptions and schemas, is at the server's [card](https://mcp.mnemoverse.com/.well-known/mcp/server-card.json).
 
 ## Try these
 
