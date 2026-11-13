@@ -2,8 +2,8 @@
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "name": "awesome-codex-plugins",
   "version": "1.0.0",
-  "last_updated": "2026-11-12",
-  "total": 399,
+  "last_updated": "2026-11-13",
+  "total": 408,
   "categories": [
     "Development & Workflow",
     "Tools & Integrations"
@@ -341,6 +341,16 @@
       "install_url": "https://raw.githubusercontent.com/hyhmrright/brooks-lint/HEAD/.codex-plugin/plugin.json"
     },
     {
+      "name": "Bulkhead",
+      "url": "https://github.com/dooly6276/claude-bulkhead",
+      "owner": "dooly6276",
+      "repo": "claude-bulkhead",
+      "description": "Guards for machines that run many Codex and other agent sessions at once: a PreToolUse hook on Bash blocks name-based process kills, port collisions, destructive git commands on another session's worktree, whole-disk scans and long foreground sleeps, and holds heavy commands back when RAM runs low.",
+      "category": "Development & Workflow",
+      "source": "awesome-codex-plugins",
+      "install_url": "https://raw.githubusercontent.com/dooly6276/claude-bulkhead/HEAD/plugin.json"
+    },
+    {
       "name": "Casefile",
       "url": "https://github.com/x4cc3/casefile",
       "owner": "x4cc3",
@@ -499,6 +509,16 @@
       "category": "Development & Workflow",
       "source": "awesome-codex-plugins",
       "install_url": "https://raw.githubusercontent.com/songyb111-gachon/codex-auto-resume-windows/HEAD/.codex-plugin/plugin.json"
+    },
+    {
+      "name": "Codex Design",
+      "url": "https://github.com/ummydev/codexdesign",
+      "owner": "ummydev",
+      "repo": "codexdesign",
+      "description": "A visual design canvas for Codex: compare UI images and live HTML screens side by side in the in-app browser, then refine them on the canvas or in conversation.",
+      "category": "Development & Workflow",
+      "source": "awesome-codex-plugins",
+      "install_url": "https://raw.githubusercontent.com/ummydev/codexdesign/HEAD/plugins/codexdesign/.codex-plugin/plugin.json"
     },
     {
       "name": "Codex How To",
@@ -759,6 +779,16 @@
       "category": "Development & Workflow",
       "source": "awesome-codex-plugins",
       "install_url": "https://raw.githubusercontent.com/MedAdemBHA/docflow/HEAD/.codex-plugin/plugin.json"
+    },
+    {
+      "name": "DocSpring Agent Playbook",
+      "url": "https://github.com/DocSpring/docspring-agent-playbook",
+      "owner": "DocSpring",
+      "repo": "docspring-agent-playbook",
+      "description": "DocSpring's engineering principles, AGENTS.md templates and six workflow skills (ticket kickoff, PR review, second-opinion review, fix CI, browser QA, session wrap-up) for Claude Code, Codex and other agents.",
+      "category": "Development & Workflow",
+      "source": "awesome-codex-plugins",
+      "install_url": "https://raw.githubusercontent.com/DocSpring/docspring-agent-playbook/HEAD/plugin.json"
     },
     {
       "name": "done-gate",
@@ -1080,6 +1110,16 @@
       "category": "Development & Workflow",
       "source": "awesome-codex-plugins",
       "install_url": "https://raw.githubusercontent.com/epicsagas/llm-transpile/HEAD/.codex-plugin/plugin.json"
+    },
+    {
+      "name": "Loom",
+      "url": "https://github.com/ClickHouse/loom",
+      "owner": "ClickHouse",
+      "repo": "loom",
+      "description": "Self-hosted shared long-term memory and code index (definitions, callers, change impact) for Codex, stored in ClickHouse, with lifecycle hooks that capture each session and MCP tools that save and recall decisions across sessions and teammates.",
+      "category": "Development & Workflow",
+      "source": "awesome-codex-plugins",
+      "install_url": "https://raw.githubusercontent.com/ClickHouse/loom/HEAD/integrations/codex-plugin/.codex-plugin/plugin.json"
     },
     {
       "name": "LVTD Skills",
@@ -1500,6 +1540,16 @@
       "category": "Development & Workflow",
       "source": "awesome-codex-plugins",
       "install_url": "https://raw.githubusercontent.com/runtypelabs/skills/HEAD/.codex-plugin/plugin.json"
+    },
+    {
+      "name": "Rush",
+      "url": "https://github.com/phnx-labs/rush-mcp",
+      "owner": "phnx-labs",
+      "repo": "rush-mcp",
+      "description": "Hand a task to a cloud agent that works in its own cloud computer and returns a pull request, a report, files or an answer; start, wait for, reply to and stop tasks through a hosted MCP server with OAuth sign-in.",
+      "category": "Development & Workflow",
+      "source": "awesome-codex-plugins",
+      "install_url": "https://raw.githubusercontent.com/phnx-labs/rush-mcp/HEAD/plugin.json"
     },
     {
       "name": "Sealos",
@@ -2033,6 +2083,16 @@
       "install_url": "https://raw.githubusercontent.com/tashfeenahmed/AgentDomains-skill/HEAD/.codex-plugin/plugin.json"
     },
     {
+      "name": "AgentDrives",
+      "url": "https://github.com/AgentDrives/agentdrives-mcp",
+      "owner": "AgentDrives",
+      "repo": "agentdrives-mcp",
+      "description": "Look up a SaaS tool, API or provider before your agent picks it: its agent level (0-5), where our agent stopped, and whether an agent can sign up, get a key and pay on its own. Read-only remote MCP server and skill, no key.",
+      "category": "Tools & Integrations",
+      "source": "awesome-codex-plugins",
+      "install_url": "https://raw.githubusercontent.com/AgentDrives/agentdrives-mcp/HEAD/plugin.json"
+    },
+    {
       "name": "Agentgram",
       "url": "https://github.com/jerryfane/agentgram",
       "owner": "jerryfane",
@@ -2351,6 +2411,16 @@
       "category": "Tools & Integrations",
       "source": "awesome-codex-plugins",
       "install_url": "https://raw.githubusercontent.com/softdevfz/clickwise-api/HEAD/.codex-plugin/plugin.json"
+    },
+    {
+      "name": "CloudGPU",
+      "url": "https://github.com/mrhy7176/cloudgpu-mcp",
+      "owner": "mrhy7176",
+      "repo": "cloudgpu-mcp",
+      "description": "Rent a per-minute GPU from your agent, run a job, download results, shut it down.",
+      "category": "Tools & Integrations",
+      "source": "awesome-codex-plugins",
+      "install_url": "https://raw.githubusercontent.com/mrhy7176/cloudgpu-mcp/HEAD/plugin.json"
     },
     {
       "name": "Codex Be Serious",
@@ -2984,6 +3054,16 @@
       "install_url": "https://raw.githubusercontent.com/EminBudak/launch-film/HEAD/plugin.json"
     },
     {
+      "name": "Leeway",
+      "url": "https://github.com/supersethvos/leeway-codex",
+      "owner": "supersethvos",
+      "repo": "leeway-codex",
+      "description": "Connects Codex to a Leeway drive your team and its agents share, with skills to save without overwriting, find, undo from history, publish from a workspace and leave a hand-off note.",
+      "category": "Tools & Integrations",
+      "source": "awesome-codex-plugins",
+      "install_url": "https://raw.githubusercontent.com/supersethvos/leeway-codex/HEAD/plugins/leeway/plugin.json"
+    },
+    {
       "name": "LienDeadline",
       "url": "https://github.com/LienDeadline/skills",
       "owner": "LienDeadline",
@@ -3294,6 +3374,16 @@
       "install_url": "https://raw.githubusercontent.com/papersflow-ai/papersflow-codex-plugin/HEAD/.codex-plugin/plugin.json"
     },
     {
+      "name": "phonedriver",
+      "url": "https://github.com/hridaya423/phonedriver",
+      "owner": "hridaya423",
+      "repo": "phonedriver",
+      "description": "Lets Codex see and operate Android phones, emulators, the iOS Simulator and iPhones through a local MCP server and its skill, and asks you before any tap that pays.",
+      "category": "Tools & Integrations",
+      "source": "awesome-codex-plugins",
+      "install_url": "https://raw.githubusercontent.com/hridaya423/phonedriver/HEAD/packaging/plugin/.codex-plugin/plugin.json"
+    },
+    {
       "name": "PlaceCall",
       "url": "https://github.com/voygr-tech/placecall",
       "owner": "voygr-tech",
@@ -3514,6 +3604,16 @@
       "install_url": "https://raw.githubusercontent.com/jingjing2222/rust-reverse-engineering-skill/HEAD/.codex-plugin/plugin.json"
     },
     {
+      "name": "Scrape.ly",
+      "url": "https://github.com/scrapely-app/scrapely-mcp",
+      "owner": "scrapely-app",
+      "repo": "scrapely-mcp",
+      "description": "Find, run and read ready-made web scrapers for sites like Google Maps, Amazon and LinkedIn from Codex through the hosted Scrape.ly MCP server (OAuth) and the scrapely-scrape skill.",
+      "category": "Tools & Integrations",
+      "source": "awesome-codex-plugins",
+      "install_url": "https://raw.githubusercontent.com/scrapely-app/scrapely-mcp/HEAD/plugin.json"
+    },
+    {
       "name": "ScrapeGraph AI",
       "url": "https://github.com/ScrapeGraphAI/just-scrape",
       "owner": "ScrapeGraphAI",
@@ -3692,16 +3792,6 @@
       "category": "Tools & Integrations",
       "source": "awesome-codex-plugins",
       "install_url": "https://raw.githubusercontent.com/droplinked/storyflo-codex-plugin/HEAD/.codex-plugin/plugin.json"
-    },
-    {
-      "name": "StupidMirror",
-      "url": "https://github.com/LiuTianjie/StupidMirror",
-      "owner": "LiuTianjie",
-      "repo": "StupidMirror",
-      "description": "Free for one device: the StupidMirror Mac app and its local MCP server let Codex see and operate iPhones, Android phones, iOS Simulators and Android emulators, with taps, swipes, typing, screenshots with OCR, the UI tree, app installs and screen recording.",
-      "category": "Tools & Integrations",
-      "source": "awesome-codex-plugins",
-      "install_url": "https://raw.githubusercontent.com/LiuTianjie/StupidMirror/HEAD/plugins/stupidmirror/plugin.json"
     },
     {
       "name": "SwapWallet",
