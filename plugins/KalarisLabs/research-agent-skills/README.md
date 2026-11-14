@@ -11,7 +11,6 @@
 [![skills.sh installs](https://img.shields.io/endpoint?url=https%3A%2F%2Fskills.sh%2Fapi%2Fbadge%2Fkalarislabs%2Fresearch-agent-skills&label=skills.sh%20installs&color=165d74)](https://skills.sh/kalarislabs/research-agent-skills)
 [![Skills](https://img.shields.io/badge/skills-281-165d74)](#skill-catalog)
 [![GitHub stars](https://img.shields.io/github/stars/KalarisLabs/research-agent-skills?style=flat&logo=github&label=stars&color=165d74)](https://github.com/KalarisLabs/research-agent-skills/stargazers)
-[![README views](https://hits.sh/github.com/KalarisLabs/research-agent-skills.svg?label=views&color=165d74)](https://hits.sh/github.com/KalarisLabs/research-agent-skills/)
 [![Last commit](https://img.shields.io/github/last-commit/KalarisLabs/research-agent-skills?color=165d74)](https://github.com/KalarisLabs/research-agent-skills/commits/main)
 [![License: MIT](https://img.shields.io/badge/license-MIT-165d74)](LICENSE)
 [![Ask Devin: CodeWiki](https://img.shields.io/badge/Ask_Devin-CodeWiki-165d74?logo=devin&logoColor=white)](https://app.devin.ai/org/kalarislabs/wiki/KalarisLabs/research-agent-skills?branch=main)
@@ -890,7 +889,7 @@ their notices are in [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md).
 
 <div align="center">
 
-**Created by [Sayan Chowdhury](https://github.com/saynchowdhury) · [Kalaris Labs](https://github.com/KalarisLabs)**
+**Created & Maintained by [Sayan Chowdhury](https://kalarislabs.com/team/sayan-chowdhury) at [Kalaris Labs](https://kalarislabs.com)**
 
 If this saves you time, please ⭐ the repository so other researchers can find it.
 

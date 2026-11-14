@@ -1,6 +1,6 @@
 <picture>
   <source media="(prefers-color-scheme: dark)" srcset="assets/preview-dark.png" />
-  <img alt="Dex: let your agent build your analytics. Explore, transform, maintain." src="assets/preview-light.png" />
+  <img alt="Dex: let your agent build your analytics. Explore, transform, maintain. Connects to your data and authors your semantic layer: dbt, SLayer, Cube, Apache Ossie, Snowflake Semantic Views and Databricks Metric Views." src="assets/preview-light.png" />
 </picture>
 
 > *Most deadly errors arise from obsolete assumptions.*
@@ -24,8 +24,9 @@ through [supported connectors](#connectors).
 [![data-eng-bench](https://img.shields.io/badge/data--eng--bench-57%25-33cf56)](benchmarks/data-eng-bench/README.md)
 [![ADE-bench](https://img.shields.io/badge/ADE--bench-80%25-33cf56)](benchmarks/ade_bench/README.md)
 [![CI](https://github.com/exmergo/dex/actions/workflows/ci.yml/badge.svg)](https://github.com/exmergo/dex/actions/workflows/ci.yml)
-
 [![Docs](https://img.shields.io/badge/docs-docs.exmergo.com%2Fdex-165dfc?logo=readthedocs&logoColor=white)](https://docs.exmergo.com/dex)
+
+[![Discord](https://img.shields.io/badge/Discord-Join%20the%20community-165dfc?logo=discord&logoColor=white)](https://trydex.ai/discord)
 [![LinkedIn](https://img.shields.io/badge/LinkedIn-Exmergo-165dfc?logo=linkedin&logoColor=white)](https://www.linkedin.com/company/exmergo/)
 [![X](https://img.shields.io/badge/Follow-%40exmergo-165dfc?logo=x&logoColor=white)](https://x.com/exmergo)
 [![Star the repo!](https://img.shields.io/github/stars/exmergo/dex?style=flat&label=Star%20the%20repo!%20%E2%AD%90&labelColor=555&logo=github&logoColor=white&color=165dfc)](https://github.com/exmergo/dex)
@@ -263,16 +264,45 @@ dbt semantic models and native Ossie, SLayer, or Cube files. Configure the choic
 in `.dex/config.yml`; Ossie, SLayer, and Cube need no dbt project.
 ([overview](https://docs.exmergo.com/dex/semantic-layers/overview))
 
-| Semantic layer | Hosted | Queryable | `vendor` / `deployment` | Read through | Documentation |
-| --- | :---: | :---: | --- | --- | --- |
-| <img src="https://www.exmergo.com/connectors/ossie.png" width="20" height="20" alt=""> **[Apache Ossie](https://github.com/apache/ossie)** (incubating) | ❌ | ❌ | `ossie` / `local` | Native documents in the repository, no dbt or MetricFlow in the path | [Docs](https://docs.exmergo.com/dex/semantic-layers/ossie) |
-| <img src="https://www.exmergo.com/connectors/dbt.png" width="20" height="20" alt=""> **[dbt](https://github.com/dbt-labs/dbt-core)** | ✅ | ✅ | `dbt` / `local` or `dbt_cloud` | MetricFlow locally, run through the Dex connector and its cost guard, or the hosted dbt Cloud Semantic Layer API | [Docs](https://docs.exmergo.com/dex/semantic-layers/overview#choosing-a-backend-ambient-like-a-connector) |
-| <img src="https://www.exmergo.com/connectors/databricks.png" width="20" height="20" alt=""> **[Databricks Metric Views](https://docs.databricks.com/aws/en/metric-views/)** | ❌ | ❌ | `databricks` / `local` | Metric View YAML files in the repository, read and authored statically with no workspace connection; nothing is deployed, and querying is not yet supported | [Docs](https://github.com/exmergo/dex/tree/main/packages/dex-core#semantic-layers) |
-| <img src="https://www.exmergo.com/connectors/snowflake.png" width="20" height="20" alt=""> **[Snowflake Semantic Views](https://docs.snowflake.com/en/user-guide/views-semantic/overview)** | ❌ | ❌ | `snowflake` / `local` | Semantic View YAML files in the repository, read and authored statically with no Snowflake connection; nothing is deployed, and querying is not yet supported | [Docs](https://docs.exmergo.com/dex/semantic-layers/snowflake-semantic-views) |
-| <img src="assets/motley-logo.jpeg" width="20" height="20" alt=""> **[SLayer](https://github.com/MotleyAI/slayer)** (by Motley) | ❌ | ✅ | `slayer` / `local` | SLayer model files, validated by one pinned release; SLayer renders, Dex runs it under the cost guard | [Docs](https://docs.exmergo.com/dex/semantic-layers/overview#slayer-models-vendor-slayer) |
-| <img src="assets/cube-logo.png" width="20" height="20" alt=""> **[Cube](https://github.com/cube-js/cube)** | ❌ | ✅ | `cube` / `local` | Plain YAML model files, read statically with no Node or Cube server; querying asks a running Cube server to render, Dex runs it under the cost guard | [Docs](https://docs.exmergo.com/dex/semantic-layers/overview#cube-models-vendor-cube) |
+| Semantic layer                                                                                                                                                                              | Authorable | Hosted | Queryable | `vendor` / `deployment`        | Read through                                                                                                                                                  | Documentation                                                                                             |
+| ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | :--------: | :----: | :-------: | ------------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------- |
+| <img src="https://www.exmergo.com/connectors/ossie.png" width="20" height="20" alt=""> **[Apache Ossie](https://github.com/apache/ossie)** (incubating)                                     | ✅          | ❌      | ❌         | `ossie` / `local`              | Native documents in the repository, no dbt or MetricFlow in the path                                                                                          | [Docs](https://docs.exmergo.com/dex/semantic-layers/ossie)                                                |
+| <img src="https://www.exmergo.com/connectors/dbt.png" width="20" height="20" alt=""> **[dbt](https://github.com/dbt-labs/dbt-core)**                                                        | ✅          | ✅      | ✅         | `dbt` / `local` or `dbt_cloud` | MetricFlow locally, run through the Dex connector and its cost guard, or the hosted dbt Cloud Semantic Layer API                                              | [Docs](https://docs.exmergo.com/dex/semantic-layers/overview#choosing-a-backend-ambient-like-a-connector) |
+| <img src="https://www.exmergo.com/connectors/databricks.png" width="20" height="20" alt=""> **[Databricks Metric Views](https://docs.databricks.com/aws/en/metric-views/)**                 | ✅          | 🚧      | 🚧         | `databricks` / `local`         | Metric View YAML files in the repository, read and authored statically with no workspace connection; nothing is deployed, and querying is not yet supported   | [Docs](https://github.com/exmergo/dex/tree/main/packages/dex-core#semantic-layers)                        |
+| <img src="https://www.exmergo.com/connectors/snowflake.png" width="20" height="20" alt=""> **[Snowflake Semantic Views](https://docs.snowflake.com/en/user-guide/views-semantic/overview)** | ✅          | 🚧      | 🚧         | `snowflake` / `local`          | Semantic View YAML files in the repository, read and authored statically with no Snowflake connection; nothing is deployed, and querying is not yet supported | [Docs](https://docs.exmergo.com/dex/semantic-layers/snowflake-semantic-views)                             |
+| <img src="assets/motley-logo.jpeg" width="20" height="20" alt=""> **[SLayer](https://github.com/MotleyAI/slayer)** (by Motley)                                                              | ✅          | 🚧      | ✅         | `slayer` / `local`             | SLayer model files, validated by one pinned release; SLayer renders, Dex runs it under the cost guard                                                         | [Docs](https://docs.exmergo.com/dex/semantic-layers/overview#slayer-models-vendor-slayer)                 |
+| <img src="assets/cube-logo.png" width="20" height="20" alt=""> **[Cube](https://github.com/cube-js/cube)**                                                                                  | ✅          | 🚧      | ✅         | `cube` / `local`               | Plain YAML model files, read statically with no Node or Cube server; querying asks a running Cube server to render, Dex runs it under the cost guard          | [Docs](https://docs.exmergo.com/dex/semantic-layers/overview#cube-models-vendor-cube)                     |
 
-**Coming next:** hosted Cube, hosted SLayer, Snowflake Semantic View queries, and Looker / LookML.
+**Coming next:** hosted Cube, hosted SLayer, hosted & queryable Snowflake Semantic View, hosted and & queryable Databricks Metric Views and Looker / LookML.
+
+## Dex Semantics
+
+**Let your agent build analytics with 25% fewer errors**, thanks to data that
+explains itself to your coding agent.
+
+A join can keep running after the source changes underneath it, and quietly
+count every row twice. Dex Semantics keeps each model's meaning with the model,
+as code, so that kind of error is caught instead of shipped:
+
+- **Declare the rules.** Every model your agent creates or changes carries a
+  declaration: what one row is, which rows belong, how each number adds up, and
+  the assumptions behind it. Dex drafts what it measured; the intent is yours.
+- **Check the results.** `transform build --verify` holds the built data to the
+  declaration: duplicate keys, rows the population excludes, a running total
+  summed across time.
+- **Keep the context.** The declaration becomes dbt tests, is read back by the
+  next agent session, and derives the semantic model for any layer above.
+
+<picture>
+  <source media="(prefers-color-scheme: dark)" srcset="assets/readme/semantics-dark.png" />
+  <img width="760" height="340" alt="Dex Semantics: the declaration lives with your models (one row per shipment; production counts harvests; revenue uses the agreed price), Dex checks the built data (S01 and S02: expected 1 row, found 2; without Dex 200 t, with Dex 100 t), and the meaning flows to tests, semantic models and the next agent session" src="assets/readme/semantics-light.png" />
+</picture>
+
+25% fewer failed tasks on [ADE-bench](benchmarks/ade_bench/README.md) with
+Claude Sonnet 5.5 (15 against 20 of 75). The image is an illustrated workflow on
+synthetic data.
+
+[Dex Semantics](references/dex-semantics.md) · [declarations](skills/transform/references/declarations.md) · [the film](https://www.youtube.com/watch?v=-iYwYuzZFg0)
 
 ## See it on a real project
 
@@ -344,8 +374,8 @@ and treat these scores as guide posts. ([evaluation](https://docs.exmergo.com/de
 
 > [!IMPORTANT]
 > **Dex sends nothing to Exmergo.** No telemetry, analytics, license check, or
-> update ping. See the [Dex privacy policy](https://www.exmergo.com/privacy/dex)
-> and the [Dex terms of service](https://www.exmergo.com/terms/dex).
+> update ping. See the [Dex privacy policy](https://trydex.ai/privacy)
+> and the [Dex terms of service](https://trydex.ai/terms).
 
 ### What to commit in `.dex/`
 
@@ -407,7 +437,7 @@ Dex Enterprise runs Dex as automated workflows in your own CI. It turns tickets 
 draft pull requests with `explore` and `transform`, and runs `maintain` on a schedule
 to turn drift into draft pull requests for your engineers to review. No Exmergo
 service sits in the request path, and everything in this repository stays
-Apache-2.0. [Learn more](https://www.exmergo.com/dex/enterprise).
+Apache-2.0. [Learn more](https://trydex.ai/enterprise).
 
 ## Community
 
@@ -423,7 +453,7 @@ Apache-2.0. [Learn more](https://www.exmergo.com/dex/enterprise).
 Join the agent-native data/analytics community!
 
 - 🌟 [Star Us on GitHub](https://github.com/exmergo/dex/)
-- 👾 [Join Our Discord Community](https://www.exmergo.com/discord)
+- 👾 [Join Our Discord Community](https://trydex.ai/discord)
 - 🔗 [Follow Us on LinkedIn](https://www.linkedin.com/company/exmergo/)
 - 🐦 [Follow Us on X](https://x.com/exmergo)
 - 🔨 [Follow Us on GitHub](https://github.com/exmergo/)

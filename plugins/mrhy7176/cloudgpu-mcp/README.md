@@ -147,6 +147,10 @@ The same guidance is available as two [Agent Skills](https://agentskills.io):
 | `run_job` | Starts a GPU, runs one command and destroys the GPU, all on CloudGPU's servers; safe to retry with the same `idempotency_key` |
 | `get_job` / `list_jobs` | Job status, exit code, cost, the last ~4 KB of output and the job's history |
 | `cancel_job` | Stops a job and destroys its GPU |
+| `get_agent_readiness` / `assess_task_fit` | Anonymous capability, billing, task suitability and evidence checks; no GPU is created |
+| `request_top_up` / `wait_for_funds` | Human-only payment link and bounded polling for actual credit; no automatic charge or Job |
+| `quote_storage_budget` / `confirm_storage_budget` | Quote and explicitly approve an earmarked storage transfer; backend rollout and owner permissions apply |
+| `resume_artifact_upload` | Resume the same owned multipart reservation with the original local file and checksum |
 | `connect_account` / `finish_connect` | Gets a key without copying one: the user approves this assistant in the browser with a spending limit and a number of GPUs at once |
 
 The server also provides a `train_on_cloudgpu` prompt.
@@ -389,3 +393,29 @@ Preparation makes no API request or reservation. Review the returned command, ob
 For an existing rental, the reviewed command can instead be passed to `run_command` in the approved working directory, within its original limits. Apply a Workspace separately when needed. The draft never stops or extends an existing rental. Whole-hour sources remain usable through the existing explicitly approved rental path; this release does not remove their current automatic-Job compatibility gate.
 
 With `persist_summary=true`, the Job draft explicitly collects only `pipeline-summary.json` through the existing output collector, using current storage quota/retention and `accept_storage_charges=false`. The summary contains step IDs, exit codes and state, not raw logs, commands or arbitrary task results. Result-file persistence must be configured and approved separately. The summary must not already exist; missing output collection or a conflicting file aborts before commands run.
+
+### Funded connection, storage growth and remote MCP
+
+Version 0.16.0 was verified on npm and the official Registry on 2026-11-13. The current stdio inventory is 57 tools. The remote endpoint at `https://cloudgpu.app/mcp` uses Streamable HTTP JSON responses and OAuth authorization code with S256 PKCE; it exposes 23 tools safe without local filesystem/SSH access. Public discovery needs no login; account and paid operations require scoped owner authorization. Always check live backend capabilities and actual source-specific billing.
+
+`connect_account` returns a direct Google link and email alternative. Pending connection state is private, origin-bound and survives restart; the server allows 30 minutes for approval. Browser payment does not approve compute. `request_top_up` creates only a short-lived owner link; `wait_for_funds` requires a real credit signal and sufficient live balance. Neither creates a Job.
+
+Dedicated storage budget is a separate, explicitly confirmed wallet reservation, consumed only by actual UTC daily peak usage. Unused surplus can return after existing files, uploads and pending daily charges remain covered. It is not revenue or an automatic refill. Capacity can grow with budget, subject to published technical limits, and retention remains 30 days. Budget-limited Agent keys cannot reserve funds or consent to paid storage. Disabling new self-service transfers must not disable accounting for existing reserves.
+
+Multipart resume keeps the same reservation and original file hash. GPU restore renewal is file-scoped, temporary and feature-gated; no general account key is installed on a GPU. Local fixtures do not certify TB-sized transfers. Backend automatic public-model preparation currently has a 600-second deadline: a 9.8GB Wan video case exceeded it on the measured link. Prepared images or explicitly reviewed bounded download commands need their own acceptance; do not promise that every size below the model byte limit loads in time.
+
+The Python SDK and optional framework adapters are under [`python/`](python/README.md). PyPI publication requires an owner-configured Trusted Publisher. Real LangChain Core 1.8.0, OpenAI Agents SDK 0.24.0 and CrewAI 1.6.1 tool/invocation and anonymous HTTP acceptance passed; no paid model or GPU operation was used. See the Python README for exact scope and reproduction.
+
+The reviewed [Python SDK0.1.0 release](https://github.com/cloudgpu-app/cloudgpu-mcp/releases/tag/python-v0.1.0) has a public wheel, source distribution and SHA256SUMS. The public wheel was downloaded and its checksum and ten SDK tests passed. PyPI is not yet configured; use the exact release URL rather than an unrelated package. Hermes root installation and existing-owner private connection/catalog acceptance passed after packaging/profile fixes in cloudgpu-app/hermes-cloudgpu#5.
+
+### Reproducible paid task cases
+
+See [environment check, synthetic causal-LM LoRA and tiny ComfyUI video cases](examples/verified-tasks/README.md) for pinned scripts, observed fees, download checksums and release evidence. They preview locally by default; paid submission needs owner approval. Resume an accepted Job by ID to download results without another GPU. For persistent tasks, `assess_task_fit` accepts `expected_output_bytes`; current direct collection and bounded network fallback limits are returned by the live contract.
+
+### Durable server batches and whole-hour Jobs (0.16.3)
+
+Use `prepare_job_batch` to review every command, fresh compute quote, deadline and aggregate GPU cap. Pass the exact manifest/hash and explicit user approval to `run_server_job_batch`. The server atomically commits all child Job rows or none; it dispatches from the database after client/server restarts, waiting for account/Key execution slots. `get_server_job_batch(batch_id)` returns bounded states/cost summaries; use individual `get_job` for detailed outputs. `cancel_server_job_batch` requires approval and preserves charges for already-started hours. Failed commands are not automatically rerun, and an uncertain provider result never authorizes another GPU.
+
+REST equivalents: `POST /v1/job-batches` with `Idempotency-Key`, `total_budget_usd` and 1–32 `jobs`; `GET /v1/job-batches/{batch_id}`; `POST /v1/job-batches/{batch_id}/cancel`. The MCP reviewed manifest remains capped at eight children. Replaying the identical key/body returns the existing children. Existing `run_job_batch` retains its explicitly non-atomic client submission behavior for compatibility; the server tool never falls back to it.
+
+For whole-hour Jobs, call `estimate_cost` for the exact configuration and accept the minimum/billing period. Supply its `billing_quote_id` plus `billing_accepted=true` to `run_job` or each batch child, in addition to the compute `quote_id` and execution approval. Each allocation needs a separate current billing quote. The Job cap must cover the minimum; elapsed portions of a started hour are not voluntarily refunded. Billing quotes last five minutes: an expired queued Job fails without allocation and requires a new reviewed request. It is never silently renewed or routed under different billing terms. Recovery uses durable provider receipts and independent upstream presence checks; ambiguous intents remain `needs_attention`.

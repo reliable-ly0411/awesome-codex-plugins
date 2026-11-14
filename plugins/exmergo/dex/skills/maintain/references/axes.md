@@ -382,6 +382,50 @@ Needs no baseline. The classes of finding:
 A project that does not compile is reported first and suppresses everything
 else. `data.suppressed` names every class that did not run and why.
 
+## `maintain coverage [<selector>]`: where the tests are
+
+Needs no baseline and costs nothing: it reads a fresh `dbt parse` of a
+throwaway copy of the project and opens no connection. It reports, it never
+gates: `status` is `ok` whatever the coverage.
+
+- **Sections.** `models`, `sources`, `snapshots` and `seeds` hold the root
+  project's enabled resources. An ephemeral model is counted and marked
+  `ephemeral`: dbt inlines it into its own tests and the models that read it.
+  Package and disabled resources are in no denominator; `excluded` counts and
+  names them with the reason, and counts disabled tests and tests on an excluded
+  resource.
+- **Own tests.** `own_tests` counts `generic` (attached to the resource),
+  `singular` (a test file that reads it), `unit` (a unit test on that model) and
+  `freshness` (a source's declared check) apart, and `severity` splits its data
+  tests into `error` and `warn`. `tested` is true when any own test exists.
+- **Downstream.** `downstream_tests.count` is the data tests on the resources
+  that read this one, and `on` names those resources. They never count as its
+  own coverage. A unit test on a downstream model is not one: it reads fixtures.
+- **Incremental.** `incremental.incremental_branch_tests` names the unit tests
+  that override `is_incremental` to true. Empty means no test runs the next
+  incremental run, whatever the full build's tests say.
+- **Columns.** `documented` is what `schema.yml` documents, `asserted` the
+  documented columns a generic test is attached to, `unasserted` the gaps, and
+  `undocumented_tested` the tested columns `schema.yml` does not document, which
+  count nowhere. A column a singular test only reads is not asserted.
+- **Summary.** `data.summary` leads the payload. Every ratio is
+  `{numerator, denominator, of}`, and `of` names the denominator. Presence, unit
+  tests, downstream-only protection, incremental branches and asserted columns
+  are separate ratios; there is no blended coverage percentage.
+
+A generic test is named by the test it applies (`not_null`,
+`dbt_utils.unique_combination_of_columns`) and its column, never by its node
+name: dbt names an `accepted_values` test after the values it accepts.
+
+Lists are capped (25 resources per section with untested ones first, 12 tests
+and 12 column names per resource, 10 downstream names, 25 excluded resources),
+each cut counted in `data.elided` and named in `notes`; `--full` lifts them. The
+summary always counts everything. A project that does not parse is reported
+first and suppresses the inventory. Where dbt cannot parse at all (dbt or
+`profiles.yml` missing, a declared package not installed), the newest manifest
+on disk is read, `data.manifest.source` is `artifact` with its `generated_at`,
+and a warning says tests changed since then are not reflected.
+
 ## `maintain reconcile [<class>]`
 
 Proposes the dbt edits that bring the project back in sync, as reviewable diffs,
@@ -464,12 +508,12 @@ with none, without a Snowflake connection to read it. The wrapper installs the
 
 | Axis | On Semantic Views |
 |---|---|
-| `snapshot` | fingerprints each logical table (`view.table`, with its members' columns and its primary and unique keys), each table and view-level metric, and each key-equality relationship with its ordered pairs and arity (`many_to_one`, `one_to_one` or `many_to_many`); records `vendor: snowflake` and Dex's rule-set revision as `format_version`. The hash covers a canonical form, so a view read back from Snowflake (upper-case names, defaulted `access_modifier` and `data_type`) fingerprints as its file |
-| `schema` | unchanged: no vendor schema axis yet (#1293) |
+| `snapshot` | fingerprints each logical table (`view.table`, with its members' columns and its primary and unique keys, each key's claim recorded under `key_claims`: `primary` for `primary_key`, `unique` for each `unique_keys` entry), each table and view-level metric, and each key-equality relationship with its ordered pairs and arity (`many_to_one`, `one_to_one` or `many_to_many`); records `vendor: snowflake` and Dex's rule-set revision as `format_version`, and each table's primary key as its declaration (`declarations`), since a Semantic View has no metadata key. The hash covers a canonical form, so a view read back from Snowflake (upper-case names, defaulted `access_modifier` and `data_type`) fingerprints as its file |
+| `schema` | adds the four `declared_*` codes, each naming the view, the element (`tables['orders'].dimensions['region']`, `tables['orders'].primary_key`, `relationships['orders_customers']`, `tables['paid'].base_table.definition`, `metrics['aov']`) and the column, from the metadata Dex captured with no Snowflake object created (#1293). `declared_column_missing`: a dimension, time dimension, fact or metric, a relationship's columns on either side, a `primary_key` or `unique_keys` entry, or a `base_table.definition` query reads a column its table no longer has. `declared_relation_missing`: a logical table's `base_table` gone since the baseline. `declared_type_conflict`: `SUM`/`AVG` over text (`high`: Snowflake creates the view and fails every query reading it), a time dimension over a column that is not temporal (`medium`: Snowflake answers with the column's values, so it is advised and never cut), and a declared `data_type` in another family than the warehouse's (`low`: Snowflake ignores it and records the column's own). `declared_dependency_dropped`: everything the reader would then refuse, to a fixpoint: a member reading a removed member, a member reading across a removed relationship, a derived metric reading a removed metric. A relation neither the connection nor the baseline lists, a `definition` Dex cannot read, and an expression the reader refused are named in `warnings` as unchecked |
 | `volume` | unchanged: it reads the warehouse, not the layer |
-| `grain` | measures each primary and unique key (`declared_grain_not_unique`) and each relationship's arity (`join_cardinality_exceeded`); an ASOF or range relationship states no arity and is named unchecked |
-| `semantic` | definition drift free as everywhere: a table, member, metric or relationship added, removed or changed |
-| `reconcile` | advisory, naming `semantic snowflake update` as the route (#1292); no edit is stored until the schema axis (#1293) |
+| `grain` | measures each primary and unique key and each relationship's arity, worded as the view's claim with `declared_by: snowflake` and `claim` (`primary` or `unique` for a key, the arity for a relationship), since Snowflake trusts a declared key without checking it and a query through a relationship to a duplicated key counts its rows more than once. A key that never held is `declared_grain_not_unique`; one measurement proved unique at the baseline lapses as `key_lost_uniqueness` and names the claim too. `join_cardinality_exceeded` says Snowflake infers the arity from the referenced table's key. An ASOF or range relationship states no arity and is named unchecked |
+| `semantic` | definition drift free as everywhere: a table, member, metric or relationship added, removed or changed. A changed primary key is `declaration_changed` on `grain`. A move to a newer pinned rule set is `semantic_format_changed`, not every definition changed |
+| `reconcile` | the schema findings' removals are cut out of the view files and stored as a `semantic snowflake update` plan under `data.semantic_plan_id`, validated by the reader, strict rules included, before it is stored: each removed dimension, time dimension, fact, metric, derived metric and relationship, with the comments written directly above it, and a contradicted `data_type` (the member stays). An emptied list is written `[]`, which Snowflake accepts. Every other byte is kept. Advisory, never written: a logical table whose `base_table` is gone (never removed automatically), a key naming a dropped column, a `definition` query reading one, a time dimension over text, a removal the reader would refuse or that leaves the view no member, and a file already holding what authoring refuses. A key or relationship arity the data contradicts is advice naming `semantic snowflake update` |
 | `verify` | checks the dbt project only |
 
 A deployed semantic view is never inventoried: `SHOW VIEWS` does not list one,
@@ -517,6 +561,7 @@ Two things look like drift and are not:
 | `grain`, semantic dimension cardinality | scans; billed handshake on a metered connector |
 | `verify` build status | free (artifacts on disk) |
 | `verify` row counts | free object metadata, except a view, which keeps no count: those are batched into one aggregate-only statement, priced, and returned in `data.offer` |
+| `coverage` | free everywhere: a `dbt parse` of a copy, no connection |
 | `verify` declared facts | one aggregate statement per declared relation, plus one window probe per relation with an `additive` column; priced into the same single `data.offer` |
 
 On DuckDB there is no gate, so `verify` measures every count and its findings
