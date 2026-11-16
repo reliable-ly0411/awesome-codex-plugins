@@ -13,6 +13,7 @@ This script keeps three artifacts aligned:
 
 from __future__ import annotations
 
+import argparse
 import datetime
 import io
 import json
@@ -27,6 +28,7 @@ README = Path(__file__).parent.parent / "README.md"
 OUTPUT = Path(__file__).parent.parent / "plugins.json"
 MARKETPLACE_OUTPUT = Path(__file__).parent.parent / ".agents" / "plugins" / "marketplace.json"
 PLUGINS_ROOT = Path(__file__).parent.parent / "plugins"
+RETIRED_BUNDLE_IDENTITIES = {("samuelbushi", "uizze"), ("waynehamadi", "datacircle-plugin")}
 REQUEST_TIMEOUT_SECONDS = 60
 MAX_RETRIES = 3
 USER_AGENT = "awesome-codex-plugins-generator"
@@ -116,6 +118,7 @@ def parse_plugins(readme_path: Path) -> list[dict[str, str]]:
 
     section = lines[start:end]
     plugins: list[dict[str, str]] = []
+    local_plugins: list[dict[str, str]] = []
     current_category = "Uncategorized"
     seen: set[str] = set()
 
@@ -130,6 +133,18 @@ def parse_plugins(readme_path: Path) -> list[dict[str, str]]:
             line.strip(),
         )
         if not plugin_match:
+            local_match = re.fullmatch(
+                r"- \[([^\]]+)\]\(\./plugins/([A-Za-z0-9_.-]+)/([A-Za-z0-9_.-]+)/?\)\s*[-–]\s*(.+)",
+                line.strip(),
+            )
+            if local_match:
+                local_plugins.append({
+                    "owner": local_match.group(2),
+                    "repo": local_match.group(3),
+                    "_local_bundle": "true",
+                })
+            elif line.strip().startswith("- "):
+                raise ValueError(f"Unrecognized Community Plugins entry: {line.strip()}")
             continue
 
         owner, repo = plugin_match.group(3), plugin_match.group(4)
@@ -161,7 +176,7 @@ def parse_plugins(readme_path: Path) -> list[dict[str, str]]:
         if repo_counts[owner_repo] > 1:
             plugin["_mirror_subpath"] = "true"
 
-    return plugins
+    return plugins + local_plugins
 
 
 def fetch_repo_archive(owner: str, repo: str) -> zipfile.ZipFile:
@@ -443,15 +458,89 @@ def write_json(path: Path, data: dict[str, object]) -> None:
     path.write_text(json.dumps(data, indent=2, ensure_ascii=False) + "\n", encoding="utf-8")
 
 
-def main() -> None:
+def prune_unlisted_bundles(root: Path, plugins: list[dict[str, str]]) -> list[str]:
+    """Remove only explicitly reviewed retirements that are absent from README.
+
+    Omission from the parsed catalog never authorizes another retirement.
+    Keep listed repositories even if this run cannot fetch them, and preflight
+    the two-level tree for symlinks before deleting any approved bundle.
+    """
+    if not plugins:
+        raise ValueError("Refusing bundle cleanup from an empty parsed README; explicit maintainer retirement is required")
+    retained = {(plugin["owner"].casefold(), plugin["repo"].casefold()) for plugin in plugins}
+    removed: list[str] = []
+    if root.is_symlink():
+        raise ValueError("Generated plugins root must not be a symlink")
+    if not root.exists():
+        return removed
+    # Preflight the entire tree before retiring anything. A later invalid
+    # directory must not leave an earlier bundle partially retired.
+    retired: list[Path] = []
+    for owner in sorted(root.iterdir()):
+        if owner.is_symlink():
+            raise ValueError(f"Generated owner directory must not be a symlink: {owner}")
+        if not owner.is_dir():
+            continue
+        for repo in sorted(owner.iterdir()):
+            if repo.is_symlink():
+                raise ValueError(f"Generated repo directory must not be a symlink: {repo}")
+            identity = (owner.name.casefold(), repo.name.casefold())
+            if repo.is_dir() and identity in RETIRED_BUNDLE_IDENTITIES and identity not in retained:
+                retired.append(repo)
+    for repo in retired:
+        shutil.rmtree(repo)
+        removed.append(f"{repo.parent.name}/{repo.name}")
+    return removed
+
+
+def local_plugin_bundle(plugin: dict[str, str]) -> tuple[dict[str, object], str, str]:
+    """Read reviewed committed bundles, without fetching mutable upstream HEAD."""
+    root = PLUGINS_ROOT / plugin["owner"] / plugin["repo"]
+    candidates = sorted(root.glob("**/.codex-plugin/plugin.json"))
+    expected = normalize_match_key(plugin["name"])
+    matches = []
+    for path in candidates:
+        manifest = json.loads(path.read_text(encoding="utf-8"))
+        interface = manifest.get("interface") or {}
+        names = (manifest.get("name"), interface.get("displayName"), path.parent.parent.name)
+        if len(candidates) == 1 or any(normalize_match_key(name) == expected for name in names):
+            matches.append((path, manifest))
+    if len(matches) != 1:
+        raise ValueError(f"Expected one reviewed local bundle for {plugin['name']}, found {len(matches)}")
+    path, manifest = matches[0]
+    relative = path.parent.parent.relative_to(root).as_posix()
+    relative = "" if relative == "." else relative
+    marketplace_path = "./" + path.parent.parent.relative_to(PLUGINS_ROOT.parent).as_posix()
+    # A single mirrored bundle is already flattened. Recover its original
+    # source subpath from the committed compatibility record, when available.
+    source_relative = relative
+    if not relative and OUTPUT.exists():
+        previous = json.loads(OUTPUT.read_text(encoding="utf-8"))
+        for entry in previous.get("plugins", []):
+            if (entry.get("owner"), entry.get("repo"), entry.get("name")) == (plugin["owner"], plugin["repo"], plugin["name"]):
+                prefix = f"https://raw.githubusercontent.com/{plugin['owner']}/{plugin['repo']}/HEAD/"
+                url = entry.get("install_url", "")
+                if url.startswith(prefix) and url.endswith(".codex-plugin/plugin.json"):
+                    source_relative = url[len(prefix):-len(".codex-plugin/plugin.json")].rstrip("/")
+                break
+    return manifest, marketplace_path, source_relative
+
+
+def main(local: bool = False) -> None:
     plugins = parse_plugins(README)
+    for owner_repo in prune_unlisted_bundles(PLUGINS_ROOT, plugins):
+        print(f"Removed reviewed retired bundle {owner_repo}")
+    # Local README links are retention-only; never fetch them from GitHub.
+    plugins = [plugin for plugin in plugins if plugin.get("_local_bundle") != "true"]
     mirrored_entries: list[dict[str, object]] = []
     skipped: list[str] = []
     for plugin in plugins:
         owner_repo = f"{plugin['owner']}/{plugin['repo']}"
         try:
-            manifest, marketplace_path, plugin_root_relative = mirror_plugin_bundle(plugin)
+            manifest, marketplace_path, plugin_root_relative = (local_plugin_bundle(plugin) if local else mirror_plugin_bundle(plugin))
         except Exception as e:
+            if local:
+                raise
             print(f"WARNING: Skipping {owner_repo} — {e}", file=sys.stderr)
             skipped.append(owner_repo)
             continue
@@ -501,7 +590,7 @@ def main() -> None:
         "$schema": "https://json-schema.org/draft/2020-12/schema",
         "name": "awesome-codex-plugins",
         "version": "1.0.0",
-        "last_updated": datetime.date.today().isoformat(),
+        "last_updated": (json.loads(OUTPUT.read_text(encoding="utf-8")).get("last_updated", datetime.date.today().isoformat()) if local and OUTPUT.exists() else datetime.date.today().isoformat()),
         "total": len(ok_plugins),
         "categories": sorted({plugin["category"] for plugin in ok_plugins}),
         "plugins": public_plugins,
@@ -516,4 +605,6 @@ def main() -> None:
 
 
 if __name__ == "__main__":
-    main()
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument("--local", action="store_true", help="Generate from reviewed committed bundles; no network or runtime refresh")
+    main(local=parser.parse_args().local)

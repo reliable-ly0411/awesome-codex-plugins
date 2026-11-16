@@ -1,6 +1,6 @@
 {
   "name": "token-optimizer",
-  "version": "7.4.3",
+  "version": "7.6.0",
   "description": "Context-window optimization: caching, compression, and smart file tooling that cut token usage 60-90%.",
   "author": {
     "name": "ooples",
@@ -32,6 +32,7 @@
     "defaultPrompt": [
       "Use token-optimizer smart_read to re-read this large file as a diff.",
       "Show my token savings with get_optimization_report."
-    ]
+    ],
+    "composerIcon": "./assets/catalog-icon.svg"
   }
 }

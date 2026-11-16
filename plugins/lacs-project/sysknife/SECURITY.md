@@ -91,10 +91,14 @@ provider:
 - **Secret scan**: the same pattern list used to guard the preferences
   file (`SENSITIVE_PATTERNS` + `SENSITIVE_PREFIXES` in
   `crates/sysknife-brain/src/prefs.rs`) is applied to the raw intent.
-  Intents containing API key prefixes (`sk-`, `ghp_`, `xoxb-`, …),
-  the words `password`, `token`, `api_key`, and similar are rejected
-  with `PlanningError::IntentContainsSensitiveData` before any network
-  call is made.
+  An intent carrying a credential value is rejected with
+  `PlanningError::IntentContainsSensitiveData` before any network call is
+  made: a labelled assignment or phrase (`password=…`, `API_KEY: …`,
+  `password is …`, `use token <value>`), a `Bearer` value, a PEM private-key
+  header, or a known key format (`sk-`, `ghp_`, `github_pat_`, `xoxb-`, JWTs,
+  Vault tokens and others). Bare vocabulary passes, so "check password aging"
+  or "why is my disk full" still plans; the screen looks for a value, not the
+  word.
 - **Credential-taking actions**: there is no out-of-band credential entry or
   reference resolver, so the planner does not offer `ProAttach`, and it offers
   `ConfigureWifi` for open networks only. The tool schema excludes `ProAttach`,
@@ -132,9 +136,11 @@ The daemon resolves the caller's Linux group membership via
 | `sysknife-admin` or `wheel` | Admin | All including rpm-ostree, reboot |
 | `sysknife-boot` | Boot | Everything (reserved for boot-time automation) |
 
-The per-action minimum role is a compile-time exhaustive match in
-`crates/sysknife-daemon/src/policy.rs`. Unknown actions return `None` and
-are denied unconditionally. The caller's role is never supplied by the
+The per-action minimum role comes from the action's risk tier on its
+`ActionSpec` (`Low`→Observer, `Medium`→Dev, `High`→Admin), in
+`min_role_for_action` in `crates/sysknife-daemon/src/policy.rs`. A short
+exception list can raise an action's role above its tier and never lower it.
+An action with no `ActionSpec` returns `None` and is denied unconditionally. The caller's role is never supplied by the
 client — it is always derived server-side from kernel credentials.
 
 The same `SO_PEERCRED` read yields the peer's **uid**, which is recorded as the
@@ -227,9 +233,23 @@ literal prompt-envelope tag to a `BLOCKED_` sentinel, and caps the length. A TAG
 block payload is invisible in every mainstream renderer and reaches a tokenizer
 byte for byte, which is why the strip matters more than it looks.
 
-**To SysKnife's own planner**, in `planner.rs`, every tool result is wrapped in
+Read-only tool output also replaces plaintext credential values with
+`<redacted>` before normalisation and truncation, and repeats the screen after
+normalisation. The screen recognizes password, token, secret and key values in
+`KEY=value`, `--key=value`, `--key value` and JSON-style assignments, Bearer values,
+common provider-key shapes, and complete or unterminated PEM private-key blocks.
+Quoted assignment values stop at the line boundary even if a quote is not closed,
+so malformed log records cannot hide later records. SendGrid, Hugging Face and npm
+tokens require their provider formats; generic `key:` file paths, ordinary system
+facts and SSH public keys are preserved. This is a pattern screen: arbitrary
+unlabelled passwords, encoded credentials and unrecognized formats can still
+reach a provider. Do not use read tools to collect secret files.
+
+**To SysKnife's own planner**, in `planner.rs`, host query results are wrapped in
 an `<untrusted_tool_output source="...">` envelope, capped at 8 KiB, and the
-system prompt tells the model that text inside the envelope is data.
+system prompt tells the model that text inside the envelope is data. All tool
+result content, including local feedback and errors, is screened for the same
+plaintext patterns before being retained for subsequent provider calls.
 
 **To the calling assistant over MCP**, in `mcp_server.rs`, read-only query
 results get the same envelope with a 64 KiB cap, and every free-text field of

@@ -1,6 +1,6 @@
 {
   "name": "panews",
-  "version": "0.2.0",
+  "version": "0.3.0",
   "description": "PANews Agent Toolkit for crypto news discovery, Polymarket smart money leaderboard reading, PANews creator workflows, and PANews page-to-Markdown reading.",
   "author": {
     "name": "Seven Du",
@@ -40,6 +40,7 @@
       "Help me publish this article to PANews.",
       "Read this PANews page as Markdown."
     ],
-    "brandColor": "#0F7BFF"
+    "brandColor": "#0F7BFF",
+    "composerIcon": "./assets/catalog-icon.svg"
   }
 }

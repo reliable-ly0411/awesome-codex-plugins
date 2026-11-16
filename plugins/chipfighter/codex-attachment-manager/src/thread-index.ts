@@ -10,19 +10,21 @@
 // a task the user has archived since. v0.1-13 — if that page is gone for good (its task deleted), the rest is read and
 // the gap reported, instead of failing.
 // v0.3 — an image the model fetched with our tool (cam_view_image) is kept apart as a copy of the original: no id.
+// v0.8 — what the model noted about the images in record lines at the end of its replies (notes.ts), by image id.
 // Input: the sessions directory and a thread id. Output: ThreadIndex (in memory; files are parsed incrementally).
 
 import { closeSync, existsSync, mkdirSync, openSync, readdirSync, readFileSync, readSync, statSync, writeFileSync } from "node:fs";
 import { basename, dirname, join } from "node:path";
 import { zstdDecompressSync } from "node:zlib";
 import { findImages, type ImageRef } from "./images.ts";
+import { addNotes, type Notes } from "./notes.ts";
 import { decodePng } from "./png.ts";
 
 type Json = Record<string, any>;
 export type IndexedImage = ImageRef & { id: string; turn: number | null; bytes: number; pixelSha256: string | null };
 // v0.3: an image the model fetched with our tool, a copy of `of` sent in its own turn only (spec: automatic selection).
 export type FetchedCopy = { key: string; of: string; turn: number | null };
-export type ThreadIndex = { threadId: string; images: IndexedImage[]; byKey: Map<string, IndexedImage>; turns: number; turnNumbers: Map<string, number>; copies: Map<string, FetchedCopy> };
+export type ThreadIndex = { threadId: string; images: IndexedImage[]; byKey: Map<string, IndexedImage>; turns: number; turnNumbers: Map<string, number>; copies: Map<string, FetchedCopy>; notes: Map<string, Notes> };
 export type Parsed = { offset: number; type: string; payload: Json; timestamp: string | null };
 type FileCache = { size: number; mtimeMs: number; parsedTo: number; records: Parsed[] };
 
@@ -202,6 +204,11 @@ function pixelHash(ref: ImageRef, value: string): string | null {
   return pixelHashes.get(ref.contentId) ?? null;
 }
 
+// v0.4: the same fingerprint for an image held elsewhere (a Claude Code transcript), by its digest and base64.
+export function pixelHashOfData(ref: Pick<ImageRef, "contentId" | "mime">, value: string): string | null {
+  return pixelHash(ref as ImageRef, value);
+}
+
 export function imageData(items: Json[], ref: ImageRef): string | null {
   const item = items[ref.item];
   if (ref.part === null) return typeof item?.result === "string" ? item.result : null;
@@ -218,13 +225,22 @@ export function buildIndex(threadId: string, history: Parsed[]): ThreadIndex {
   const turnNumbers = new Map<string, number>();
   const items: Json[] = [];
   const activeTurn: Array<string | null> = [];
+  const notes = new Map<string, Notes>();
   let current: string | null = null;
   for (const record of history) {
     if (record.type === "event_msg" && record.payload.type === "task_started" && record.payload.turn_id) {
       current = record.payload.turn_id;
       if (!turnNumbers.has(current!)) turnNumbers.set(current!, turnNumbers.size + 1);
     }
-    if (record.type === "response_item") { items.push(record.payload); activeTurn.push(current); }
+    if (record.type !== "response_item") continue;
+    items.push(record.payload);
+    activeTurn.push(current);
+    // v0.8: only the model's own replies.
+    const { type, role, content } = record.payload;
+    if (type === "message" && role === "assistant" && Array.isArray(content)) {
+      const turn = current ? turnNumbers.get(current) ?? null : null;
+      for (const part of content) if (part?.type === "output_text" && typeof part.text === "string") addNotes(notes, part.text, turn);
+    }
   }
   const images: IndexedImage[] = [];
   const byKey = new Map<string, IndexedImage>();
@@ -251,7 +267,7 @@ export function buildIndex(threadId: string, history: Parsed[]): ThreadIndex {
     const twin = images.find((other) => other.name && (other.contentId === entry.contentId || (entry.pixelSha256 !== null && other.pixelSha256 === entry.pixelSha256)));
     if (twin) entry.name = twin.name;
   }
-  return { threadId, images, byKey, turns: turnNumbers.size, turnNumbers, copies };
+  return { threadId, images, byKey, turns: turnNumbers.size, turnNumbers, copies, notes };
 }
 
 // The first line alone (session_meta can be long), read in chunks without parsing the rest of the file.
@@ -291,16 +307,64 @@ export function forkOrigin(sessionsDir: string, threadId: string): { parent: str
     const first = segments.get(threadId);
     return first ? { found: true, record: firstRecord(first) } : { found: false, record: null };
   });
-  // No rollout yet: do not cache, it may appear once the thread starts.
-  if (!meta.found) return null;
-  const origin = meta.record?.type === "session_meta" && meta.record.payload.forked_from_id ? { parent: meta.record.payload.forked_from_id, at: meta.record.payload.timestamp ?? "" } : null;
+  // No rollout yet: do not cache, it may appear once the thread starts. v0.7: nor while its first line is not written
+  // yet: Codex creates the file a moment before, and a request can come in between.
+  if (!meta.found || !meta.record) return null;
+  const origin = meta.record.type === "session_meta" && meta.record.payload.forked_from_id ? { parent: meta.record.payload.forked_from_id, at: meta.record.payload.timestamp ?? "" } : null;
   origins.set(threadId, origin);
   return origin;
+}
+
+const spawners = new Map<string, string | null>();
+
+// v0.7: the thread that started a subagent without history (session_meta source.subagent.thread_spawn); null for
+// anything else: the user's tasks, forks (a subagent started with history is one), Codex's background tasks (review,
+// compaction, memory). Cached once the rollout's first line is there (as forkOrigin): it never changes.
+export function spawnParent(sessionsDir: string, threadId: string): string | null {
+  const key = `${sessionsDir}\0${threadId}`;
+  if (spawners.has(key)) return spawners.get(key)!;
+  const meta = withSegments(sessionsDir, ({ segments }) => {
+    const first = segments.get(threadId);
+    return first ? { found: true, record: firstRecord(first) } : { found: false, record: null };
+  });
+  if (!meta.found || !meta.record) return null;
+  const payload = meta.record.type === "session_meta" ? meta.record.payload : null;
+  const spawn = payload?.source?.subagent?.thread_spawn;
+  const parent = payload && !payload.forked_from_id && spawn ? spawn.parent_thread_id ?? payload.parent_thread_id : null;
+  spawners.set(key, typeof parent === "string" ? parent : null);
+  return spawners.get(key)!;
+}
+
+const starts = new Map<string, string | null>();
+
+// v0.6: when a thread started, from its session_meta; a fork counts from the thread it came from (followed to the
+// first one; the fork's own time when that one is gone). null while the thread has no rollout, or no first line yet.
+// Cached once known.
+export function threadStartedAt(sessionsDir: string, threadId: string, depth = 0): string | null {
+  const origin = forkOrigin(sessionsDir, threadId);
+  if (origin && depth < 16) return threadStartedAt(sessionsDir, origin.parent, depth + 1) ?? (origin.at || null);
+  const key = `${sessionsDir}\0${threadId}`;
+  if (starts.has(key)) return starts.get(key)!;
+  const meta = withSegments(sessionsDir, ({ segments }) => {
+    const first = segments.get(threadId);
+    return first ? { found: true, record: firstRecord(first) } : { found: false, record: null };
+  });
+  if (!meta.found || !meta.record) return null;
+  const at = (meta.record.type === "session_meta" ? meta.record.payload.timestamp : null) ?? meta.record.timestamp ?? null;
+  starts.set(key, typeof at === "string" ? at : null);
+  return starts.get(key)!;
 }
 
 // Whether the thread has a rollout at all: a thread Codex prepared for a new chat has none until its first message.
 export function hasRollout(sessionsDir: string, threadId: string): boolean {
   return allSegments(sessionsDir).segments.has(threadId);
+}
+
+// v0.7: the task a side chat came from. Codex keeps a side chat in memory only: its requests and tool calls name the
+// task it was forked from (forked_from_thread_id), and it has no rollout of its own (a fork the user made has one, and
+// follows the fork rules). null for any other thread.
+export function sideChatOrigin(threadId: string, forkedFrom: string | null | undefined, sessionsDir: string): string | null {
+  return forkedFrom && forkedFrom !== threadId && !hasRollout(sessionsDir, threadId) ? forkedFrom : null;
 }
 
 // The thread's session_meta (where it came from: source, thread_source, forked_from_id, parent_thread_id), or null.
@@ -310,6 +374,22 @@ export function sessionMetaOf(sessionsDir: string, threadId: string): Json | nul
     const record = first ? firstRecord(first) : null;
     return record?.type === "session_meta" ? record.payload : null;
   });
+}
+
+const noteTakers = new Map<string, boolean>();
+
+// v0.8: whether a thread's model writes feature lines (docs/v0.8/plan.md): the user's own tasks and their forks, not a
+// subagent (started with history or without) or one of Codex's internal tasks. Without a first line yet, yes, and not
+// cached: a subagent's first request can come before its rollout is written (v0.7); a user's task's rarely does.
+export function writesNotes(sessionsDir: string, threadId: string): boolean {
+  const key = `${sessionsDir}\0${threadId}`;
+  if (noteTakers.has(key)) return noteTakers.get(key)!;
+  const meta = sessionMetaOf(sessionsDir, threadId);
+  if (!meta) return true;
+  const source = meta.source;
+  const own = !(source && typeof source === "object" && ("subagent" in source || "internal" in source));
+  noteTakers.set(key, own);
+  return own;
 }
 
 // Threads whose rollout was first written at or after `since` (ms), with their session_meta, newest last. Only

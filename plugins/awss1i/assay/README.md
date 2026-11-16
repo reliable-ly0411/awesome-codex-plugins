@@ -1,5 +1,7 @@
 <h1 align="center">The Skill and the Plugin</h1>
 
+<p align="center"><b>English</b> · <a href="README.zh-CN.md">简体中文</a> · <a href="README.ja.md">日本語</a> · <a href="README.ko.md">한국어</a> · <a href="README.ru.md">Русский</a></p>
+
 ---
 
 <p align="center">Two ways to have your agent check a page it just wrote.
@@ -51,9 +53,10 @@ the agent decides when to run the check.
 ## The Plugin
 
 The plugin adds a `Stop` hook, which runs the check at the end of every turn
-that changed a page. In Claude Code it installs the skill and the hook
-together. The DeepSeek Harness uses the hook on its own, through its Claude
-Code bridge.
+that changed a page. In Claude Code, Codex, Grok Build CLI, Devin CLI, Factory
+Droid and GitHub Copilot CLI it installs the skill and the hook together. In
+Cursor it installs the skill alone. The DeepSeek Harness runs the hook through
+its Claude Code bridge.
 
 - **Which pages it checks.** A change to any web file marks the page in the
   same folder, so editing `app.js` counts. In each folder it checks the most
@@ -66,9 +69,13 @@ Code bridge.
   nothing.
 - **It keeps the turn open** so you see the result, and never does this twice
   in a row. It checks the harness's `stop_hook_active` flag and writes a
-  timestamp (in the harness's scratch folder, else `.git/`, else a
-  `.assay-last-run` file). If it can't write the timestamp, it reports
-  without keeping the turn open.
+  timestamp (in the harness's scratch folder, else the repository's `.git`
+  folder, else a `.assay-last-run` file). If it can't write the timestamp, it
+  reports without keeping the turn open.
+- **It finishes in time.** It gives each page up to four minutes and all
+  the pages together up to nine, so it ends before the harness cancels it at
+  the ten-minute limit set in `hooks.json`. A page left without time is
+  reported as not checked.
 
 ---
 

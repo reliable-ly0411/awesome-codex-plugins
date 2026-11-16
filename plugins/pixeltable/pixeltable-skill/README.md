@@ -1,6 +1,8 @@
 # Pixeltable Skill
 
-Agent Skill that teaches AI coding assistants to write Pixeltable application files: `TableModel` in `app.py`, then `pxt schema update`, then `pxt service update`.
+The backend agents build with: multimodal database, orchestration, and serving in one file.
+
+This plugin teaches AI coding assistants to build Pixeltable applications: tables with computed columns, embedding indexes and vector search, RAG, tool-calling agents, and video, audio, image, and document pipelines across 25+ AI providers. The agent declares the schema as `TableModel` classes in `app.py`, creates the tables with `pxt schema update`, and serves HTTP routes with `pxt service update`.
 
 Verified against Pixeltable 0.7.11 on 2026-09-28: [docs/review-2.12.0.md](docs/review-2.12.0.md).
 
@@ -16,6 +18,10 @@ npx skills add pixeltable/pixeltable-skill
 
 This installs `SKILL.md` and its references for supported coding assistants,
 including Cursor, Copilot, Windsurf, and the Codex IDE extension.
+
+With only Python, `pxt skills install` (Pixeltable 0.7.17 or later) writes the
+same skill into the current project's `.claude/skills/pixeltable` and
+`.agents/skills/pixeltable`; `pxt skills install -f` updates it.
 
 **Google Antigravity** is not one of them: it reads
 `~/.gemini/antigravity/skills`, which `npx skills` does not write to. Install

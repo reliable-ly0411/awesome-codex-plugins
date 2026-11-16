@@ -1,6 +1,6 @@
 {
   "name": "orgx-codex-plugin",
-  "version": "0.1.23",
+  "version": "0.1.24",
   "description": "OrgX MCP access and initiative-aware Codex skills for operating inside OrgX workstreams.",
   "author": {
     "name": "OrgX Team",
@@ -38,7 +38,7 @@
       "Use OrgX to scaffold this goal into workstreams, milestones, and tasks."
     ],
     "brandColor": "#14B8A6",
-    "composerIcon": "./assets/icon.png",
+    "composerIcon": "./assets/catalog-icon.svg",
     "logo": "./assets/logo.png"
   }
 }

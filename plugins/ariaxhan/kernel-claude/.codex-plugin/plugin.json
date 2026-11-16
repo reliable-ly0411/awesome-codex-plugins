@@ -44,6 +44,7 @@
       "Fix the failing test in this repo.",
       "Why did you pick that mode?",
       "Use less process for this one."
-    ]
+    ],
+    "composerIcon": "./assets/catalog-icon.svg"
   }
 }

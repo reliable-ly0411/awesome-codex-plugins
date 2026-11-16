@@ -1,6 +1,6 @@
 {
   "name": "quiver",
-  "version": "1.26.1",
+  "version": "2.0.0",
   "description": "Composable development lifecycle -- brainstorm, plan, execute, review, and hand over from idea to merged PR",
   "author": {
     "name": "Yilmaz Yagiz Dokumaci"
@@ -14,6 +14,7 @@
   "interface": {
     "displayName": "Quiver",
     "shortDescription": "Composable development lifecycle -- brainstorm, plan, execute, review, and hand over",
-    "category": "Productivity"
+    "category": "Productivity",
+    "composerIcon": "./assets/catalog-icon.svg"
   }
 }

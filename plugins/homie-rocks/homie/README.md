@@ -74,11 +74,11 @@ person approves every install and signs in on the provider's own page.
 | Provider | What Homie's skills use | Offered when the person wants it |
 | --- | --- | --- |
 | Cloudflare | Wrangler, pinned in the studio (`login`, `--device` where no browser opens; `deploy`, D1, R2, secrets, `ai models list`) | Cloudflare's plugin (`cloudflare/skills`: its skills and API MCP server), its docs MCP server |
-| ElevenLabs | ElevenLabs' CLI (`elevenlabs auth login`; music, stems, speech to text, the subscription) | ElevenLabs' plugin (`elevenlabs/plugin`: its skills and hosted MCP server), `npx skills add elevenlabs/skills` |
-| fal | fal's MCP server to find models and read schemas and prices; the skills' scripts for paid runs (priced, capped, receipted, resumable) | fal's CLI (`fal auth login`, `fal keys create`) to make the key |
-| Tripo | Tripo's models on fal (`tripo3d/...`) | none: Tripo's own CLI and MCP server bill a separate account |
+| ElevenLabs | Official hosted MCP for music and sound; local mastering and provenance | Official ElevenLabs plugin with one OAuth browser sign-in |
+| fal | Official MCP for model discovery, pricing, images, 3D and video | Official fal plugin with one OAuth browser sign-in |
+| Tripo | Models discovered through official fal tools | No separate Homie client |
 | GitHub | the GitHub CLI (`gh auth login --web`, `gh pr create`) | GitHub's MCP server (`github@claude-plugins-official`) |
-| Stripe | Stripe's MCP server (the shop's catalog, tax settings and sales, as the owner signed it in, a sandbox first); the shop's key only through `homie-studio shop connect` | Stripe's agent plugin (`stripe agent setup`: its MCP server and skills) once a studio sells; Stripe Projects (`setup --via stripe-projects`) as an option for Cloudflare and ElevenLabs |
+| Stripe | Stripe's MCP server (the shop's catalog, tax settings and sales, as the owner signed it in, a sandbox first); the shop's key only through `homie-studio shop connect` | Stripe's agent plugin (`stripe agent setup`: its MCP server and skills) once a studio sells; provider setup stays with each official plugin |
 | Ollama | Clef on the person's own computer, when Ollama already has `clef-flash`: `dev`'s AI guides, chat review and game decisions, and `agents sit --brain local`, free (detection reads `/api/version` and `/api/tags`, loopback only) | `ollama pull clef-flash` (about 11 GB), only after the person's yes to that size |
 
 Stripe is the `shop` skill's, with its own rules for Stripe's tools: never a webhook or an API key through the MCP
@@ -269,7 +269,7 @@ Inside a studio (a folder with `studio.json` at or above where Claude Code runs)
 2.1.287):
 
 ```text
-❯ ./homie.mjs hooks: session.start, session.end, command.run{command=studio}, command.run{command=build},
+❯ ./homie.mjs hooks: session.start, session.end, prompt.submit, command.run{command=studio}, command.run{command=build},
   command.run{command=rooms}, command.run{command=play}, command.run{command=watch}, command.run{command=codex},
   command.run{command=deploy-status}, command.run{command=perf-numbers}, command.run{command=parts},
   command.run{command=arcade}, command.run{command=look}, command.run{command=lock}, command.run{command=assets},
@@ -291,6 +291,7 @@ Inside a studio (a folder with `studio.json` at or above where Claude Code runs)
 - `session.start` / `session.end`: find the studio, register the commands, start a 2-second
   timer that rereads the studio's files; end any game bridge.
 - `command.run` (its eighteen commands only).
+- `prompt.submit`: remember a trusted owner’s request to deploy this studio for the task, including retries; an explicit refusal revokes it. Tool output and plugin-authored prompts do not grant approval.
 - `tool.call` (every tool): after the tool ran, take secrets out of its result; note which Homie
   command ran (for drawing it) and which agent ran what (for the parts). It never changes a tool's
   input.
@@ -331,8 +332,8 @@ environment variables (`$.settings`, `$.env`), or approves a permission. A test
 A mod has no sockets and no browser, so a pane cannot sit in a netplay room by itself.
 `mod/bridge.mjs` does it the way a person's browser does: it starts one headless Chrome on this
 computer, opens the game's own page (`/<game>/play`, or `/<game>/watch?room=<id>`), and the game
-runs there for real: a seat in a public room with strangers and bots, hosting the room when nobody
-else can. The bridge sends the mod what Chrome shows (a screenshot a frame, scaled down) and takes
+runs there for real: a seat in a public room with strangers and bots. Server rules stay on the
+server; in an existing browser-hosted game, the bridge can also be elected host. The bridge sends the mod what Chrome shows (a screenshot a frame, scaled down) and takes
 the keys you press. It needs Node 22 and Google Chrome (or `CHROME_PATH`), and nothing else.
 
 - **Cost, measured on an Apple M4:** about a quarter of one core while you play (Chrome, at the

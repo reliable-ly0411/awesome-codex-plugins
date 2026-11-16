@@ -145,10 +145,12 @@ Cache the status briefly.
 
 ## On Runtype
 
-- **Tool count and residency.** A dispatch carries at most 50 runtime tools. Tool search
-  is on by default for multi-turn agents: at 20 or more tools, Runtype keeps a hot set
-  loaded and defers the inline runtime tools behind a `tool_search` tool that the model
-  calls to load more. Saved, built-in, and MCP tools stay loaded. Set
+- **Tool count and residency.** Runtype does not cap the number of tools in a dispatch;
+  it caps the request's serialized `runtimeTools` at 1 MB. A model provider can still
+  refuse a long tool list (`TOOL_COUNT_REFUSED_BY_PROVIDER`), so use tool search for
+  large tool sets. Tool search is on by default for multi-turn agents: at 20 or more
+  tools, Runtype keeps a hot set loaded and defers the inline runtime tools behind a
+  `tool_search` tool that the model calls to load more. Saved, built-in, and MCP tools stay loaded. Set
   `tools.toolSearch.enabled: false` to send every tool on every request. Single-turn
   agents and flow prompt steps always send every tool, so keep those sets small or split
   them across subagents. Either way, make descriptions distinct, because they are what
@@ -199,7 +201,7 @@ Cache the status briefly.
   `get_platform_documentation(topic="builtin-tools")` the catalog. A `tool-call` step
   that names a catalog id nobody answers to is rejected as
   `TOOL_CALL_STEP_UNKNOWN_CATALOG_TOOL`.
-- **Traces and verification.** Find real sequences with `list_runs` (filtered by `agentId`) and
+- **Traces and verification.** Find real sequences with `list_runs` (filtered by `agent_id`) and
   `trace_execution`. Test one tool with `execute_tool`, then run the agent with
   `execute_agent` and read the trace to confirm the tool choice.
 - **Versioning.** Agents and flows are versioned (`publish_agent_version`,
