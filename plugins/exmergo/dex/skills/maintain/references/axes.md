@@ -407,11 +407,12 @@ Needs no baseline. The classes of finding:
 A project that does not compile is reported first and suppresses everything
 else. `data.suppressed` names every class that did not run and why.
 
-## `maintain coverage [<selector>]`: where the tests are
+## `maintain coverage [<selector>] [--mutate]`: where the tests are
 
 Needs no baseline and costs nothing: it reads a fresh `dbt parse` of a
 throwaway copy of the project and opens no connection. It reports, it never
-gates: `status` is `ok` whatever the coverage.
+gates: `status` is `ok` whatever the coverage. `--mutate` is the one exception:
+it refreshes stale and missing mutation scores, and that runs dbt (see below).
 
 - **Sections.** `models`, `sources`, `snapshots` and `seeds` hold the root
   project's enabled resources. An ephemeral model is counted and marked
@@ -432,7 +433,28 @@ gates: `status` is `ok` whatever the coverage.
 - **Columns.** `documented` is what `schema.yml` documents, `asserted` the
   documented columns a generic test is attached to, `unasserted` the gaps, and
   `undocumented_tested` the tested columns `schema.yml` does not document, which
-  count nowhere. A column a singular test only reads is not asserted.
+  count nowhere. A column a singular test only reads is not asserted; it is
+  `referenced` (below).
+- **Referenced.** `columns.referenced_columns` lists each column a singular test
+  reads, with the `roles` it is read in (`predicate` for WHERE, HAVING, QUALIFY
+  and CASE conditions, `join`, `aggregation`, `grouping`, `projection`), the
+  `tests` that read it, and whether it is `documented` and `asserted`. Columns
+  only a singular test reads sort first. `columns.referenced` counts the
+  documented ones, `columns.referenced_only` those no generic test asserts, and
+  `summary.<section>.columns_referenced_only` is that count as its own ratio,
+  never added to `columns_asserted`. Judge by role: a `join` read asserts
+  nothing about the key, while a `predicate` read usually does. A singular test
+  is rendered statically (`ref()`, `source()`, a `var()` with a literal
+  default). One that other Jinja generates is read from the newest compiled
+  manifest on disk, but only where that manifest holds the test with the same
+  checksum. `data.singular_tests` counts the tests read (`resolved`, `partial`,
+  `unresolved`), says where each was `read_from`, and names every test read in
+  part or not at all with a `reason_code`: `macro_generated`, `jinja_block`,
+  `unparseable`, `ambiguous_relation`, `unknown_relation`, `untraced_columns`
+  (an unqualified column in a select over several relations, which needs a
+  catalog this command does not read), `reads_no_column` or `no_sql`. Such a
+  test is never read as reading nothing. Names and counts only: no SQL,
+  expression or literal.
 - **Summary.** `data.summary` leads the payload. Every ratio is
   `{numerator, denominator, of}`, and `of` names the denominator. Presence, unit
   tests, downstream-only protection, incremental branches and asserted columns
@@ -450,6 +472,83 @@ first and suppresses the inventory. Where dbt cannot parse at all (dbt or
 `profiles.yml` missing, a declared package not installed), the newest manifest
 on disk is read, `data.manifest.source` is `artifact` with its `generated_at`,
 and a warning says tests changed since then are not reflected.
+
+### Three more answers, each on its own
+
+Presence, last-run status, mutation strength and declaration coverage are
+separate questions. Report each with its own denominator; never fold them into
+one coverage number.
+
+- **Last run.** Each test carries `last_run`: `pass`, `fail`, `warn`, `error`,
+  `skipped`, or `not_run` when the latest run did not include it. `not_run` is
+  never a pass. `data.last_run` names the one run read (the newest
+  `run_results.json` a `dbt build`, `test` or `run` wrote, from Dex's artifact
+  directory or the project's target path) with its `generated_at` and
+  `age_seconds`. Quote the age with the status: a status describes that run, not
+  the project now. With no run results every test is `not_run` and a note says
+  so; results from an invocation no dbt log names are not attributed. A source's
+  freshness check reports no `last_run`: `dbt source freshness` writes its own
+  artifact.
+- **Strength.** A model carries `strength`, the score its last
+  `transform test --mutate` recorded. `fresh` means the model's SQL as written and its own tests
+  are what the run measured, and every downstream test it ran still reads the
+  same. `stale` lists what `changed` (`model_sql`, `own_tests`,
+  `downstream_tests`); its score is shown with its age and is not current.
+  `missing` has no record, and `untestable` has no test, own or downstream, so
+  `--mutate` would refuse it. `score` (the model's own tests) and
+  `score_with_downstream` stay apart, and `complete: false` marks a run the
+  budget stopped. `summary.models.strength` counts each status and bands the
+  fresh scores; there is no project mutation score. A score counts only the
+  defects Dex plants. The digest reads the SQL as written: a change in a macro
+  the model calls, a parent's SQL, or a materialization set in
+  `dbt_project.yml` does not stale it, so refresh after such a change
+  yourself. Refresh one with `dex transform test --mutate <model>`, or every
+  stale and missing one with `--mutate` (below). `untestable` with a `reason`
+  (`no_mutable_sql`) is a model a run refused for its SQL alone: no comparison,
+  filter, join, CASE, division, window frame or aggregate to plant a defect in.
+  It reads `missing` again once its SQL or tests change.
+- **Refresh (`--mutate`).** Runs `transform test --mutate` for each `stale` and
+  `missing` model, then reports the sections as they now stand. Models run in
+  the order the selector names them; with no selector, `missing` before
+  `stale`, upstream before downstream, then by name. At most 25 run per call:
+  `--max-models` narrows that and is refused above 25. `refresh.elided` names
+  the rest, and running the command again continues with them.
+  - On a metered connector every model is planned and priced first for free,
+    and the batch is confirmed once (`needs_confirmation` with a line per
+    model). Each run then draws on what the confirmed budget has left. A model
+    the budget stopped part way is `complete: false`, and every model after it
+    is under `refresh.not_run` with `reason_code: budget`. Free on DuckDB. Dev
+    target only (`--target`).
+  - `refresh.skipped` lists models a run would refuse, read off the manifest at
+    no cost and not counted toward the cap: Python models, models with a
+    `sql_header`, versioned models, whose versions share the name
+    `transform test --mutate` takes, and, on a metered connector, a model only
+    downstream tests read (`downstream_only`), since routing a mutant through
+    them is opt-in there (`transform test --mutate <model> --downstream`).
+  - A model whose tests pass no baseline is recorded too: it reads `missing`
+    with `last_refusal`, and a refresh retries it after the models it has not
+    tried yet, so it never holds the first slots. It never replaces a score
+    that still describes the model.
+  - `refresh.refused` lists the runs that refused, with a `reason_code` and the
+    reason.
+  - `refresh.refreshed` lists the models measured, with what each `was`, its
+    scores, and whether it was `recorded`.
+  - Refused in values-free mode, since `transform test --mutate` is not
+    reviewed for it.
+- **Declarations.** `data.declarations.facts` holds one record per declared fact
+  on the selected models: `fact` (`grain`, `key`, `foreign_key`, `references`,
+  `null_rule`, `population_filter`, `population_parent`, `population_rule`,
+  `unit`, `additivity`, `history`), `column`, and `checked_by`: `dbt_test` (the
+  generic `tests` that assert it run on every `dbt build`), `dex_verify` (the
+  `verify` finding codes that can judge it on `maintain verify` or
+  `transform build --verify`; that verify *can* judge it, not that it ran), `both`, `none`,
+  or `prose` for a population stated only as a rule, which nothing can run.
+  Unchecked facts come first. `summary.facts.checked` leaves prose out of its
+  denominator, and `models_undeclared` counts models with no declaration apart
+  rather than as zero coverage. A `references` counts as `dex_verify` only where
+  the model reads the referenced model, since verify judges it through a join
+  the model's SQL writes. Declarations a native semantic layer carries are not
+  read yet.
 
 ## `maintain reconcile [<class>]`
 
@@ -587,6 +686,7 @@ Two things look like drift and are not:
 | `verify` build status | free (artifacts on disk) |
 | `verify` row counts | free object metadata, except a view, which keeps no count: those are batched into one aggregate-only statement, priced, and returned in `data.offer` |
 | `coverage` | free everywhere: a `dbt parse` of a copy, no connection |
+| `coverage --mutate` | one `transform test --mutate` per stale or missing model, priced and confirmed once for the batch on a metered connector; free on DuckDB |
 | `verify` declared facts | one aggregate statement per declared relation, plus one window probe per relation with an `additive` column; priced into the same single `data.offer` |
 
 On DuckDB there is no gate, so `verify` measures every count and its findings

@@ -145,6 +145,11 @@ to that exact commit in this shell. Do not guess a range from the last commit.
 Commit the intended source changes first with the user's existing authorization.
 If the source is dirty, the range is empty, or the full prompt exceeds the bounded
 transport, stop and arrange complete file-based review instead of truncating it.
+Changed submodule source needs a separate complete review before shipping.
+This quick audit stops on added, removed or updated submodules because gitlink
+commit IDs do not include their source changes.
+Changed binary files also require separate complete review. A Git binary patch
+does not establish that the reviewer inspected the changed content.
 
 ```bash
 # Run Multi-AI security audit for the exact committed delivery range
@@ -160,6 +165,22 @@ if [[ -n "$AUDIT_STATUS" ]]; then
   echo "Audit incomplete: commit or preserve uncommitted source before dispatch." >&2
   exit 1
 fi
+# Inspect both modes so deletion or conversion of a submodule also stops here.
+# Override ignore/relative/rename settings that could conceal changed gitlinks.
+AUDIT_RAW=$(git -C "$AUDIT_REPO" diff --raw --no-relative --no-renames --ignore-submodules=none --no-ext-diff --no-color "$AUDIT_BASE" "$AUDIT_HEAD" --) || exit 1
+while IFS=' ' read -r old_mode new_mode remaining; do
+  if [[ "$old_mode" == ':160000' || "$new_mode" == '160000' ]]; then
+    echo "Audit incomplete: submodule source requires separate complete review before shipping." >&2
+    exit 1
+  fi
+done <<< "$AUDIT_RAW"
+AUDIT_NUMSTAT=$(git -C "$AUDIT_REPO" diff --numstat --no-relative --no-renames --ignore-submodules=none --no-ext-diff --no-textconv --no-color "$AUDIT_BASE" "$AUDIT_HEAD" --) || exit 1
+while IFS=$'\t' read -r added removed path; do
+  if [[ "$added" == '-' && "$removed" == '-' ]]; then
+    echo "Audit incomplete: binary content requires separate complete review before shipping." >&2
+    exit 1
+  fi
+done <<< "$AUDIT_NUMSTAT"
 AUDIT_DIFF=$(git -C "$AUDIT_REPO" diff --no-relative --ignore-submodules=none --submodule=short --no-ext-diff --no-textconv --no-color --binary "$AUDIT_BASE" "$AUDIT_HEAD" --) || exit 1
 if [[ -z "$AUDIT_DIFF" ]]; then
   echo "Audit incomplete: the confirmed delivery range has no changes." >&2
@@ -265,27 +286,36 @@ Before finalizing, let's capture what we learned from this project.
 If user provides lessons (not "skip"):
 
 ```bash
-# Generate timestamp
-TIMESTAMP=$(date '+%Y-%m-%d')
+# Open both path components without following links. Keep the directory open
+# through the append so a replaced .octo path cannot redirect the write.
+python3 -I - "$USER_WHAT_WENT_WELL" "$USER_WHAT_COULD_IMPROVE" "$USER_KEY_LEARNINGS" <<'PY_LESSONS'
+from datetime import date
+import os
+import stat
+import sys
 
-# Ensure LESSONS.md exists
-touch .octo/LESSONS.md
-
-# Append lessons
-cat >> .octo/LESSONS.md << EOF
-
-## ${TIMESTAMP} - Project Delivery
-
-### What Went Well
-- ${USER_WHAT_WENT_WELL}
-
-### What Could Improve
-- ${USER_WHAT_COULD_IMPROVE}
-
-### Key Learnings
-- ${USER_KEY_LEARNINGS}
-
-EOF
+try:
+    directory = os.open('.octo', os.O_RDONLY | os.O_DIRECTORY | os.O_NOFOLLOW)
+    try:
+        descriptor = os.open('LESSONS.md', os.O_WRONLY | os.O_APPEND | os.O_CREAT |
+                             os.O_NOFOLLOW | os.O_NONBLOCK, 0o600, dir_fd=directory)
+        with os.fdopen(descriptor, 'w') as output:
+            status = os.fstat(output.fileno())
+            if not stat.S_ISREG(status.st_mode) or status.st_nlink != 1:
+                sys.exit('Cannot append lessons: LESSONS.md must be a regular file with one link.')
+            output.write(f"\n## {date.today().isoformat()} - Project Delivery\n"
+                         f"\n### What Went Well\n- {sys.argv[1]}\n"
+                         f"\n### What Could Improve\n- {sys.argv[2]}\n"
+                         f"\n### Key Learnings\n- {sys.argv[3]}\n\n")
+    finally:
+        os.close(directory)
+except OSError as error:
+    sys.exit(f'Cannot append delivery lessons safely: {error}')
+PY_LESSONS
+if [[ $? -ne 0 ]]; then
+  echo "Lessons were not captured; stop delivery and inspect the state paths." >&2
+  exit 1
+fi
 ```
 
 **Count total lessons:**
