@@ -37,6 +37,7 @@
       "Use yylo to review the validation receipts for the last change."
     ],
     "brandColor": "#4F46E5",
-    "screenshots": []
+    "screenshots": [],
+    "composerIcon": "./assets/catalog-icon.svg"
   }
 }

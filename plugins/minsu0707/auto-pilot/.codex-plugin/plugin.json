@@ -36,7 +36,7 @@
     "privacyPolicyURL": "https://github.com/minsu0707/auto-pilot/blob/main/PRIVACY.md",
     "termsOfServiceURL": "https://github.com/minsu0707/auto-pilot/blob/main/TERMS.md",
     "brandColor": "#0F766E",
-    "composerIcon": "./assets/auto-pilot.png",
+    "composerIcon": "./assets/catalog-icon.svg",
     "logo": "./assets/auto-pilot.png",
     "screenshots": []
   }

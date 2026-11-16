@@ -35,6 +35,7 @@
       "Write",
       "Shell"
     ],
-    "websiteURL": "https://github.com/aklofas/kicad-happy"
+    "websiteURL": "https://github.com/aklofas/kicad-happy",
+    "composerIcon": "./assets/catalog-icon.svg"
   }
 }

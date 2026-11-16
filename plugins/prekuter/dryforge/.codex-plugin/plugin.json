@@ -41,6 +41,7 @@
       "Use Dryforge ready to turn this goal, doc, or notes into an intent to approve.",
       "Use Dryforge go to carry out the approved intent."
     ],
-    "brandColor": "#F59E0B"
+    "brandColor": "#F59E0B",
+    "composerIcon": "./assets/catalog-icon.svg"
   }
 }

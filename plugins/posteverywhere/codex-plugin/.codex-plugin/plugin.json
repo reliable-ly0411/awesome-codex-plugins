@@ -26,5 +26,10 @@
     "posteverywhere"
   ],
   "skills": "./skills/",
-  "mcpServers": "./.mcp.json"
+  "mcpServers": "./.mcp.json",
+  "interface": {
+    "displayName": "PostEverywhere",
+    "shortDescription": "Write, schedule and publish social media posts to Instagram, TikTok, YouTube, LinkedIn, Facebook, X, Threads, Pinterest, Bluesky, Telegram, Discord, WordPress and Google Business Profile, plan a content calendar, cross-post video and see how posts performed.",
+    "composerIcon": "./assets/catalog-icon.svg"
+  }
 }

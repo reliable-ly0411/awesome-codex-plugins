@@ -40,6 +40,7 @@
       "Help me publish this article to PANews.",
       "Read this PANews page as Markdown."
     ],
-    "brandColor": "#0F7BFF"
+    "brandColor": "#0F7BFF",
+    "composerIcon": "./assets/catalog-icon.svg"
   }
 }

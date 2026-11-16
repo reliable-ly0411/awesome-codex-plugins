@@ -13,6 +13,7 @@ This script keeps three artifacts aligned:
 
 from __future__ import annotations
 
+import argparse
 import datetime
 import io
 import json
@@ -492,7 +493,40 @@ def prune_unlisted_bundles(root: Path, plugins: list[dict[str, str]]) -> list[st
     return removed
 
 
-def main() -> None:
+def local_plugin_bundle(plugin: dict[str, str]) -> tuple[dict[str, object], str, str]:
+    """Read reviewed committed bundles, without fetching mutable upstream HEAD."""
+    root = PLUGINS_ROOT / plugin["owner"] / plugin["repo"]
+    candidates = sorted(root.glob("**/.codex-plugin/plugin.json"))
+    expected = normalize_match_key(plugin["name"])
+    matches = []
+    for path in candidates:
+        manifest = json.loads(path.read_text(encoding="utf-8"))
+        interface = manifest.get("interface") or {}
+        names = (manifest.get("name"), interface.get("displayName"), path.parent.parent.name)
+        if len(candidates) == 1 or any(normalize_match_key(name) == expected for name in names):
+            matches.append((path, manifest))
+    if len(matches) != 1:
+        raise ValueError(f"Expected one reviewed local bundle for {plugin['name']}, found {len(matches)}")
+    path, manifest = matches[0]
+    relative = path.parent.parent.relative_to(root).as_posix()
+    relative = "" if relative == "." else relative
+    marketplace_path = "./" + path.parent.parent.relative_to(PLUGINS_ROOT.parent).as_posix()
+    # A single mirrored bundle is already flattened. Recover its original
+    # source subpath from the committed compatibility record, when available.
+    source_relative = relative
+    if not relative and OUTPUT.exists():
+        previous = json.loads(OUTPUT.read_text(encoding="utf-8"))
+        for entry in previous.get("plugins", []):
+            if (entry.get("owner"), entry.get("repo"), entry.get("name")) == (plugin["owner"], plugin["repo"], plugin["name"]):
+                prefix = f"https://raw.githubusercontent.com/{plugin['owner']}/{plugin['repo']}/HEAD/"
+                url = entry.get("install_url", "")
+                if url.startswith(prefix) and url.endswith(".codex-plugin/plugin.json"):
+                    source_relative = url[len(prefix):-len(".codex-plugin/plugin.json")].rstrip("/")
+                break
+    return manifest, marketplace_path, source_relative
+
+
+def main(local: bool = False) -> None:
     plugins = parse_plugins(README)
     for owner_repo in prune_unlisted_bundles(PLUGINS_ROOT, plugins):
         print(f"Removed reviewed retired bundle {owner_repo}")
@@ -503,8 +537,10 @@ def main() -> None:
     for plugin in plugins:
         owner_repo = f"{plugin['owner']}/{plugin['repo']}"
         try:
-            manifest, marketplace_path, plugin_root_relative = mirror_plugin_bundle(plugin)
+            manifest, marketplace_path, plugin_root_relative = (local_plugin_bundle(plugin) if local else mirror_plugin_bundle(plugin))
         except Exception as e:
+            if local:
+                raise
             print(f"WARNING: Skipping {owner_repo} — {e}", file=sys.stderr)
             skipped.append(owner_repo)
             continue
@@ -554,7 +590,7 @@ def main() -> None:
         "$schema": "https://json-schema.org/draft/2020-12/schema",
         "name": "awesome-codex-plugins",
         "version": "1.0.0",
-        "last_updated": datetime.date.today().isoformat(),
+        "last_updated": (json.loads(OUTPUT.read_text(encoding="utf-8")).get("last_updated", datetime.date.today().isoformat()) if local and OUTPUT.exists() else datetime.date.today().isoformat()),
         "total": len(ok_plugins),
         "categories": sorted({plugin["category"] for plugin in ok_plugins}),
         "plugins": public_plugins,
@@ -569,4 +605,6 @@ def main() -> None:
 
 
 if __name__ == "__main__":
-    main()
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument("--local", action="store_true", help="Generate from reviewed committed bundles; no network or runtime refresh")
+    main(local=parser.parse_args().local)

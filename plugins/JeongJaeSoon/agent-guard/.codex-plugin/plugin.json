@@ -29,7 +29,7 @@
     ],
     "websiteURL": "https://github.com/JeongJaeSoon/agent-guard",
     "brandColor": "#183567",
-    "composerIcon": "./assets/icon.png",
+    "composerIcon": "./assets/catalog-icon.svg",
     "screenshots": []
   }
 }

@@ -14,5 +14,10 @@
     "cli",
     "qa"
   ],
-  "skills": "./skills/"
+  "skills": "./skills/",
+  "interface": {
+    "displayName": "Hera Agent Godot",
+    "shortDescription": "Low-token live Godot editor workflow through the Hera CLI.",
+    "composerIcon": "./assets/catalog-icon.svg"
+  }
 }

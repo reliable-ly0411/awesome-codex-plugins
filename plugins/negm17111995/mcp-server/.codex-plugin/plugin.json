@@ -35,7 +35,7 @@
       "Find 4-star hotels in Lisbon for 2 adults from 12 to 15 May and compare the three best options."
     ],
     "logo": "./assets/logo-512.png",
-    "composerIcon": "./assets/logo-512.png",
+    "composerIcon": "./assets/catalog-icon.svg",
     "websiteURL": "https://maqami.co",
     "privacyPolicyURL": "https://maqami.co/privacy-policy/",
     "termsOfServiceURL": "https://maqami.co/terms-of-service/",

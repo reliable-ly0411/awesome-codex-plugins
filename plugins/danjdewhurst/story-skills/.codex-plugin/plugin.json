@@ -38,7 +38,7 @@
     ],
     "brandColor": "#7C3AED",
     "websiteURL": "https://github.com/danjdewhurst/story-skills",
-    "composerIcon": "./assets/logo.png",
+    "composerIcon": "./assets/catalog-icon.svg",
     "logo": "./assets/logo.png",
     "screenshots": [
       "./assets/screenshot-continuity.png"

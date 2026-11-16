@@ -19,5 +19,10 @@
   ],
   "skills": "./skills/",
   "mcpServers": "./.mcp.json",
-  "homepage": "https://moltnode.ag/agents"
+  "homepage": "https://moltnode.ag/agents",
+  "interface": {
+    "displayName": "MoltNode by Chord",
+    "shortDescription": "MoltNode by Chord: read 31 blockchains over JSON-RPC and get DEX swap quotes and unsigned swap transactions through Chord, plus Chord market data and candlestick charts. Two hosted MCP servers and four skills (including a safe swap skill), no API key.",
+    "composerIcon": "./assets/catalog-icon.svg"
+  }
 }

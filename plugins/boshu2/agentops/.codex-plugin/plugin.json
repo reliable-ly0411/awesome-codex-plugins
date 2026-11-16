@@ -16,6 +16,9 @@
       "Use AgentOps Plan to define one behavior and its evidence.",
       "Use AgentOps Implement for one bounded RED to GREEN experiment.",
       "Use AgentOps Validate from fresh context to judge the exact candidate."
-    ]
-  }
+    ],
+    "composerIcon": "./assets/catalog-icon.svg"
+  },
+  "repository": "https://github.com/boshu2/agentops",
+  "license": "Apache-2.0"
 }

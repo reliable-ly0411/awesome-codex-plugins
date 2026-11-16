@@ -32,6 +32,7 @@
     "defaultPrompt": [
       "Use token-optimizer smart_read to re-read this large file as a diff.",
       "Show my token savings with get_optimization_report."
-    ]
+    ],
+    "composerIcon": "./assets/catalog-icon.svg"
   }
 }

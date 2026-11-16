@@ -36,6 +36,7 @@
       "Point my domain at my server and enable HTTPS"
     ],
     "brandColor": "#2D6BFF",
-    "screenshots": []
+    "screenshots": [],
+    "composerIcon": "./assets/catalog-icon.svg"
   }
 }

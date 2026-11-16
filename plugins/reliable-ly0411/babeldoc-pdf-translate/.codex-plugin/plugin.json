@@ -29,6 +29,7 @@
     ],
     "defaultPrompt": [
       "Translate this PDF with bilingual output and preserve its figures and formulas."
-    ]
+    ],
+    "composerIcon": "./assets/catalog-icon.svg"
   }
 }

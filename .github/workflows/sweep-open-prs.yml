@@ -91,11 +91,26 @@ jobs:
         with:
           plugin_dir: ${{ runner.temp }}/contributed
           mode: scan
+          format: json
+          output: ${{ runner.temp }}/plugin-scan.json
           online: false
           submission_enabled: false
           min_score: 80
           fail_on_severity: high
           pr_comment: off
+      - name: Preserve source identity
+        if: always()
+        run: git -C "$RUNNER_TEMP/contributed" rev-parse HEAD > "$RUNNER_TEMP/plugin-source-sha.txt"
+      - name: Retain actionable scanner report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: scan-${{ matrix.contribution.owner }}-${{ matrix.contribution.repo }}-${{ strategy.job-index }}
+          path: |
+            ${{ runner.temp }}/plugin-scan.json
+            ${{ runner.temp }}/plugin-source-sha.txt
+          if-no-files-found: error
+          retention-days: 14
 
   gate:
     name: Open Codex contribution gate

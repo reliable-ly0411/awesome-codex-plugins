@@ -77,7 +77,7 @@
       },
       "category": "Development & Workflow",
       "description": "Local-by-default, no-telemetry hooks block or mask secret leaks in Claude Code and Codex, with opt-in PII filtering and Git/CI backstops.",
-      "icon": "./plugins/JeongJaeSoon/agent-guard/assets/icon.png"
+      "icon": "./plugins/JeongJaeSoon/agent-guard/assets/catalog-icon.svg"
     },
     {
       "name": "agent-harness-skills",
@@ -166,7 +166,8 @@
         "authentication": "ON_INSTALL"
       },
       "category": "Development & Workflow",
-      "description": "DevOps layer for coding agents with flow, feedback, and memory that compounds between sessions."
+      "description": "DevOps layer for coding agents with flow, feedback, and memory that compounds between sessions.",
+      "icon": "./plugins/boshu2/agentops/assets/catalog-icon.svg"
     },
     {
       "name": "agentpack",
@@ -181,7 +182,7 @@
       },
       "category": "Development & Workflow",
       "description": "Ranks repo context for Codex with likely files, skill recommendations, agent rules, commands, warnings, and compact task-focused packs before editing.",
-      "icon": "./plugins/vishal2612200/agentpack/assets/icon.png"
+      "icon": "./plugins/vishal2612200/agentpack/assets/catalog-icon.svg"
     },
     {
       "name": "agentry",
@@ -360,7 +361,7 @@
       },
       "category": "Development & Workflow",
       "description": "Intake-first Codex plugin that turns a short project request into a structured, resumable execution workflow with one-question-at-a-time intake, project contract files, blocker triage, and resume support.",
-      "icon": "./plugins/minsu0707/auto-pilot/assets/auto-pilot.png"
+      "icon": "./plugins/minsu0707/auto-pilot/assets/catalog-icon.svg"
     },
     {
       "name": "babok_analyst",
@@ -524,7 +525,7 @@
       },
       "category": "Development & Workflow",
       "description": "223 production-ready skills, 23 agents, and 298 Python tools across 9 domains — engineering, marketing, product, compliance, and more.",
-      "icon": "./plugins/alirezarezvani/claude-skills/assets/icon.png"
+      "icon": "./plugins/alirezarezvani/claude-skills/assets/catalog-icon.svg"
     },
     {
       "name": "claude-octopus",
@@ -674,6 +675,21 @@
       "category": "Development & Workflow",
       "description": "Choose which past images in a Codex desktop task go to the model with your next message; unchecked ones become short placeholders, so long image-heavy tasks keep going without starting over.",
       "icon": "./plugins/chipfighter/codex-attachment-manager/assets/logo.png"
+    },
+    {
+      "name": "full-stack-development",
+      "displayName": "Codex Full-Stack Workflow",
+      "source": {
+        "source": "local",
+        "path": "./plugins/kevin592/codex-full-stack-workflow"
+      },
+      "policy": {
+        "installation": "AVAILABLE",
+        "authentication": "ON_INSTALL"
+      },
+      "category": "Development & Workflow",
+      "description": "Turns rough product requests into staged, reviewable full-stack delivery with persistent requirements, change control, visual evidence, and completion gates.",
+      "icon": "./plugins/kevin592/codex-full-stack-workflow/assets/icon.svg"
     },
     {
       "name": "codex-howto",
@@ -1056,7 +1072,8 @@
         "authentication": "ON_INSTALL"
       },
       "category": "Development & Workflow",
-      "description": "Bounded-autonomy plugin that asks only the decisions that belong to the user, builds nothing before the intent is approved, verifies with checks that actually ran, and keeps project decisions as plain Markdown across Codex, Claude Code, Grok Build, Copilot CLI, and Antigravity CLI."
+      "description": "Bounded-autonomy plugin that asks only the decisions that belong to the user, builds nothing before the intent is approved, verifies with checks that actually ran, and keeps project decisions as plain Markdown across Codex, Claude Code, Grok Build, Copilot CLI, and Antigravity CLI.",
+      "icon": "./plugins/prekuter/dryforge/assets/catalog-icon.svg"
     },
     {
       "name": "ejentum",
@@ -1234,7 +1251,8 @@
         "authentication": "ON_INSTALL"
       },
       "category": "Development & Workflow",
-      "description": "Drives a live Godot 4.x editor through the low-token Hera CLI — scene, node, and signal edits, play control, and runtime QA with verifiable compact JSON output, with the companion addon published on the official Godot Asset Store."
+      "description": "Drives a live Godot 4.x editor through the low-token Hera CLI — scene, node, and signal edits, play control, and runtime QA with verifiable compact JSON output, with the companion addon published on the official Godot Asset Store.",
+      "icon": "./plugins/NotNull92/hera-agent-godot/assets/catalog-icon.svg"
     },
     {
       "name": "hera-unity",
@@ -1339,7 +1357,7 @@
       },
       "category": "Development & Workflow",
       "description": "Eight skills that audit and fix image and video delivery for Core Web Vitals, plus Sirv image CDN, 360 spin, and AI Studio workflows.",
-      "icon": "./plugins/IgorVaryvoda/image-optimization-skill/.claude-plugin/icon.png"
+      "icon": "./plugins/IgorVaryvoda/image-optimization-skill/assets/catalog-icon.svg"
     },
     {
       "name": "jev-use",
@@ -1368,7 +1386,8 @@
         "authentication": "ON_INSTALL"
       },
       "category": "Development & Workflow",
-      "description": "Hook-enforced guardrails for Codex and Claude Code with blocked destructive commands, one-time human tokens for irreversible operations, context-blind verification agents, and SQLite agent memory recalled at session start."
+      "description": "Hook-enforced guardrails for Codex and Claude Code with blocked destructive commands, one-time human tokens for irreversible operations, context-blind verification agents, and SQLite agent memory recalled at session start.",
+      "icon": "./plugins/ariaxhan/kernel-claude/assets/catalog-icon.svg"
     },
     {
       "name": "krypton",
@@ -1694,7 +1713,8 @@
         "authentication": "ON_INSTALL"
       },
       "category": "Development & Workflow",
-      "description": "21 development lifecycle skills and 20 review and debug agents for Codex, Claude Code, Cursor, and OpenCode, where every step writes its output to disk instead of leaving it in the chat."
+      "description": "21 development lifecycle skills and 20 review and debug agents for Codex, Claude Code, Cursor, and OpenCode, where every step writes its output to disk instead of leaving it in the chat.",
+      "icon": "./plugins/yagizdo/quiver/assets/catalog-icon.svg"
     },
     {
       "name": "rag-reviewer",
@@ -1723,7 +1743,8 @@
         "authentication": "ON_INSTALL"
       },
       "category": "Development & Workflow",
-      "description": "Checks every \"done\" claim in local Codex and Claude Code session logs against the same session's commands and prints the counts plus a shareable card, read-only and offline."
+      "description": "Checks every \"done\" claim in local Codex and Claude Code session logs against the same session's commands and prints the counts plus a shareable card, read-only and offline.",
+      "icon": "./plugins/Kloudedge-apex/receipts-collector/assets/catalog-icon.svg"
     },
     {
       "name": "red-green-proof",
@@ -1826,7 +1847,8 @@
         "authentication": "ON_INSTALL"
       },
       "category": "Development & Workflow",
-      "description": "Versioned Skill Registry of code-review skills driven by a perspective-based review agent (code, security, performance, architecture, testing, adversarial) that verifies findings against the diff."
+      "description": "Versioned Skill Registry of code-review skills driven by a perspective-based review agent (code, security, performance, architecture, testing, adversarial) that verifies findings against the diff.",
+      "icon": "./plugins/s977043/river-review/assets/catalog-icon.svg"
     },
     {
       "name": "roadmapsmith",
@@ -2182,7 +2204,8 @@
         "authentication": "ON_INSTALL"
       },
       "category": "Development & Workflow",
-      "description": "Cut token usage 60-90% with caching, compression, and smart file tools — diff-only re-reads, paths-only search, out-of-context stashing, and a per-tool savings report for Codex and Claude Code."
+      "description": "Cut token usage 60-90% with caching, compression, and smart file tools — diff-only re-reads, paths-only search, out-of-context stashing, and a per-tool savings report for Codex and Claude Code.",
+      "icon": "./plugins/ooples/token-optimizer-mcp/assets/catalog-icon.svg"
     },
     {
       "name": "tool-advisor",
@@ -2359,7 +2382,7 @@
       },
       "category": "Development & Workflow",
       "description": "Skills for VillageSQL including building extensions from scratch and porting PostgreSQL extensions to VillageSQL.",
-      "icon": "./plugins/villagesql/villagesql-skills/assets/icon.png"
+      "icon": "./plugins/villagesql/villagesql-skills/assets/catalog-icon.svg"
     },
     {
       "name": "waggle",
@@ -2431,7 +2454,8 @@
         "authentication": "ON_INSTALL"
       },
       "category": "Development & Workflow",
-      "description": "Command-line orchestrator for coding agents that creates a dedicated branch/worktree per task, delegates to Pi and Codex subagents, and enforces typed task, validation, merge, and release-readiness boundaries with receipt-backed repository changes."
+      "description": "Command-line orchestrator for coding agents that creates a dedicated branch/worktree per task, delegates to Pi and Codex subagents, and enforces typed task, validation, merge, and release-readiness boundaries with receipt-backed repository changes.",
+      "icon": "./plugins/yylo-dev/yylo/assets/catalog-icon.svg"
     },
     {
       "name": "zagrosi-forge",
@@ -2491,7 +2515,7 @@
       },
       "category": "Tools & Integrations",
       "description": "File-based inter-agent messaging with co-op mode, cross-project federation, and orchestrator integrations.",
-      "icon": "./plugins/avivsinai/agent-message-queue/assets/icon.png"
+      "icon": "./plugins/avivsinai/agent-message-queue/assets/catalog-icon.svg"
     },
     {
       "name": "agent-vision",
@@ -2520,7 +2544,8 @@
         "authentication": "ON_INSTALL"
       },
       "category": "Tools & Integrations",
-      "description": "Claim and manage free subdomains under makes.fyi or agentdomains.co for the sites and APIs AI agents build."
+      "description": "Claim and manage free subdomains under makes.fyi or agentdomains.co for the sites and APIs AI agents build.",
+      "icon": "./plugins/tashfeenahmed/AgentDomains-skill/assets/catalog-icon.svg"
     },
     {
       "name": "agentgram",
@@ -2667,7 +2692,8 @@
         "authentication": "ON_INSTALL"
       },
       "category": "Tools & Integrations",
-      "description": "Translate PDFs with local BabelDOC typesetting, configurable translation providers, bilingual output and custom terminology."
+      "description": "Translate PDFs with local BabelDOC typesetting, configurable translation providers, bilingual output and custom terminology.",
+      "icon": "./plugins/reliable-ly0411/babeldoc-pdf-translate/assets/catalog-icon.svg"
     },
     {
       "name": "bkt",
@@ -3482,14 +3508,15 @@
         "authentication": "ON_INSTALL"
       },
       "category": "Tools & Integrations",
-      "description": "KiCad EDA skills for schematic analysis, PCB layout review, component sourcing, BOM management, and manufacturing preparation."
+      "description": "KiCad EDA skills for schematic analysis, PCB layout review, component sourcing, BOM management, and manufacturing preparation.",
+      "icon": "./plugins/aklofas/kicad-happy/assets/catalog-icon.svg"
     },
     {
-      "name": "crawlberg",
+      "name": "kreuzberg",
       "displayName": "Kreuzberg",
       "source": {
         "source": "local",
-        "path": "./plugins/kreuzberg-dev/plugins/plugins/crawlberg"
+        "path": "./plugins/kreuzberg-dev/plugins/plugins/kreuzberg"
       },
       "policy": {
         "installation": "AVAILABLE",
@@ -3497,14 +3524,14 @@
       },
       "category": "Tools & Integrations",
       "description": "Local document extraction for 91+ formats with skills for CLI usage, OCR, table extraction, output formats, and a local MCP server.",
-      "icon": "./plugins/kreuzberg-dev/plugins/plugins/crawlberg/assets/icon.svg"
+      "icon": "./plugins/kreuzberg-dev/plugins/plugins/kreuzberg/assets/icon.svg"
     },
     {
-      "name": "crawlberg",
+      "name": "kreuzberg-cloud",
       "displayName": "Kreuzberg Cloud",
       "source": {
         "source": "local",
-        "path": "./plugins/kreuzberg-dev/plugins/plugins/crawlberg"
+        "path": "./plugins/kreuzberg-dev/plugins/plugins/kreuzberg-cloud"
       },
       "policy": {
         "installation": "AVAILABLE",
@@ -3512,14 +3539,14 @@
       },
       "category": "Tools & Integrations",
       "description": "Managed document extraction for Codex with API-key setup, presigned uploads, job tracking, webhook workflows, and usage guidance.",
-      "icon": "./plugins/kreuzberg-dev/plugins/plugins/crawlberg/assets/icon.svg"
+      "icon": "./plugins/kreuzberg-dev/plugins/plugins/kreuzberg-cloud/assets/icon.svg"
     },
     {
-      "name": "crawlberg",
+      "name": "kreuzcrawl",
       "displayName": "Kreuzcrawl",
       "source": {
         "source": "local",
-        "path": "./plugins/kreuzberg-dev/plugins/plugins/crawlberg"
+        "path": "./plugins/kreuzberg-dev/plugins/plugins/kreuzcrawl"
       },
       "policy": {
         "installation": "AVAILABLE",
@@ -3527,7 +3554,7 @@
       },
       "category": "Tools & Integrations",
       "description": "Web crawling and scraping for Codex with skills for single-page scraping, site crawls, URL mapping, and headless browser fallback.",
-      "icon": "./plugins/kreuzberg-dev/plugins/plugins/crawlberg/assets/icon.svg"
+      "icon": "./plugins/kreuzberg-dev/plugins/plugins/kreuzcrawl/assets/icon.svg"
     },
     {
       "name": "krexa",
@@ -3737,7 +3764,7 @@
       },
       "category": "Tools & Integrations",
       "description": "Search hotels (3M+ hotels) and flights worldwide, read hotel details, then get a secure checkout link on book.maqami.co through the hosted MAQAMI MCP server (no API key), with a booking skill that confirms with you before holding a rate.",
-      "icon": "./plugins/negm17111995/mcp-server/assets/logo-512.png"
+      "icon": "./plugins/negm17111995/mcp-server/assets/catalog-icon.svg"
     },
     {
       "name": "matlab-simulink-tools",
@@ -3795,7 +3822,8 @@
         "authentication": "ON_INSTALL"
       },
       "category": "Tools & Integrations",
-      "description": "Read 31 blockchains over JSON-RPC and get best-route DEX swap quotes with unsigned transactions via Chord, through two hosted no-key MCP servers and three skills."
+      "description": "Read 31 blockchains over JSON-RPC and get best-route DEX swap quotes with unsigned transactions via Chord, through two hosted no-key MCP servers and three skills.",
+      "icon": "./plugins/tuantqse90/moltnode-mcp/assets/catalog-icon.svg"
     },
     {
       "name": "morning-ai",
@@ -3898,7 +3926,7 @@
       },
       "category": "Tools & Integrations",
       "description": "MCP access and initiative-aware skills for organizational workflows.",
-      "icon": "./plugins/useorgx/orgx-codex-plugin/assets/icon.png"
+      "icon": "./plugins/useorgx/orgx-codex-plugin/assets/catalog-icon.svg"
     },
     {
       "name": "panews",
@@ -3912,7 +3940,8 @@
         "authentication": "ON_INSTALL"
       },
       "category": "Tools & Integrations",
-      "description": "Crypto and blockchain news discovery, authenticated creator publishing workflows, and page-to-Markdown reading."
+      "description": "Crypto and blockchain news discovery, authenticated creator publishing workflows, and page-to-Markdown reading.",
+      "icon": "./plugins/panewslab/skills/assets/catalog-icon.svg"
     },
     {
       "name": "papersflow-codex-plugin",
@@ -3928,6 +3957,21 @@
       "category": "Tools & Integrations",
       "description": "Paper discovery, citation verification, graph exploration, and DeepScan analysis.",
       "icon": "./plugins/papersflow-ai/papersflow-codex-plugin/assets/plugin-icon.png"
+    },
+    {
+      "name": "pdf-monster",
+      "displayName": "PDF Monster",
+      "source": {
+        "source": "local",
+        "path": "./plugins/jbaehova/pdf-monster"
+      },
+      "policy": {
+        "installation": "AVAILABLE",
+        "authentication": "ON_INSTALL"
+      },
+      "category": "Tools & Integrations",
+      "description": "Analyzes PDFs as extracted text, OCR text, rendered page images, and embedded figures for coding agents.",
+      "icon": "./plugins/jbaehova/pdf-monster/assets/pdf-monster.svg"
     },
     {
       "name": "placecall",
@@ -3956,7 +4000,8 @@
         "authentication": "ON_INSTALL"
       },
       "category": "Tools & Integrations",
-      "description": "Create and drive plori AI agents in persistent cloud environments over remote MCP, with OAuth auto-discovery and a bundled Agent Skill."
+      "description": "Create and drive plori AI agents in persistent cloud environments over remote MCP, with OAuth auto-discovery and a bundled Agent Skill.",
+      "icon": "./plugins/plori-ai/codex-plugin/assets/catalog-icon.svg"
     },
     {
       "name": "posteverywhere",
@@ -3970,7 +4015,8 @@
         "authentication": "ON_INSTALL"
       },
       "category": "Tools & Integrations",
-      "description": "Social media scheduler plugin: write, schedule and publish posts to Instagram, TikTok, YouTube, LinkedIn, X, Threads, Pinterest, Bluesky and more, plan a content calendar and see analytics, through a hosted MCP server and 15 skills ([posteverywhere.ai](https://posteverywhere.ai))."
+      "description": "Social media scheduler plugin: write, schedule and publish posts to Instagram, TikTok, YouTube, LinkedIn, X, Threads, Pinterest, Bluesky and more, plan a content calendar and see analytics, through a hosted MCP server and 15 skills ([posteverywhere.ai](https://posteverywhere.ai)).",
+      "icon": "./plugins/posteverywhere/codex-plugin/assets/catalog-icon.svg"
     },
     {
       "name": "pricewin",
@@ -4284,6 +4330,20 @@
       "icon": "./plugins/phnx-labs/svatlas-mcp/assets/logo.png"
     },
     {
+      "name": "sitemd",
+      "displayName": "sitemd",
+      "source": {
+        "source": "local",
+        "path": "./plugins/sitemd-cc/sitemd"
+      },
+      "policy": {
+        "installation": "AVAILABLE",
+        "authentication": "ON_INSTALL"
+      },
+      "category": "Tools & Integrations",
+      "description": "Build websites from Markdown via MCP — 22 tools for creating pages, generating content, validating, running SEO audits, configuring settings, and deploying static sites to Cloudflare Pages."
+    },
+    {
       "name": "solidping",
       "displayName": "SolidPing",
       "source": {
@@ -4326,7 +4386,7 @@
       },
       "category": "Tools & Integrations",
       "description": "Fiction-writing skills for planning, drafting, and revising stories as markdown, with a dependency-free CLI that checks continuity: deaths, promise payoffs, open questions, and durable story state.",
-      "icon": "./plugins/danjdewhurst/story-skills/assets/logo.png"
+      "icon": "./plugins/danjdewhurst/story-skills/assets/catalog-icon.svg"
     },
     {
       "name": "storyflo-codex-plugin",
@@ -4490,6 +4550,21 @@
       "category": "Tools & Integrations",
       "description": "Thermal-fluid mechanical engineering research workflow for literature review, technical writing, data analysis, presentations, proposals, coding, and AI/ML tools.",
       "icon": "./plugins/hanhuark/mechanical-engineering-research-skill/assets/icon.svg"
+    },
+    {
+      "name": "token-harbor",
+      "displayName": "Token Harbor",
+      "source": {
+        "source": "local",
+        "path": "./plugins/NickHOI/Token-Harbor"
+      },
+      "policy": {
+        "installation": "AVAILABLE",
+        "authentication": "ON_INSTALL"
+      },
+      "category": "Tools & Integrations",
+      "description": "Turn Codex token usage into Sail Power for a local-first fishing, fleet, and harbor-building companion game.",
+      "icon": "./plugins/NickHOI/Token-Harbor/assets/icon.svg"
     },
     {
       "name": "tokenchronicle",
