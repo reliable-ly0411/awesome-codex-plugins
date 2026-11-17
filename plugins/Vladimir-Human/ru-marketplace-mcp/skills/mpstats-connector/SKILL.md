@@ -1,9 +1,14 @@
 ---
 name: mpstats-connector
-description: Use this skill for MPStats sales/stock analytics on a specific Ozon or Wildberries item — per-day sales, current price and stock, FBS/FBO warehouse split, seller/brand identity, and a rolling orders-per-day average. Trigger on "продажи товара на озон", "аналитика ozon sku", "mpstats по артикулу", "продажи за 30 дней", or English equivalents. Requires a paid MPStats account (MPSTATS_MP_AUTH env). Skip raw catalog price checks — use wb_/ozon_ connectors (no account needed).
+description: Deprecated - prefer MPStats's own MCP server (mcp.mpstats.io). Use this skill for MPStats sales/stock analytics on a specific Ozon or Wildberries item — per-day sales, current price and stock, FBS/FBO warehouse split, seller/brand identity, and a rolling orders-per-day average. Trigger on "продажи товара на озон", "аналитика ozon sku", "mpstats по артикулу", "продажи за 30 дней", or English equivalents. Requires a paid MPStats account (MPSTATS_MP_AUTH env). Skip raw catalog price checks — use wb_/ozon_ connectors (no account needed).
 ---
 
 # MPStats Connector
+
+**Deprecated.** MPStats runs its own MCP server,
+`https://mcp.mpstats.io/mcp?token=<your MPStats token>`: use it first. The
+`mpstats_*` tools here go in v2.11.0; until then every result carries
+`info:deprecated_use_official_mpstats_mcp`.
 
 Paid-account sales/stock analytics for Ozon and Wildberries items, via the
 MPStats browser-plugin API (`plugin.mpstats.io/pluginapi`). Unlike the
@@ -107,7 +112,10 @@ any SKU). Partial data (some SKUs missing) stays a success with `meta.warnings`
 and `meta.healthy: false` — silence never reads as success here.
 ## DSH activation
 
-In DeepSeek Harness, the default profile exposes only `compare_prices` and
-`compare_sources` through the cheap compare mount. Per-marketplace tools and
-`marketplace_sources` require `RU_MARKETPLACE_MCP_FULL=1` and a profile restart;
-do not call them in the default mode.
+In DeepSeek Harness the default profile mounts `compare-mcp`, which exposes
+exactly 4 tools: `compare_prices`, `compare_sources`, `compare_verify_offer`
+and `compare_browser_snapshot`.
+
+The middle `decision-mcp` profile adds `decision_inspect` (5 tools). This
+connector's own tools and `marketplace_sources` need `RU_MARKETPLACE_MCP_FULL=1`
+and a profile restart; do not call them in the default mode.
