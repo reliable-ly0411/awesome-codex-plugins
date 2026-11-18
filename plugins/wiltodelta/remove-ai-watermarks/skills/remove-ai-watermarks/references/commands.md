@@ -49,12 +49,15 @@ remove-ai-watermarks classify-source image.png --json
 
 Abstaining 10-provider source-pipeline classifier (`openai`, `google`,
 `bytedance`, `flux`, `stable_diffusion`, `meta`, `midjourney`, `ideogram`,
-`firefly`, `xai`) with Stage-2 model-version attribution (since CLI 0.48.0), needs the
-`source-classify` extra. It is NOT provenance and NOT a SynthID detector
-(`watermark_truth` is always `unknown`), `unknown` is an abstention rather than
-proof of camera origin, and `identify` never runs it. Offer `classify-source`
-only when `identify` found no signal and the user still wants a provider guess,
-and report it as a guess.
+`firefly`, `xai`) with Stage-2 model-version attribution and unified synthetic
+detection (`synthetic_detected`, `synthetic_probability`) under resize and
+recompression (since CLI 0.48.0), needs the `source-classify` extra. It is NOT
+provenance and NOT a SynthID detector (`watermark_truth` is always `unknown`),
+`unknown` is a family-attribution abstention rather than proof of camera
+origin, and `identify` never runs it. Offer `classify-source` only when
+`identify` found no signal and the user still wants a provider or synthetic
+pixel estimate, and report it as a statistical pixel estimate rather than
+provenance.
 
 ```bash
 remove-ai-watermarks metadata image.png --check
@@ -130,6 +133,7 @@ remain available alongside any independent AI-origin evidence.
 
 ```bash
 remove-ai-watermarks video identify input.mp4
+remove-ai-watermarks video identify input.mp4 --audio --audio-scheme auto
 remove-ai-watermarks video identify input.mp4 --json
 remove-ai-watermarks video identify input.mp4 --no-visible
 remove-ai-watermarks video all input.mp4 -o clean.mp4
@@ -147,7 +151,7 @@ order.
 
 `video invisible` and `video all --invisible` accept MP4, MOV, and M4V only.
 That is the default SynthID profile. It is lossy; its shipped noise profile
-is pinned, so do not lower it. Motion-compensated `--temporal-stabilize` is enabled by default (`--no-temporal-stabilize` disables it), and `--keep-fps` preserves the native source frame rate instead of resampling to 16 fps. On `video all` and `video batch`, `--audio-invisible` (`--audio-scheme`, `--audio-method`, `--audio-force`) inspects and cleans all compatible watermarked audio tracks in the same pipeline.
+is pinned, so do not lower it. Motion-compensated `--temporal-stabilize` is enabled by default (`--no-temporal-stabilize` disables it), and `--keep-fps` preserves the native source frame rate instead of resampling to 12 fps. On `video all` and `video batch`, `--audio-invisible` (`--audio-scheme`, `--audio-method`, `--audio-stream`, `--audio-allow-unverified`, `--audio-allow-positive`, `--audio-allow-quality-override`, or alias `--audio-force`) inspects and cleans compatible watermarked audio tracks in the same pipeline (since CLI 0.63.0). For proprietary audio marks with no local public decoder (such as short Veo/Gemini SynthID audio), pass an explicit method with `--audio-allow-unverified` (`--audio-invisible --audio-method dac --audio-allow-unverified`), which processes unverified audio while keeping the SNR/RMS/window integrity gate active (`--audio-force` also enables `--audio-allow-positive` and `--audio-allow-quality-override`; `--audio-method auto` without a positive public decoder runs `spectral` only, and `focalcodec` failed on a held-out 10 s Gemini audio track).
 
 For an owned Seedance MP4, explicitly opt into the experimental fixed recipe
 (since CLI 0.56.0):
@@ -168,12 +172,17 @@ matched-control CapCut evidence but performs no per-file detector request.
 These profile options require a build containing the experimental Seedance
 integration; verify `video all --help` before using them.
 
-On machines with an NVIDIA CUDA GPU, two additional experimental 3D video
-diffusion profiles preserve native resolution and frame rate on SDR 8-bit MP4
-clips of any length via overlapping 3D causal windows (since CLI 0.63.0), and
-`--profile auto` automatically routes ByteDance/Seedance MP4s to
-`wan21-seedance-experimental` on CUDA (`seedance-experimental` on CPU/MPS) and
-other SDR 8-bit MP4s to `wan21-synthid-experimental` on CUDA (`synthid` on CPU/MPS):
+On machines with a hardware BF16-capable NVIDIA CUDA GPU (Ampere or newer; ROCm
+and pre-Ampere emulation are excluded), two additional
+experimental 3D video diffusion profiles preserve native resolution and frame
+rate on SDR 8-bit MP4, MOV, and M4V clips within the conservative decoded-frame budget
+(`<= 1920x1080` frame area and `<= 552,960,000` decoded pixel-frames, streaming
+clips over 193 frames via overlapping 3D causal windows, since CLI 0.63.0), and
+`--profile auto` automatically routes eligible ByteDance/Seedance MP4, MOV, and M4V clips
+(`<= 1280x720` frame area and `>= 16 GiB` total GPU VRAM) to
+`wan21-seedance-experimental` on BF16 CUDA (`seedance-experimental` fallback on
+CPU/MPS MP4, or `synthid` on MOV/M4V or over budget) and other eligible SDR 8-bit MP4, MOV, and M4V clips to `wan21-synthid-experimental`
+on BF16 CUDA (`synthid` fallback otherwise):
 
 ```bash
 remove-ai-watermarks video all input.mp4 -o clean.mp4 --invisible --profile auto
@@ -207,7 +216,7 @@ remove-ai-watermarks audio all input.mp3 -o clean.mp3 --invisible
 remove-ai-watermarks audio batch ./tracks -o ./tracks_clean --mode all --invisible
 ```
 
-`audio identify` and `audio invisible` accept `--stream N`, a zero-based audio-track ordinal. `audio metadata` checks (`--check`) or strips (`--remove`) AI metadata via stream-copy remuxing (`--keep-standard/--remove-all`, `-o`). `audio all` strips AI metadata and, with `--invisible`, removes compatible waveform watermarks (`--scheme auto` default, writing a metadata-cleaned passthrough when no positive compatible watermark is detected). `audio batch` runs `--mode [all|metadata]` across a directory (`-o` / `--output-dir`). Inspection without
+`audio identify` and `audio invisible` accept `--stream N`, a zero-based audio-track ordinal (`audio identify` also emits `recommended_recipe` when AI metadata or a compatible watermark signal is found). `audio metadata` checks (`--check`) or strips (`--remove`) AI metadata via stream-copy remuxing (`--keep-standard/--remove-all`, `-o`). `audio all` strips AI metadata and, with `--invisible`, removes compatible waveform watermarks (`--scheme auto` default, writing a metadata-cleaned passthrough when no positive compatible watermark is detected). `audio batch` runs `--mode [all|metadata]` across a directory (`-o` / `--output-dir`). Inspection without
 models needs ffmpeg and ffprobe. `--scheme audioseal` (default on `identify`/`invisible`) needs
 `audio-detect`; `--scheme auto` scans every installed compatible decoder without failing on absent optional extras; `--scheme wavmark` needs `audio-wavmark`; `--scheme perth` needs `audio-perth`; `--scheme silentcipher` and `--scheme silentcipher16` need `audio-silentcipher`; `--scheme all` checks
 all named models and needs all named decoder extras. WavMark also checks the
@@ -228,7 +237,7 @@ outputs preserve channels and sample clock (Opus codes internally at 48 kHz and 
 discarded and saved-file decoder verification enforced after encoding. The spectral profile changes audible content and can fail.
 
 `--method auto` (default) tries spectral filtering then combined filtering and
-neural resynthesis for AudioSeal and Perth v1, neural then combined for WavMark and both experimental SilentCipher receivers (using Mid/Side stereo on 2-channel EnCodec passes), and adapts to positively detected schemes under `--scheme auto` or `all` before falling back to `combined`. Each candidate must pass the saved-output gate before publication.
+neural resynthesis for AudioSeal and Perth v1, neural then combined for WavMark and both experimental SilentCipher receivers (using Mid/Side stereo on 2-channel EnCodec passes), routes mono/stereo audio carrying ElevenLabs or Google SynthID metadata directly to `dac` (or `encodec`/`combined` when `dac` is absent) instead of `spectral`, and adapts to positively detected schemes under `--scheme auto` or `all` before falling back to `combined`. Each candidate must pass the saved-output gate before publication.
 `--method spectral`, `encodec`, or `combined` fixes one profile. Neural profiles
 need `audio-codec`; a missing required fallback fails without replacing output.
 `--bandwidth` accepts `6`, `12`, or `24` kbps, default `24`, for neural profiles.
@@ -277,10 +286,10 @@ preservation, bitexact WAV encoding, and rational half-open native clock while
 preserving full 22.05 kHz bandwidth. Keep `--vocoder-device cpu`; EnCodec
 bandwidth does not apply, and `auto` excludes this method.
 
-`--force` permits writing an unverified or resistant candidate.
-`--method spectral --force --no-verify` only needs the `audio` extra. Other
+`--allow-unverified` permits processing without a local source-positive decoder match (or with `--no-verify`) while keeping the audio SNR/RMS/window integrity gate active (`--allow-positive` permits a still-positive final candidate; `--allow-quality-override` overrides the integrity gate; `--force` enables all three).
+`--method spectral --allow-unverified --no-verify` only needs the `audio` extra. Other
 processing methods retain their own model extras. A still-positive written
-candidate exits 1. Forced unverified processing exits 0 with
+candidate exits 1. Unverified processing exits 0 with
 `verified_removed: null`, never a universal removal verdict. Default output:
 `<source>_processed.wav`. Audio checks segment long tracks (`> 30 s`) into
 `<= 30 s` bounded passes alongside short sliding windows; they do not certify
@@ -288,8 +297,8 @@ SynthID, Perth v2, or other production schemes. Visual video processing continue
 to copy audio unchanged.
 
 `video audio input.mp4 -o processed.mkv --stream 0 --json` (since CLI 0.63.0)
-applies the same audio profile and verification policy inside a video (`--stream N` for one track, or `--all-streams` to inspect all audio tracks and clean every detected watermarked track while stream-copying unmarked tracks). It accepts
-`--force`, `--verify/--no-verify`, `--stream`, `--all-streams`, `--scheme`, `--json`, and `-o` / `--output`.
+applies the same audio profile and verification policy inside a video (`--stream N` for one track, or `--all-streams` / repeatable `--target-stream N` to inspect and clean watermarked tracks while stream-copying unmarked tracks). It accepts
+`--allow-unverified`, `--allow-positive`, `--allow-quality-override`, `--force`, `--verify/--no-verify`, `--stream`, `--all-streams`, `--target-stream`, `--scheme`, `--json`, and `-o` / `--output`.
 Default output: `<source>_audio_processed.mkv`. MKV and MOV outputs store the
 selected track as uncompressed float PCM, increasing file size. Explicit MP4 output
 encodes only the selected track as lossy AAC (target 192 kbps); `--method auto`

@@ -140,6 +140,21 @@
       "icon": "./plugins/1139030773-cmd/agent-workflow-system/assets/composer-icon.svg"
     },
     {
+      "name": "agentavow-trust",
+      "displayName": "AgentAvow Trust",
+      "source": {
+        "source": "local",
+        "path": "./plugins/AgentAvow/agentavow-codex-plugin"
+      },
+      "policy": {
+        "installation": "AVAILABLE",
+        "authentication": "ON_INSTALL"
+      },
+      "category": "Development & Workflow",
+      "description": "Checks your MCP servers at session start and stops a `codex mcp add` or package install that reads Do not connect, with the reason and a signed 0-100 trust score.",
+      "icon": "./plugins/AgentAvow/agentavow-codex-plugin/icon.png"
+    },
+    {
       "name": "agentic-readiness-assessment",
       "displayName": "Agentic Readiness Assessment",
       "source": {
@@ -584,6 +599,21 @@
       "category": "Development & Workflow",
       "description": "Use ChatGPT as a reviewer, advisor, editor, or implementer in Codex, with ZIP packets by default and an opt-in MCP bridge.",
       "icon": "./plugins/TohmaN233/chatgpt-review-agent-skill/assets/icon.svg"
+    },
+    {
+      "name": "chunsik-garage",
+      "displayName": "Chunsik's Garage",
+      "source": {
+        "source": "local",
+        "path": "./plugins/yeunlee1/chunsik-garage"
+      },
+      "policy": {
+        "installation": "AVAILABLE",
+        "authentication": "ON_INSTALL"
+      },
+      "category": "Development & Workflow",
+      "description": "AQ checkup that reads your local Claude Code, Codex, and Gemini CLI records and settings, scores how you set up and use them, and turns off unused Claude Code and Codex skills and MCP servers with your approval and undo.",
+      "icon": "./plugins/yeunlee1/chunsik-garage/skills/aq/assets/composer-icon.png"
     },
     {
       "name": "claude-code",
@@ -1641,6 +1671,20 @@
       "icon": "./plugins/JoxoAI/joxo/assets/icon.png"
     },
     {
+      "name": "kaoyan-study-skills",
+      "displayName": "kaoyan-study-skills",
+      "source": {
+        "source": "local",
+        "path": "./plugins/keienhrri-bit/kaoyan-study-skills"
+      },
+      "policy": {
+        "installation": "AVAILABLE",
+        "authentication": "ON_INSTALL"
+      },
+      "category": "Development & Workflow",
+      "description": "Exam-prep plugin with nine skills: try-first tutoring, photo-to-report grading with rubric scoring and an independent regrade, checkpoint reviews and Markdown-to-PDF reports."
+    },
+    {
       "name": "keep-mac-awake",
       "displayName": "Keep Mac Awake",
       "source": {
@@ -1728,21 +1772,6 @@
       "category": "Development & Workflow",
       "description": "Self-hosted shared long-term memory and code index (definitions, callers, change impact) for Codex, stored in ClickHouse, with lifecycle hooks that capture each session and MCP tools that save and recall decisions across sessions and teammates.",
       "icon": "./plugins/ClickHouse/loom/assets/icon.png"
-    },
-    {
-      "name": "lvtd-skills",
-      "displayName": "LVTD Skills",
-      "source": {
-        "source": "local",
-        "path": "./plugins/LVTD-LLC/skills"
-      },
-      "policy": {
-        "installation": "AVAILABLE",
-        "authentication": "ON_INSTALL"
-      },
-      "category": "Development & Workflow",
-      "description": "Reusable Agent Skills for Codex, Claude Code, and compatible clients, covering Django, Rust, Cookiecutter, SEO, traction, product marketing, and nonfiction publishing workflows.",
-      "icon": "./plugins/LVTD-LLC/skills/assets/app-icon.png"
     },
     {
       "name": "macbox",
@@ -1919,6 +1948,20 @@
       "category": "Development & Workflow",
       "description": "Parallel plan, code, and commit reviews across 19 coding CLIs, with validated findings, task generation, implementation, and automated revision.",
       "icon": "./plugins/beastlabai/multi-llm-plugin/assets/icon.svg"
+    },
+    {
+      "name": "mycelium",
+      "displayName": "Mycelium",
+      "source": {
+        "source": "local",
+        "path": "./plugins/haabe/mycelium"
+      },
+      "policy": {
+        "installation": "AVAILABLE",
+        "authentication": "ON_INSTALL"
+      },
+      "category": "Development & Workflow",
+      "description": "A plugin that keeps you and your AI coding agent focused on building the right thing, from first idea to market."
     },
     {
       "name": "nightshift",
@@ -2452,6 +2495,20 @@
       },
       "category": "Development & Workflow",
       "description": "Writes agent skills that change the output and lints SKILL.md against the Agent Skills spec with a 0-100 health score."
+    },
+    {
+      "name": "skill-check",
+      "displayName": "skill-check",
+      "source": {
+        "source": "local",
+        "path": "./plugins/louis8408/skill-check"
+      },
+      "policy": {
+        "installation": "AVAILABLE",
+        "authentication": "ON_INSTALL"
+      },
+      "category": "Development & Workflow",
+      "description": "Warns when a skill you use is out of date compared with its upstream source."
     },
     {
       "name": "skill-sync-publisher",
@@ -3429,6 +3486,21 @@
       "icon": "./plugins/bankbridge-money/bankbridge-plugin/assets/icon.png"
     },
     {
+      "name": "banking-access-index",
+      "displayName": "Banking Access Index",
+      "source": {
+        "source": "local",
+        "path": "./plugins/global-solo/banking-access-index-mcp"
+      },
+      "policy": {
+        "installation": "AVAILABLE",
+        "authentication": "ON_INSTALL"
+      },
+      "category": "Tools & Integrations",
+      "description": "Skill that looks up what 19 US business banking providers publish about US LLC owners who aren't US tax residents, across 8 countries, citing each provider's own page and the date it was read.",
+      "icon": "./plugins/global-solo/banking-access-index-mcp/assets/icon.png"
+    },
+    {
       "name": "bestprice-shopping",
       "displayName": "BestPrice",
       "source": {
@@ -3814,6 +3886,20 @@
       "category": "Tools & Integrations",
       "description": "Full-stack SEO audits, Google API workflows, backlinks analysis, reporting, and optional MCP extensions for Codex.",
       "icon": "./plugins/BestLemoon/codex-seo/assets/icon.svg"
+    },
+    {
+      "name": "telegram",
+      "displayName": "Codex Telegram",
+      "source": {
+        "source": "local",
+        "path": "./plugins/AXEG0/codex-telegram"
+      },
+      "policy": {
+        "installation": "AVAILABLE",
+        "authentication": "ON_INSTALL"
+      },
+      "category": "Tools & Integrations",
+      "description": "One Codex conversation shared between your terminal and Telegram, with files, voice notes, reactions, answer buttons and group topics, that stays connected when the terminal closes."
     },
     {
       "name": "codex-tools-bridge",
@@ -5489,6 +5575,36 @@
       "icon": "./plugins/talkstream/ru-text/assets/icon.png"
     },
     {
+      "name": "runheed",
+      "displayName": "Runheed",
+      "source": {
+        "source": "local",
+        "path": "./plugins/getrunheed/runheed-plugin"
+      },
+      "policy": {
+        "installation": "AVAILABLE",
+        "authentication": "ON_INSTALL"
+      },
+      "category": "Tools & Integrations",
+      "description": "Error tracking your coding agent can read: search production errors, read stack traces, fix and resolve them. Hosted MCP server, paid.",
+      "icon": "./plugins/getrunheed/runheed-plugin/assets/icon.png"
+    },
+    {
+      "name": "runlater",
+      "displayName": "RunLater",
+      "source": {
+        "source": "local",
+        "path": "./plugins/runlater-app/runlater-plugin"
+      },
+      "policy": {
+        "installation": "AVAILABLE",
+        "authentication": "ON_INSTALL"
+      },
+      "category": "Tools & Integrations",
+      "description": "Remote MCP server and skill that let Codex schedule HTTP requests: once at an exact time or on a cron schedule, with retries and a log of every run; paid, plans from $15/month with a 14-day trial.",
+      "icon": "./plugins/runlater-app/runlater-plugin/assets/icon.png"
+    },
+    {
       "name": "rust-reverse-engineering",
       "displayName": "Rust Reverse Engineering",
       "source": {
@@ -5772,6 +5888,21 @@
       "icon": "./plugins/hraness/product-skills/plugins/sponge/assets/icon.png"
     },
     {
+      "name": "stalkchain",
+      "displayName": "StalkChain",
+      "source": {
+        "source": "local",
+        "path": "./plugins/StalkC/stalkchain-plugin"
+      },
+      "policy": {
+        "installation": "AVAILABLE",
+        "authentication": "ON_INSTALL"
+      },
+      "category": "Tools & Integrations",
+      "description": "Research public crypto trader wallets, token holders, and on-chain trade flow through a hosted OAuth MCP with metered account credits and optional price alerts that require confirmation.",
+      "icon": "./plugins/StalkC/stalkchain-plugin/assets/icon.png"
+    },
+    {
       "name": "story-skills",
       "displayName": "Story Skills",
       "source": {
@@ -5935,6 +6066,21 @@
       "icon": "./plugins/6Delta9/task-scheduler-codex-plugin/assets/icon.png"
     },
     {
+      "name": "taskhold",
+      "displayName": "Taskhold",
+      "source": {
+        "source": "local",
+        "path": "./plugins/gettaskhold/taskhold-plugin"
+      },
+      "policy": {
+        "installation": "AVAILABLE",
+        "authentication": "ON_INSTALL"
+      },
+      "category": "Tools & Integrations",
+      "description": "Remote MCP server and skill that give Codex a task list you share: it picks up the next task, plans it in steps, reports live progress and blocks with a question when it needs you; paid, $12/month with a 7-day trial.",
+      "icon": "./plugins/gettaskhold/taskhold-plugin/.claude-plugin/icon.png"
+    },
+    {
       "name": "teaching-skills",
       "displayName": "Teaching Skills",
       "source": {
@@ -5948,6 +6094,20 @@
       "category": "Tools & Integrations",
       "description": "Supports university teaching through 15 workflows for course design, lesson planning, assessment, student mentoring, and teaching reflection.",
       "icon": "./plugins/YujxZJCN/teaching-skills-codex/assets/icon.svg"
+    },
+    {
+      "name": "tensorust",
+      "displayName": "Tensorust",
+      "source": {
+        "source": "local",
+        "path": "./plugins/Mattbusel/tensorust-skills"
+      },
+      "policy": {
+        "installation": "AVAILABLE",
+        "authentication": "ON_INSTALL"
+      },
+      "category": "Tools & Integrations",
+      "description": "Public-records skills plus a hosted MCP server: who owns a US company or home, vendor screening against DoD 1260H, Section 889, FCC Covered List, UFLPA and BIOSECURE, BDC loan marks, and dated LLM API prices."
     },
     {
       "name": "textmock",
