@@ -2,8 +2,8 @@
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "name": "awesome-codex-plugins",
   "version": "1.0.0",
-  "last_updated": "2026-11-18",
-  "total": 439,
+  "last_updated": "2026-11-20",
+  "total": 454,
   "categories": [
     "Development & Workflow",
     "Tools & Integrations"
@@ -18,6 +18,16 @@
       "category": "Development & Workflow",
       "source": "awesome-codex-plugins",
       "install_url": "https://raw.githubusercontent.com/RBraga01/a-team/HEAD/plugin.json"
+    },
+    {
+      "name": "abliterate",
+      "url": "https://github.com/andreaborio/abliterate",
+      "owner": "andreaborio",
+      "repo": "abliterate",
+      "description": "Security review of source changes before a push or pull request, with attack-surface, sink and dependency-reachability evidence and SARIF output.",
+      "category": "Development & Workflow",
+      "source": "awesome-codex-plugins",
+      "install_url": "https://raw.githubusercontent.com/andreaborio/abliterate/HEAD/plugin.json"
     },
     {
       "name": "Actera",
@@ -88,6 +98,16 @@
       "category": "Development & Workflow",
       "source": "awesome-codex-plugins",
       "install_url": "https://raw.githubusercontent.com/summationai/agent-retro/HEAD/plugins/agent-retro/.codex-plugin/plugin.json"
+    },
+    {
+      "name": "Agent Session Lineage",
+      "url": "https://github.com/TardisBooo/agent-session-lineage",
+      "owner": "TardisBooo",
+      "repo": "agent-session-lineage",
+      "description": "View indexed Codex and Claude Code sessions and recorded handoff links on Windows using a local Möbius vault.",
+      "category": "Development & Workflow",
+      "source": "awesome-codex-plugins",
+      "install_url": "https://raw.githubusercontent.com/TardisBooo/agent-session-lineage/HEAD/plugins/mobius-connect/.codex-plugin/plugin.json"
     },
     {
       "name": "Agent Workflow System",
@@ -168,6 +188,16 @@
       "category": "Development & Workflow",
       "source": "awesome-codex-plugins",
       "install_url": "https://raw.githubusercontent.com/AgiFlow/ai-plugin/HEAD/.codex-plugin/plugin.json"
+    },
+    {
+      "name": "AI Coding Daily Report",
+      "url": "https://github.com/TardisBooo/ai-coding-daily-report",
+      "owner": "TardisBooo",
+      "repo": "ai-coding-daily-report",
+      "description": "Generates a Markdown work report from local AI coding sessions with your chosen writer CLI.",
+      "category": "Development & Workflow",
+      "source": "awesome-codex-plugins",
+      "install_url": "https://raw.githubusercontent.com/TardisBooo/ai-coding-daily-report/HEAD/.codex-plugin/plugin.json"
     },
     {
       "name": "AI-Native SDLC Loop",
@@ -922,6 +952,16 @@
       "install_url": "https://raw.githubusercontent.com/mirkobozzetto/espresso/HEAD/.codex-plugin/plugin.json"
     },
     {
+      "name": "exam-prep-skills",
+      "url": "https://github.com/keienhrri-bit/exam-prep-skills",
+      "owner": "keienhrri-bit",
+      "repo": "exam-prep-skills",
+      "description": "Exam-prep plugin with nine skills: try-first tutoring, photo-to-report grading with rubric scoring and an independent regrade, checkpoint reviews and Markdown-to-PDF reports.",
+      "category": "Development & Workflow",
+      "source": "awesome-codex-plugins",
+      "install_url": "https://raw.githubusercontent.com/keienhrri-bit/exam-prep-skills/HEAD/.codex-plugin/plugin.json"
+    },
+    {
       "name": "falsegreen-skill",
       "url": "https://github.com/vinicq/falsegreen-skill",
       "owner": "vinicq",
@@ -950,6 +990,16 @@
       "category": "Development & Workflow",
       "source": "awesome-codex-plugins",
       "install_url": "https://raw.githubusercontent.com/thiagoxikota/figma-maxxing/HEAD/plugin.json"
+    },
+    {
+      "name": "FigureAtlas",
+      "url": "https://github.com/TardisBooo/figureatlas",
+      "owner": "TardisBooo",
+      "repo": "figureatlas",
+      "description": "Pick one of 300 verified figure types for a paper, slide, poster, or video frame, then export HTML or SVG.",
+      "category": "Development & Workflow",
+      "source": "awesome-codex-plugins",
+      "install_url": "https://raw.githubusercontent.com/TardisBooo/figureatlas/HEAD/.codex-plugin/plugin.json"
     },
     {
       "name": "Frappe Agent",
@@ -1133,16 +1183,6 @@
       "install_url": "https://raw.githubusercontent.com/JoxoAI/joxo/HEAD/plugins/joxo/plugin.json"
     },
     {
-      "name": "kaoyan-study-skills",
-      "url": "https://github.com/keienhrri-bit/kaoyan-study-skills",
-      "owner": "keienhrri-bit",
-      "repo": "kaoyan-study-skills",
-      "description": "Exam-prep plugin with nine skills: try-first tutoring, photo-to-report grading with rubric scoring and an independent regrade, checkpoint reviews and Markdown-to-PDF reports.",
-      "category": "Development & Workflow",
-      "source": "awesome-codex-plugins",
-      "install_url": "https://raw.githubusercontent.com/keienhrri-bit/kaoyan-study-skills/HEAD/.codex-plugin/plugin.json"
-    },
-    {
       "name": "Keep Mac Awake",
       "url": "https://github.com/bartdudzic/keepmacawake",
       "owner": "bartdudzic",
@@ -1161,6 +1201,26 @@
       "category": "Development & Workflow",
       "source": "awesome-codex-plugins",
       "install_url": "https://raw.githubusercontent.com/ariaxhan/kernel-claude/HEAD/.codex-plugin/plugin.json"
+    },
+    {
+      "name": "Kling AI China Plugin",
+      "url": "https://github.com/klingai-tech/claude-plugin-cn",
+      "owner": "klingai-tech",
+      "repo": "claude-plugin-cn",
+      "description": "Official China-region OAuth MCP plugin for Claude and Gemini CLI, with image and video generation, Elements, motion-library browsing, and task tracking.",
+      "category": "Development & Workflow",
+      "source": "awesome-codex-plugins",
+      "install_url": "https://raw.githubusercontent.com/klingai-tech/claude-plugin-cn/HEAD/plugin.json"
+    },
+    {
+      "name": "Kling AI Global Plugin",
+      "url": "https://github.com/klingai-tech/claude-plugin",
+      "owner": "klingai-tech",
+      "repo": "claude-plugin",
+      "description": "Official Global-region OAuth MCP plugin for Claude and Gemini CLI, with image and video generation, Elements, and task tracking.",
+      "category": "Development & Workflow",
+      "source": "awesome-codex-plugins",
+      "install_url": "https://raw.githubusercontent.com/klingai-tech/claude-plugin/HEAD/plugin.json"
     },
     {
       "name": "Krypton",
@@ -1451,6 +1511,26 @@
       "category": "Development & Workflow",
       "source": "awesome-codex-plugins",
       "install_url": "https://raw.githubusercontent.com/ouonet/praxis/HEAD/.codex-plugin/plugin.json"
+    },
+    {
+      "name": "Preview Lab",
+      "url": "https://github.com/dbalas/preview-lab",
+      "owner": "dbalas",
+      "repo": "preview-lab",
+      "description": "Review the screens Codex changed on screenshots and send approvals and marked areas back to the session.",
+      "category": "Development & Workflow",
+      "source": "awesome-codex-plugins",
+      "install_url": "https://raw.githubusercontent.com/dbalas/preview-lab/HEAD/plugin.json"
+    },
+    {
+      "name": "Prewalk",
+      "url": "https://github.com/TardisBooo/prewalk",
+      "owner": "TardisBooo",
+      "repo": "prewalk",
+      "description": "Completes and verifies a first task, then hands the remaining work to a configured executor.",
+      "category": "Development & Workflow",
+      "source": "awesome-codex-plugins",
+      "install_url": "https://raw.githubusercontent.com/TardisBooo/prewalk/HEAD/hosts/codex/plugin.json"
     },
     {
       "name": "Pro Launch",
@@ -1911,6 +1991,16 @@
       "category": "Development & Workflow",
       "source": "awesome-codex-plugins",
       "install_url": "https://raw.githubusercontent.com/hlibsuslov/telegram-bot-ui/HEAD/plugin.json"
+    },
+    {
+      "name": "Tigang Reminder",
+      "url": "https://github.com/TardisBooo/tigang-plugin",
+      "owner": "TardisBooo",
+      "repo": "tigang-plugin",
+      "description": "Displays a Kegel break reminder after successful Git commits and pushes, with local counts.",
+      "category": "Development & Workflow",
+      "source": "awesome-codex-plugins",
+      "install_url": "https://raw.githubusercontent.com/TardisBooo/tigang-plugin/HEAD/.codex-plugin/plugin.json"
     },
     {
       "name": "TMCRA Local Memory",
@@ -2726,6 +2816,16 @@
       "install_url": "https://raw.githubusercontent.com/Rothschildiuk/context-pack/HEAD/.codex-plugin/plugin.json"
     },
     {
+      "name": "Converter Studio",
+      "url": "https://github.com/tariksucu/converter-studio",
+      "owner": "tariksucu",
+      "repo": "converter-studio",
+      "description": "Convert video, audio, images, PDFs, documents, e-books, subtitles and archives between 67 formats through Converter Studio's hosted MCP server, with skills for whole folders, web-ready media and audio extraction, paid from account credits (13 free a day). Website: https://converter.studio",
+      "category": "Tools & Integrations",
+      "source": "awesome-codex-plugins",
+      "install_url": "https://raw.githubusercontent.com/tariksucu/converter-studio/HEAD/plugin.json"
+    },
+    {
       "name": "Coolify",
       "url": "https://github.com/Sevi-py/coolify-codex-plugin",
       "owner": "Sevi-py",
@@ -2774,6 +2874,16 @@
       "category": "Tools & Integrations",
       "source": "awesome-codex-plugins",
       "install_url": "https://raw.githubusercontent.com/entropy-data/dataproduct-builder-dbt/HEAD/.codex-plugin/plugin.json"
+    },
+    {
+      "name": "DataXAPI",
+      "url": "https://github.com/data-x-api/skills",
+      "owner": "data-x-api",
+      "repo": "skills",
+      "description": "Market research from Codex through skills and a hosted MCP server: posts, comments, creators, trends, transcripts, ads and products on Douyin, Xiaohongshu (RedNote), WeChat, TikTok, YouTube, X and more, paid per call.",
+      "category": "Tools & Integrations",
+      "source": "awesome-codex-plugins",
+      "install_url": "https://raw.githubusercontent.com/data-x-api/skills/HEAD/.codex-plugin/plugin.json"
     },
     {
       "name": "Dawn",
@@ -2894,6 +3004,16 @@
       "category": "Tools & Integrations",
       "source": "awesome-codex-plugins",
       "install_url": "https://raw.githubusercontent.com/EminBudak/easybrandkit/HEAD/plugin.json"
+    },
+    {
+      "name": "edeka-shopping",
+      "url": "https://github.com/StardawnAI/german-grocery-plugins",
+      "owner": "StardawnAI",
+      "repo": "german-grocery-plugins",
+      "description": "Shop EDEKA, E center and Marktkauf online markets in Germany for pickup: offers, basket from plain words, earliest slot, order after confirmation.",
+      "category": "Tools & Integrations",
+      "source": "awesome-codex-plugins",
+      "install_url": "https://raw.githubusercontent.com/StardawnAI/german-grocery-plugins/HEAD/plugins/edeka/.codex-plugin/plugin.json"
     },
     {
       "name": "Education Agent Skills",
@@ -3437,6 +3557,16 @@
       "source_ref": "codex-plugin"
     },
     {
+      "name": "Moli Browser",
+      "url": "https://github.com/27painter/dsh-moli",
+      "owner": "27painter",
+      "repo": "dsh-moli",
+      "description": "Local Codex MCP plugin for browser-backed web search, rendered page fetching, screenshots, and PDF capture through Moli.",
+      "category": "Tools & Integrations",
+      "source": "awesome-codex-plugins",
+      "install_url": "https://raw.githubusercontent.com/27painter/dsh-moli/HEAD/plugins/codex-moli/plugin.json"
+    },
+    {
       "name": "MoltNode by Chord",
       "url": "https://github.com/tuantqse90/moltnode-mcp",
       "owner": "tuantqse90",
@@ -3597,6 +3727,16 @@
       "install_url": "https://raw.githubusercontent.com/voygr-tech/placecall/HEAD/.codex-plugin/plugin.json"
     },
     {
+      "name": "Plinth",
+      "url": "https://github.com/mr0b0t0/plinth",
+      "owner": "mr0b0t0",
+      "repo": "plinth",
+      "description": "Publish HTML pages and Markdown documents from Codex to a hosted or self-hosted Plinth, with versions, comments and per-artifact access control, through a remote MCP server and a skill.",
+      "category": "Tools & Integrations",
+      "source": "awesome-codex-plugins",
+      "install_url": "https://raw.githubusercontent.com/mr0b0t0/plinth/HEAD/integrations/plugin/plugin.json"
+    },
+    {
       "name": "plori",
       "url": "https://github.com/plori-ai/codex-plugin",
       "owner": "plori-ai",
@@ -3697,16 +3837,6 @@
       "install_url": "https://raw.githubusercontent.com/questionpunk/codex-plugin/HEAD/plugins/questionpunk/plugin.json"
     },
     {
-      "name": "qURL",
-      "url": "https://github.com/layervai/codex-plugins",
-      "owner": "layervai",
-      "repo": "codex-plugins",
-      "description": "Share a running local app with approved people or agents from Codex through OpenNHP identity-first access, without deployment, a publisher account or a public inbound app port.",
-      "category": "Tools & Integrations",
-      "source": "awesome-codex-plugins",
-      "install_url": "https://raw.githubusercontent.com/layervai/codex-plugins/HEAD/plugins/qurl/plugin.json"
-    },
-    {
       "name": "Read Image",
       "url": "https://github.com/ZXY1240/read-image",
       "owner": "ZXY1240",
@@ -3765,6 +3895,16 @@
       "category": "Tools & Integrations",
       "source": "awesome-codex-plugins",
       "install_url": "https://raw.githubusercontent.com/tmakersas/revid-skills/HEAD/plugin.json"
+    },
+    {
+      "name": "rewe-shopping",
+      "url": "https://github.com/StardawnAI/german-grocery-plugins",
+      "owner": "StardawnAI",
+      "repo": "german-grocery-plugins",
+      "description": "Shop REWE in Germany for pickup: offers, basket from plain words, earliest slot, recipes to basket, order after confirmation.",
+      "category": "Tools & Integrations",
+      "source": "awesome-codex-plugins",
+      "install_url": "https://raw.githubusercontent.com/StardawnAI/german-grocery-plugins/HEAD/plugins/rewe/.codex-plugin/plugin.json"
     },
     {
       "name": "Risk Desk",
@@ -4295,6 +4435,16 @@
       "category": "Tools & Integrations",
       "source": "awesome-codex-plugins",
       "install_url": "https://raw.githubusercontent.com/prateeks367/voicemoat-skills/HEAD/.codex-plugin/plugin.json"
+    },
+    {
+      "name": "Waiting Gaming",
+      "url": "https://github.com/paranoiadd/waiting-gaming",
+      "owner": "paranoiadd",
+      "repo": "waiting-gaming",
+      "description": "Offline 2048 for Windows Codex with opt-in waiting invitations, saved game progress, and remembered window position.",
+      "category": "Tools & Integrations",
+      "source": "awesome-codex-plugins",
+      "install_url": "https://raw.githubusercontent.com/paranoiadd/waiting-gaming/HEAD/package/.codex-plugin/plugin.json"
     },
     {
       "name": "WakeWire",

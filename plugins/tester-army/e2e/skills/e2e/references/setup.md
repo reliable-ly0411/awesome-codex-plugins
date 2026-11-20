@@ -58,8 +58,9 @@ The wizard needs a terminal: without one, `init` exits with code 2. From an
 agent's shell, run `npx e2e init --yes` when its defaults fit and install the
 dependencies after it, or install by hand (below). `--yes` includes MCP
 registration. When the client already has the e2e plugin, pass
-`--skills none --mcp none`, since the plugin gives it the skill and the server
-(`plugin:e2e:e2e`). A manual install needs a separate entry (topic `mcp`).
+`--skills none`, since the plugin gives it the skill; in Codex and Cursor,
+pass `--mcp none` too, since the plugin also gives it the server. A manual
+install needs a separate entry (topic `mcp`).
 
 Init adds dependencies and a `test:e2e` script to `package.json`, writes
 `e2e.config.ts` and `tests/example.e2e.ts`, updates `.gitignore`, leaves
@@ -82,7 +83,7 @@ key, or a local endpoint. Authenticate:
 | ChatGPT Plus or Pro | `npx e2e login openai` |
 | GitHub Copilot | `npx e2e login github-copilot` (GitHub CLI signed in, or your own `--client-id`) |
 | OpenCode Console (OpenCode Zen and OpenCode Go) | `npx e2e login opencode-console` (approve the device code, pick the workspace) |
-| SuperGrok or X Premium+ | `npx e2e login spacexai` |
+| SuperGrok or X Premium+ | `npx e2e login spacexsi` |
 | Claude Max or Team | No `e2e login`: link a Claude Console organization in claude.ai for the plan's monthly API credits (Max: Settings > Billing; Team: an Owner under Organization settings > Billing), create an API key in it, set `ANTHROPIC_API_KEY`, use `anthropic('<id>')` from `@ai-sdk/anthropic` |
 | Vercel AI Gateway | Set `AI_GATEWAY_API_KEY`, or sign in to the Vercel CLI and `npx vercel link`; without the key `gateway()` uses a Vercel OIDC token |
 | OpenRouter | Set `OPENROUTER_API_KEY` |
@@ -163,7 +164,7 @@ or `E2E_USER_ADMIN_PASSWORD` first, or defer to fill time with
 | `cleanupTimeout` | `30000` | Each `afterEach` hook, fixture teardown, engine cleanup, ms. |
 | `retries` | `0`, `1` in CI | 0 to 10. |
 | `workers` | half the cores, `1` in CI | Parallel test files, capped by the `workers` the engine declares per target. |
-| `reporters` | `['list']` | `list`, `dot`, `json`, `junit`, `markdown`, or `{ name, onEvent?, onRunFinished? }` objects; `json` and `dot` each exclude `list`, `--reporter` keeps the objects. |
+| `reporters` | `['list']` | `list`, `dot`, `json`, `junit`, `markdown` ids, the same as factories from `e2e/reporters` (`junit({ outputFile })`), or `{ name, printsTo?, onEvent?, onOutput?, onStepPrompt?, reportFiles?, onRunFinished?, onSummary? }` objects; one reporter at most prints to each of stdout and stderr (`dot` excludes `list`; beside `json`, the `list` and `dot` ids print to stderr), `--reporter` keeps the other objects. |
 | `cache` | `'read-write'` | `'read-write'`, `'read-only'`, `'off'`, or `{ mode, store, dir, strict }`; CI demotes only a defaulted mode to `'read-only'`. `strict` (`--strict-cache`) fails a step whose recording no longer replays (`REPLAY_STALE`) instead of handing it to the agent; retries replay too, and the run never writes the cache. |
 | `agents` | `{ default: built-in }` | Tests run with `default`, `e2e run --agent <name>` picks another, entries never inherit from `default`. Options: topic `agent`. |
 | `filters` | `[]` | Test filters `{ name, filter(tests, context) }`, unique names, applied in order with `--changed-since <ref>`. Use `filters: [decisionFilter({ model: gateway.decisionModel('typesafe-ai/jev') })]`, with `decisionFilter` from `@e2e-dev/decision` and `gateway` from `ai` (install `@e2e-dev/decision ai`), to run only the tests a pull request can affect. `filter` gets candidates `{ id, file, titlePath, tags, setupFile? }` and a context `{ projectRoot, changes: { base, root, files }, configFile, signal, log, redact }` with repository-relative `files`, and returns `{ exclude: { [id]: reason }, relevance?: { [id]: 0 to 1 }, note? }`; every test it does not name runs, and `relevance` (how likely each test is to fail) makes each target start the likeliest files first. Read files, the environment, or the network inside `filter`, never at config load: workers load the config too. When filters run: topic `running`. |
@@ -200,12 +201,28 @@ target's `app`:
 | `environment` | `'test'`, `'staging'`, `'production'`; inferred from the host, labels the report and cache key. |
 | `identity` | Stable identity for cache and session keys when the origin changes per deploy (preview URLs). Defaults to the URL's origin and path, else `bundleId`, else `appPath`. |
 
-A Next.js 16 dev server blocks cross-origin requests to its dev resources, so
-a target that opens `127.0.0.1` or `[::1]` while `next dev` identifies as
-`localhost` never hydrates. Add the host to `allowedDevOrigins` in
-`next.config.ts` (`'127.0.0.1'`, or `'[::1]'` for the bracket form). A
-`localhost` target needs no entry, and a production `next start` target is
-unaffected.
+Next.js ([guide](https://e2e.com/docs/frameworks/nextjs)): set `app.command` to `next
+dev` locally and `next start` when `CI` is set (e2e reads `''`, `0`, and
+`false` as unset; read it the same way in the config), with `next build`
+before `e2e run` in CI; `reuseExisting: true` reuses a dev server already on
+the port, and `dev` and `start` must listen on the `app.url` port.
+
+- A Next.js 16 dev server blocks cross-origin requests to its dev resources,
+  so a target that opens `127.0.0.1` or `[::1]` (port `0` included) while
+  `next dev` identifies as `localhost` never hydrates. Add the host to
+  `allowedDevOrigins` in `next.config.ts` (`'127.0.0.1'`, or `'[::1]'` for
+  the bracket form). A `localhost` target needs no entry, and a production
+  `next start` target is unaffected.
+- The App Router renders an empty `role="alert"` route announcer on every
+  page, so `getByRole('alert')` matches it too: filter yours by text
+  (`.filter({ hasText: '...' })`).
+- When `next dev` recompiles during a run, its watcher reads `.e2e/`: keep
+  the `.e2e/` entries `init` adds to `.gitignore`, and with webpack set
+  `config.watchOptions.ignored` in `next.config.ts` to include
+  `'**/.e2e/**'` (keep `.git`, `.next`, `node_modules`, and any entry the
+  config already has).
+- A new app can start from the example:
+  `npx create-next-app --example https://github.com/e2e-inc/e2e/tree/main/examples/with-next my-app`.
 
 There is no `services` key in this version: it is an unknown key wherever it
 appears. Start dependency processes before the run, or have `app.command`

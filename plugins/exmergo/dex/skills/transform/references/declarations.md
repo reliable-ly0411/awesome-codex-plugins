@@ -73,8 +73,23 @@ the models that read it.
 | a single-column `grain` | `unique` and `not_null` tests on that column |
 | `null_rule: never` | `not_null` on that column |
 | `foreign_key` with `references` | a `relationships` test (`arguments: {to, field}`) |
+| a fact a generated test checks, where `declarations.render_tests` turns it on | that generated test, tagged with its cadence ([below](#generated-tests-an-opt-in-switch-and-a-cadence-tag)) |
 | `grain`, `population`, `assumptions` | model `config.meta.dex` |
 | `role`, `null_rule`, `aggregation`, `additivity`, `unit`, `references` | column `config.meta.dex` |
+
+A PII stamp is not a declaration field and never needs one: on a model the plan
+creates, every column that carries a flagged input through gets
+`config.meta.contains_pii` and `pii_category`, and the model `contains_pii`,
+whether or not the plan declares anything, in the same entry the declaration
+writes. That covers a column carried unchanged or under an alias, and one
+passed through a function that keeps its value (a cast, `lower`/`upper`/`trim`,
+`coalesce`, `min`/`max`, `any_value`, `lag`). A measuring aggregate
+(`measured`) and a constant standing in for a flagged column (`redacted`) are
+not stamped; a hash or any other expression is `unresolved`, warned about and
+left to a person. A hand-written mark is kept,
+and one saying the column is not PII is reported as a `disagreement` rather than
+overwritten. A model that already exists is reported under `data.pii_metadata`
+and its YAML is not written.
 
 Every test Dex renders carries `config: {meta: {disable_test_samples: true}}`,
 as does a `not_null` or `unique` that `maintain reconcile` adds,
@@ -86,6 +101,148 @@ already uses, so it gains no flag. Declaring again merges: a key the new declara
 one, and a key it leaves out is kept. `population` merges one level further, so
 adding a `parent` keeps the `rule` and `filters` declared earlier. Every byte outside the keys above, comments
 included, stays where it was.
+
+### The claim each test checks
+
+Each test a declaration renders names the declared fact it checks, the
+**claim**, at `config.meta.dex.claim`, beside the Elementary flag:
+
+```yaml
+- unique:
+    config:
+      meta:
+        disable_test_samples: true
+        dex:
+          claim: 20bd854de99db020
+```
+
+A test's name and dbt's `unique_id` are built from the model, the column, the
+test and its arguments, so they change when any of those do. The claim id does
+not. Use it to name the fact a test checks across runs: one incident while a
+test keeps failing, and the last run in which a claim was checked and passed.
+
+| Declared | Claim | Test |
+|---|---|---|
+| a single-column `grain` | `grain`, the column, `check: unique` | `unique` |
+| a single-column `grain` | `grain`, the column, `check: not_null` | `not_null` |
+| `null_rule: never` | `null_rule`, the column | `not_null` |
+| `references` | `references`, the column, the parent it names | `relationships` |
+
+- **How the id is made.** It is the first 16 hex characters of a SHA-256 over
+  the claim: the model's label (`dim_teams.v2` for a version), the declared
+  field, its columns and its parameters, with names folded to lower case. It is
+  never made from the test's name. Two facts on one column get two ids,
+  including the two tests of one grain, since either can fail alone. A grain
+  column also declared `null_rule: never` has one `not_null`. It carries the
+  claim of the fact rendered first: the null rule's when both are declared
+  together, and the grain's when the null rule is declared after it.
+- **After the first render, the file holds the id.** A test the column already
+  lists by name is left as written. Renaming the test (`name:`), declaring the
+  same fact again or editing the rest of the declaration leaves its claim alone,
+  and a plan shows no diff on it. Read the id from the file, not by recomputing
+  it. A model renamed with `transform rename` keeps its tests' ids, since the
+  rename does not touch them. A new model that later takes the old name and
+  declares the same facts derives the same ids, so a history kept across a
+  rename should key on the claim and the tested node, not the claim alone. A fact that changes (a `references` to another
+  parent) gets no new id, because the test already listed under that name is
+  kept as written.
+- **Tests Dex rendered before claims.** A test that is exactly what Dex
+  rendered earlier (the flag, the same arguments, nothing else) gets its claim
+  the next time the declaration renders, and that one key is the only change. A
+  bare `not_null` or `unique` could have been written by a person, so it stays
+  bare (#1350), as does a test with any other config or a claim already, a test
+  whose YAML is an anchor another test aliases, and a version's inherited test,
+  which only a declaration of the shared entry claims.
+- **Tests that check no declared fact carry no claim.** The scaffold's tests
+  and the `not_null` or `unique` that `maintain reconcile` adds are not
+  declarations. `maintain reconcile` still treats a claimed `not_null` as Dex's
+  own, and removes it when the column starts accepting NULLs.
+- Neither dbt nor Elementary reads a `dex` key in a test's `meta`. Elementary
+  copies a test's `meta` into its `dbt_tests` table, so the claim is also there.
+
+### Generated tests: an opt-in switch and a cadence tag
+
+The three tests above are the **built-ins**. They always render. A **generated
+test** is one Dex writes for a declared fact the built-ins cannot check: a
+composite grain, a population filter, a parent's population. Each kind arrives
+in its own release (#1452 onward), so this release renders none yet; the switch
+and the tag below are what every kind follows. Generated tests run in the
+project's production runs. Dex does not run those and the project pays for them,
+so two rules hold:
+
+- **They are opt-in.** `declarations.render_tests` in `.dex/config.yml` turns
+  them on. It is off by default.
+
+  | Setting | Renders |
+  |---|---|
+  | `false` (default) | the built-ins only |
+  | `true` | every generated test this release renders, kinds a later release adds included |
+  | `[dex_every_run]` | the generated tests of that cadence, to start with the cheap ones |
+  | `[dex_unique_combination, ...]` | the kinds it names, and no kind a later release adds |
+
+  A list can mix test names and cadences. A name this release does not render
+  turns nothing on: `dex config validate` reports it as `unknown_test_kind`, and
+  the file still loads, so a config written for a later release works on an
+  earlier one. `dex config set declarations.render_tests '[dex_every_run]'`
+  shows the diff and writes it on `--confirm`. Turning tests on is the
+  project's decision, not the agent's.
+- **Each carries a cadence tag**, written as a dbt tag beside the sampling flag
+  and the claim:
+
+  ```yaml
+  data_tests:
+    - dex_unique_combination:
+        arguments:
+          columns: [order_id, line_number]
+        config:
+          tags: [dex_every_run]
+          meta:
+            disable_test_samples: true
+            dex:
+              claim: c52a973cba4cda23
+  ```
+
+  `dex_every_run` marks a test cheap enough for every production run, and
+  `dex_scheduled` one that scans whole tables (an anti-join, a gap search). The
+  tag is fixed per kind, never chosen per project. An orchestrator runs them
+  apart: `dbt build --exclude tag:dex_scheduled` on every run, and
+  `dbt build --select tag:dex_scheduled` on its own schedule. The built-ins
+  carry no cadence tag, so they run with every build.
+
+A generated test checks the declaration as the entry states it once the plan's
+declaration is merged in, not only the facts the payload restates. Declaring a
+description alone renders the generated tests for a grain declared earlier, and
+on a project that turns the switch on after declaring its models,
+`transform declare` proposes the tests their declared facts imply (under the
+proposal's `fields.generated_tests`), with no fact restated.
+
+A generated test sits on the model entry (`data_tests:` beside `columns:`, or
+in the version's own item for a version label) or under the column it checks.
+Its claim tells two tests of one kind apart, so a model with two population
+filters gets two tests. A generated test already listed is left as written. It
+is matched by its claim, so a `name:` added by hand does not make Dex render it
+again, or by the same test with the same arguments, which dbt would build into
+the same node. A changed parameter is a new claim and renders a second test
+beside the first: remove the old one in review.
+
+Turning the switch off, or leaving a kind out of the list, renders no new
+generated test and **removes none**: a test in the YAML is the file's (#1350).
+Remove one by deleting it from the YAML.
+
+**`data.generated_tests`** on the plan (and on `transform declare`) lists every
+generated test the plan's declarations give, rendered or not:
+
+| Field | Meaning |
+|---|---|
+| `render_tests` | the setting as the plan read it |
+| `counts` | how many tests have each status |
+| `tests[]` | per test: `model`, `column` (`null` on the model entry), `test`, `cadence`, `claim`, `status` |
+
+`status` is `added` (rendered by this plan), `already_listed` (already in the
+YAML, so nothing changed), `not_rendered` (with `reason`: `render_tests_off`, or
+`kind_not_enabled` where a list leaves its kind out), or `listed_while_off` (in
+the YAML although the setting leaves its kind off; it stays). The key is absent
+when the declarations give no generated test.
 
 ### A versioned model
 
@@ -225,7 +382,7 @@ Each fact carries the `evidence` it rests on, and a fact the cache cannot suppor
 | `grain` | the `GROUP BY` keys when the model aggregates; otherwise a key the driving relation's profile *proved* unique, selected unchanged, with every join an equality on a key proven unique on its joined side. Any other join, a right or full join, a set operation or an `UNNEST` gives `{"value": null, "withheld": "<why>"}` |
 | `columns.<c>.from` | the upstream `relation.column` a column passes through from unchanged, followed through CTEs |
 | `columns.<c>.role` | `key` for a single-column drafted grain; `foreign_key`, with `references`, for a column carrying a join `explore relationships --verify` measured with no orphans. A join measured with orphans would fail the `relationships` test a `references` renders, so it is `references: {"value": null, "withheld": "<the orphan rate>"}` instead. Where the column joins cleanly to several relations (the raw table, its staging model, a dimension), a parent whose column is not unique and the model itself are passed over, a model of this project wins over a seed or snapshot and those over a raw table, and the model nearest this one in the project tree breaks a tie; `evidence` names the other clean parents. A warehouse that reports `STG_CUSTOMERS` resolves to the project's `stg_customers`. The joins read are the input column's; where those reach only raw tables (a staging model over a source, on a warehouse whose build lives in another schema) and the model is already built and profiled, the built relation's own clean joins are read instead, so `stg_orders.customer_id` references `stg_customers` |
-| `columns.<c>.pii` | the upstream column's PII flag, category and confidence |
+| `columns.<c>.pii` | the upstream column's PII flag, category and confidence. On a model the plan creates, the category (never the confidence) is also written as the column's `contains_pii` and `pii_category` stamp; see `data.pii_metadata` |
 | `columns.<c>.nullable` | `true` on the outer side of a left, right or full join whatever the upstream NULL rate; otherwise from the upstream NULL fraction |
 | `columns.<c>.additivity` | `semi_additive` where `explore profile --check-cumulative` found the upstream column never decreasing |
 | `columns.<c>.unit` | `fraction` for a non-integer column profiled entirely in 0 to 1; `percent` for one named like a percentage profiled in 0 to 100. A hypothesis, never a certified unit |

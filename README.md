@@ -143,9 +143,11 @@ Third-party plugins built by the community. [PRs welcome](#contributing)!
 
 ### Development & Workflow
 
+
 <!-- pinned -->
 
 - [A Team](https://github.com/RBraga01/a-team) - A complete engineering team in one folder with 26 specialist agents, 20 workflow skills, an orchestrator, and quality gates; integration and hook support vary by coding platform.
+- [abliterate](https://github.com/andreaborio/abliterate) - Security review of source changes before a push or pull request, with attack-surface, sink and dependency-reachability evidence and SARIF output.
 - [Actera](https://github.com/Actera-AI/actera-codex) - Checks each Codex tool call against Actera workspace policies before it runs, holds calls that need a reviewer's approval, and records every decision and outcome.
 - [Aegis](https://github.com/GanyuanRan/Aegis) - An agentic skills framework & software development methodology that works: planning, TDD, debugging, and collaboration workflows.
 - [Agency Continuity Audit](https://github.com/revertcreations/agency-continuity-audit) - Read-only audit that distinguishes durable agent goals, state, corrections, restart evidence, authority boundaries, scheduler claims, and commercial proof from self-reported health.
@@ -153,6 +155,7 @@ Third-party plugins built by the community. [PRs welcome](#contributing)!
 - [Agent Guard](https://github.com/JeongJaeSoon/agent-guard) - Local-by-default, no-telemetry hooks block or mask secret leaks in Claude Code and Codex, with opt-in PII filtering and Git/CI backstops.
 - [Agent Harness Skills](https://github.com/yfge/agent-harness-skills) - Designs agent-ready repository harnesses with entrypoints, validation surfaces, runtime evidence, delivery records, and atomic commit guidance.
 - [Agent Retro](https://github.com/summationai/agent-retro) - Weekly retro of how you use Codex and Claude Code: 12 animated slides of usage stats with four evidence-backed coaching tips, built locally from your own logs.
+- [Agent Session Lineage](https://github.com/TardisBooo/agent-session-lineage) - View indexed Codex and Claude Code sessions and recorded handoff links on Windows using a local Möbius vault.
 - [Agent Workflow System](https://github.com/1139030773-cmd/agent-workflow-system) - 一套中文AI工作流系统：7个协作技能 + 行为规范宪法 + 会话恢复机制，模糊目标→可执行任务，全生命周期引导。Codex & Claude Code 双平台，新手友好。
 - [AgentAvow Trust](https://github.com/AgentAvow/agentavow-codex-plugin) - Checks your MCP servers at session start and stops a `codex mcp add` or package install that reads Do not connect, with the reason and a signed 0-100 trust score.
 - [Agentic Readiness Assessment](https://github.com/exadel-inc/agentic-readiness-assessment) - Assess repository readiness for AI coding agents with an evidence-based scorecard and prioritized fixes.
@@ -161,6 +164,7 @@ Third-party plugins built by the community. [PRs welcome](#contributing)!
 - [AgentPack](https://github.com/vishal2612200/agentpack) - Ranks repo context for Codex with likely files, skill recommendations, agent rules, commands, warnings, and compact task-focused packs before editing.
 - [Agentry Observability](https://github.com/fr33dr4g0n/agentry-public) - Agent-native product analytics, error logging, and deploy attribution for coding agents through one HTTP API.
 - [AgiFlow](https://github.com/AgiFlow/ai-plugin) - Project management workflows for AI coding agents with planning, grooming, task execution, review, and AgiFlow MCP integration.
+- [AI Coding Daily Report](https://github.com/TardisBooo/ai-coding-daily-report) - Generates a Markdown work report from local AI coding sessions with your chosen writer CLI.
 - [AI-Native SDLC Loop](https://github.com/ghiaog123/ai-native-sdlc) - Six-stage SDLC in committed Markdown where hooks enforce the loop at the tool-call level: an artifact gate refuses source writes no approved plan covers and keeps a change declared low-risk away from sensitive paths, with 8 skills and 2 read-only subagents.
 - [AIBoarding](https://github.com/gustavo-meilus/aiboarding) - Generate, maintain, compress, and audit standard AI-agent onboarding files with AGENTS.md, CLAUDE.md, drift tracking, and lifecycle hooks.
 - [Alcove](https://github.com/epicsagas/alcove) - Local-first MCP server for private project docs with hybrid BM25+vector search, tree-sitter code indexing, and automated linting for team-wide documentation standards.
@@ -241,9 +245,11 @@ Third-party plugins built by the community. [PRs welcome](#contributing)!
 - [Env Lint](./plugins/mturac/env-lint) - `.env` vs `.env.example` key parity — never prints values.
 - [Epic Harness](https://github.com/epicsagas/epic-harness) - Auto-trigger quality skills + self-evolving agent harness — orbit (spec-to-ship), evolve (skill mutation), team (multi-agent), TDD, check, ship, simplify, debug, perf, secure.
 - [Espresso](https://github.com/mirkobozzetto/espresso) - Concise, evidence-preserving output with bundled Ponytail, for Claude Code, Codex, Pi and OMP.
+- [exam-prep-skills](https://github.com/keienhrri-bit/exam-prep-skills) - Exam-prep plugin with nine skills: try-first tutoring, photo-to-report grading with rubric scoring and an independent regrade, checkpoint reviews and Markdown-to-PDF reports.
 - [falsegreen-skill](https://github.com/vinicq/falsegreen-skill) - Finds tests that stay green when the code they cover is broken, applying six ordered judgments over Python, TypeScript, JavaScript, and Robot Framework suites in Codex CLI and Claude Code.
 - [fanout](https://github.com/Breadstick-Crumbs/fanout) - Tests parallel Codex and Claude Code sessions’ branches merged together before main, and stops two sessions doing the same task.
 - [Figma Maxxing](https://github.com/thiagoxikota/figma-maxxing) - Eight Agent Skills for real Figma files, with Plugin API gotchas, a read-only preflight before any write, checks after the write and before handoff, and open comments turned into fixes with evidence.
+- [FigureAtlas](https://github.com/TardisBooo/figureatlas) - Pick one of 300 verified figure types for a paper, slide, poster, or video frame, then export HTML or SVG.
 - [Flaky Detector](./plugins/mturac/flaky-detector) - Run a test command N times, report per-test flakiness %.
 - [Frappe Agent](https://github.com/Dkm0315/frappe-agent) - Frappe and ERPNext coding, customization, bench, and review intelligence for Codex.
 - [GCF Proxy](https://github.com/blackwell-systems/gcf-codex-plugin) - Save 71% on MCP tool call tokens by wrapping any server with GCF encoding, with session stats hook and setup skill.
@@ -263,9 +269,10 @@ Third-party plugins built by the community. [PRs welcome](#contributing)!
 - [Image & Media Skills](https://github.com/IgorVaryvoda/image-optimization-skill) - Eight skills that audit and fix image and video delivery for Core Web Vitals, plus Sirv image CDN, 360 spin, and AI Studio workflows.
 - [jev-use](https://github.com/shitianfang/jev-use) - Hands the steps of a Codex session that produce no text — is the build done, which of these elements do I click, is this shell command safe — to Jev, TypeSafe AI's judgment model, with a PreToolUse command gate and typed escalation back to the model for anything it cannot decide.
 - [Joxo](https://github.com/JoxoAI/joxo) - Setup skill that joins Codex to a team's shared Joxo project, where teammates' coding agents share one task board, decisions and handoffs.
-- [kaoyan-study-skills](https://github.com/keienhrri-bit/kaoyan-study-skills) - Exam-prep plugin with nine skills: try-first tutoring, photo-to-report grading with rubric scoring and an independent regrade, checkpoint reviews and Markdown-to-PDF reports.
 - [Keep Mac Awake](https://github.com/bartdudzic/keepmacawake) - Lets Codex keep a MacBook awake with the lid closed while long tasks run, by starting and stopping timed sessions of the Keep Mac Awake macOS app (a paid app with a free trial).
 - [Kernel](https://github.com/ariaxhan/kernel-claude) - Hook-enforced guardrails for Codex and Claude Code with blocked destructive commands, one-time human tokens for irreversible operations, context-blind verification agents, and SQLite agent memory recalled at session start.
+- [Kling AI China Plugin](https://github.com/klingai-tech/claude-plugin-cn) - Official China-region OAuth MCP plugin for Claude and Gemini CLI, with image and video generation, Elements, motion-library browsing, and task tracking.
+- [Kling AI Global Plugin](https://github.com/klingai-tech/claude-plugin) - Official Global-region OAuth MCP plugin for Claude and Gemini CLI, with image and video generation, Elements, and task tracking.
 - [Krypton](https://github.com/jturntdev/krypton) - Goal-based planning and proof gate for Codex and Claude Code that turns requests into ownership, cutover, review-gate, and acceptance-evidence plans.
 - [lgpd-skills](https://github.com/goul4rt/lgpd-skills) - Modular Agent Skills toolkit (Claude Code, Codex, Cursor, Gemini CLI, OpenCode) for LGPD & ECA Digital privacy engineering, automated compliance audits, LINDDUN threat modeling, consent ledgers, and DSAR endpoints.
 - [LLM Transpile](https://github.com/epicsagas/llm-transpile) - Auto-compress .md, .html, and .txt files via PostToolUse hook, cutting context usage by up to 40% with zero workflow change.
@@ -298,6 +305,8 @@ Third-party plugins built by the community. [PRs welcome](#contributing)!
 - [Ponder](https://github.com/Quinnod345/ponder) - Coverage-gated, multi-pass deliberative review CLI and skill for Codex and Claude Code where four perspectives argue across passes, retract unverified findings, and block stopping until every unit in scope is graded.
 - [PR Storyteller](./plugins/mturac/pr-storyteller) - PR title + body + test plan from commits and diff vs base branch.
 - [Praxis](https://github.com/ouonet/praxis) - Intent-driven workflow skills for coding agents: describe what done looks like, not the steps. Triage-first design keeps token costs low across design, TDD, debug, review, and release.
+- [Preview Lab](https://github.com/dbalas/preview-lab) - Review the screens Codex changed on screenshots and send approvals and marked areas back to the session.
+- [Prewalk](https://github.com/TardisBooo/prewalk) - Completes and verifies a first task, then hands the remaining work to a configured executor.
 - [Pro Launch](https://github.com/jack-reson8/pro-launch) - Takes an app or product from idea to launch with phase gates for naming and domain checks, references, style frames, UI loop, GTM and shipping.
 - [Project Autopilot](https://github.com/AlexMi64/codex-project-autopilot) - Turn an idea into a structured project workflow with planning, execution, verification, and handoff.
 - [Proxmox Writing Style](https://github.com/msoltanov/Proxmox-Technical-Writing-Style-Skill) - Unofficial skill that writes, edits, and reviews Proxmox VE, Proxmox Backup Server, and Proxmox Mail Gateway documentation with the rules of the Proxmox Technical Writing Style Guide.
@@ -348,6 +357,7 @@ Third-party plugins built by the community. [PRs welcome](#contributing)!
 - [Team Skills Platform](https://github.com/Colin4k1024/tsp) - Role-based team delivery framework — Tech Lead-orchestrated 8-role system with 195+ skills, 27 specialist agents, 80+ commands, hooks, and ECC harness for Claude Code, Codex, and OpenCode.
 - [Telegram Bot UI](https://github.com/hlibsuslov/telegram-bot-ui) - Design, build and audit Telegram bot interfaces (texts, keyboards, colored buttons, streaming AI replies, Rich Messages, channel posts) with a skill updated for every Bot API release.
 - [Test Gap](./plugins/mturac/test-gap) - Find lines in your diff lacking test coverage (Cobertura, lcov, coverage.json).
+- [Tigang Reminder](https://github.com/TardisBooo/tigang-plugin) - Displays a Kegel break reminder after successful Git commits and pushes, with local counts.
 - [TODO Harvest](./plugins/mturac/todo-harvest) - TODO/FIXME/HACK scan with `git blame` author + age.
 - [TMCRA Local Memory](https://github.com/reshuibuduo/tmcra-plugin-codex) - Owner-local memory for Codex that recalls user and project evidence before each answer and carries source-attributed project context across sessions and supported agent tools.
 - [TNT House Risk-Data API](https://github.com/menantonio83-hue/codex-plugin-tnt-risk-api) - Solana token risk scoring for AI trading agents via MCP: safety score, insider wallet cluster detection, mint/freeze authority, honeypot risk, and LP-lock status in one call.
@@ -435,11 +445,13 @@ Third-party plugins built by the community. [PRs welcome](#contributing)!
 - [Computer Usage Summary](https://github.com/liuyewang/computer-usage-summary-skill) - Privacy-first local ActivityWatch reports with deterministic categories, multi-day totals, and foreground browser-page summaries.
 - [CONTAM Tools](https://github.com/summer521521/CONTAM_plugin) - Runs and inspects CONTAM airflow projects through a local MCP server with project guards, diagnostics, simulation helpers, and bridge workflows.
 - [Context Pack](https://github.com/Rothschildiuk/context-pack) - Generate compact first-pass repository briefings for coding agents before deeper exploration.
+- [Converter Studio](https://github.com/tariksucu/converter-studio) - Convert video, audio, images, PDFs, documents, e-books, subtitles and archives between 67 formats through Converter Studio's hosted MCP server, with skills for whole folders, web-ready media and audio extraction, paid from account credits (13 free a day). Website: https://converter.studio
 - [Coolify](https://github.com/Sevi-py/coolify-codex-plugin) - Control Coolify Cloud and self-hosted Coolify instances through API-aware workflow skills and local tools.
 - [Court Rules](https://github.com/foklepoint/court-rules-codex-plugin) - Search U.S. federal and state court filing rules, judge standing orders, local rules and court holidays through the hosted Court Rules MCP server, with a skill that cites the court's own document.
 - [DamnPDFs](https://github.com/SouravBeraAkaSpeed/damnpdfs-codex-plugin) - Use 71 PDF, image and Office file tools through a paired DamnPDFs browser tab, with temporary cloud processing for native conversions and local imports.
 - [Darkmoon](https://github.com/ASCIT31/darkmoon-mcp-server) - Start authorized autonomous AI pentest runs, poll status, list campaigns and read findings on your own self-hosted Darkmoon Pro through MCP.
 - [Data Product Builder for dbt](https://github.com/entropy-data/dataproduct-builder-dbt) - Full data-product lifecycle on dbt for Entropy Data: scaffold, audit, and integrate projects with ODCS, ODPS, OpenLineage, and GitHub Actions.
+- [DataXAPI](https://github.com/data-x-api/skills) - Market research from Codex through skills and a hosted MCP server: posts, comments, creators, trends, transcripts, ads and products on Douyin, Xiaohongshu (RedNote), WeChat, TikTok, YouTube, X and more, paid per call.
 - [Dawn](https://github.com/hraness/product-skills) - Compose, arrange and render original songs offline with the Dawn TypeScript music SDK and headless CLI; needs an authorized Dawn private-preview install.
 - [deed.page](https://github.com/f-o-x11/deed-page-skill) - Publish an HTML file or static folder from Codex to a permanent `https://{slug}.deed.page/` URL through the bundled deed.page skill and remote MCP server, with no account.
 - [deja](https://github.com/vshulcz/deja-vu) - Search the coding sessions already on your disk — Codex, Claude Code, Cursor, opencode and thirty-nine more — including work from before it was installed, indexed locally with no model in the loop.
@@ -452,6 +464,7 @@ Third-party plugins built by the community. [PRs welcome](#contributing)!
 - [Droplinked](https://github.com/droplinked/droplinked-codex-plugin) - Verified-inventory agentic commerce over a hosted MCP server, with merchant and product discovery, agent-initiated checkout, and onchain brand, credit-risk, and repayment attestations.
 - [DropTheHassle](https://github.com/bosmdavid-gif/dropthehassle-skill) - Your AI publishes a site to a free HTTPS link or your own .com, and it never pays.
 - [easybrandkit](https://github.com/EminBudak/easybrandkit) - Saves a website's real logo files, colors, fonts and first screen as a brand kit your agent can read.
+- [edeka-shopping](https://github.com/StardawnAI/german-grocery-plugins) - Shop EDEKA, E center and Marktkauf online markets in Germany for pickup: offers, basket from plain words, earliest slot, order after confirmation.
 - [Education Agent Skills](https://github.com/GarethManning/education-agent-skills) - 131 evidence-based education skills for curriculum design, lesson planning, and assessment, with transparent evidence ratings and MCP server.
 - [Eigenheim Berlin Market Data](https://github.com/magicSEO/eigenheim-mcp) - Read-only remote MCP server and skill for daily Berlin real estate data: price per m² by locality, rental yields, land values and active listings.
 - [Equibles](https://github.com/daniel3303/stock-market-mcp-server) - SEC filings, financial statements, earnings call transcripts, insider trades and 13F holdings for US stocks through the hosted Equibles MCP server.
@@ -508,6 +521,7 @@ Third-party plugins built by the community. [PRs welcome](#contributing)!
 - [Mobazha](https://github.com/mobazha/mobazha-skills) - Decentralized e-commerce skills — deploy self-hosted stores, import products from Shopify/Amazon, configure custom domains and Telegram bots, set up Tor privacy, and manage your store via MCP.
 - [Mobbin](https://github.com/mobbin/skills) - Search 600,000+ real iOS and web app screens, flows and website sections from Codex through the hosted Mobbin MCP server (OAuth; paid plans), with skills that redesign a screen from patterns real apps ship.
 - [Mobile Codex](https://github.com/luoz76070-art/MobiCodex/tree/codex-plugin) - Manage a local gateway to pair your phone with existing Codex Desktop conversations.
+- [Moli Browser](https://github.com/27painter/dsh-moli) - Local Codex MCP plugin for browser-backed web search, rendered page fetching, screenshots, and PDF capture through Moli.
 - [MoltNode by Chord](https://github.com/tuantqse90/moltnode-mcp) - Read 31 blockchains over JSON-RPC and get best-route DEX swap quotes with unsigned transactions via Chord, through two hosted no-key MCP servers and three skills.
 - [MorningAI](https://github.com/octo-patch/MorningAI) - AI news tracking skill that monitors 80+ entities across 6 sources (Reddit, HN, GitHub, Hugging Face, arXiv, X) and generates scored daily reports with infographics and message digests.
 - [NotFair Plugin](https://github.com/nowork-studio/notfair-plugin) - Open-source SEO, GEO, and paid-ads skills for AI agents, with Google/Meta/X/LinkedIn/Reddit/TikTok Ads, Search Console, GA4, WordPress, and GoHighLevel workflows through one OAuth MCP server.
@@ -525,6 +539,7 @@ Third-party plugins built by the community. [PRs welcome](#contributing)!
 - [PDF Monster](https://github.com/jbaehova/pdf-monster) - Analyzes PDFs as extracted text, OCR text, rendered page images, and embedded figures for coding agents.
 - [phonedriver](https://github.com/hridaya423/phonedriver) - Lets Codex see and operate Android phones, emulators, the iOS Simulator and iPhones through a local MCP server and its skill, and asks you before any tap that pays.
 - [PlaceCall](https://github.com/voygr-tech/placecall) - Places real outbound phone calls to US businesses (bookings, inquiries, quotes) through the PlaceCall API and returns the outcome and transcript.
+- [Plinth](https://github.com/mr0b0t0/plinth) - Publish HTML pages and Markdown documents from Codex to a hosted or self-hosted Plinth, with versions, comments and per-artifact access control, through a remote MCP server and a skill.
 - [plori](https://github.com/plori-ai/codex-plugin) - Create and drive plori AI agents in persistent cloud environments over remote MCP, with OAuth auto-discovery and a bundled Agent Skill.
 - [Post](https://github.com/jack-reson8/post-skill) - Makes Xiaohongshu and X share-image sets that look native, with App Store poster layouts, real screenshots and app-UI mocks.
 - [PostEverywhere](https://github.com/posteverywhere/codex-plugin) - Social media scheduler plugin: write, schedule and publish posts to Instagram, TikTok, YouTube, LinkedIn, X, Threads, Pinterest, Bluesky and more, plan a content calendar and see analytics, through a hosted MCP server and 15 skills ([posteverywhere.ai](https://posteverywhere.ai)).
@@ -542,6 +557,7 @@ Third-party plugins built by the community. [PRs welcome](#contributing)!
 - [Renhua](https://github.com/jack-reson8/renhua) - Writes Chinese posts and product copy in a real person's voice, removing AI tells and adding humor.
 - [Resume Tailor](https://github.com/olegvg/resume-tailor-plugin) - Tailor resumes and application text to job descriptions, or create candidate profiles from supplied career evidence.
 - [Revid](https://github.com/tmakersas/revid-skills) - Research what goes viral, make finished short-form videos (voice, captions, music, AI footage) and post them to TikTok, YouTube, Instagram and X through Revid's hosted MCP server.
+- [rewe-shopping](https://github.com/StardawnAI/german-grocery-plugins) - Shop REWE in Germany for pickup: offers, basket from plain words, earliest slot, recipes to basket, order after confirmation.
 - [Risk Desk](https://github.com/Iman/agent-driven-risk-desk-and-skills) - Skills and a local MCP server for portfolio risk on supplied data, with VaR, Expected Shortfall, backtests, stress tests and counterparty, credit and FRTB figures.
 - [Roomcomm](https://github.com/kotinder/codex-roomcomm) - Shared rooms where Codex talks with other people's AI agents (Claude Code, DeepSeek Harness, OpenClaw) through the hosted Roomcomm MCP server, with a signed message history and no key needed to start.
 - [ru-marketplace-mcp](https://github.com/Vladimir-Human/ru-marketplace-mcp) - Read-only Codex plugin (`.codex-plugin/plugin.json`), MCP server, and 15 Agent Skills for buyer-side product search, cards, seller details, reviews, and cross-marketplace price comparison across 12 Russian and Chinese marketplaces and classifieds (Wildberries, Ozon, Yandex Market, Detsky Mir, Avito, AliExpress, Taobao, Megamarket, Lamoda, DNS, Citilink, and Cian real estate) with no API keys required.
@@ -599,6 +615,7 @@ Third-party plugins built by the community. [PRs welcome](#contributing)!
 - [varg](https://github.com/vargHQ/skills) - How to make any AI video: find the skill, the options to show and the steps (no key needed), with the keyless varg how to MCP and the varg MCP for video, image, voice and music generation.
 - [VidSeeds.ai](https://github.com/CarrotGamesStudios/vidseeds-mcp) - Hosted MCP connector for pre-upload video SEO, metadata optimization, AI thumbnails, and multi-platform publishing with workflow skills for Codex agents.
 - [VoiceMoat Skills](https://github.com/prateeks367/voicemoat-skills) - Skills-only Codex plugin with 26 skills for LinkedIn and Twitter posts: draft in your own voice, audit before you publish, fix weak openings, draft comments and replies, read your numbers and plan the week, with no account or API key needed.
+- [Waiting Gaming](https://github.com/paranoiadd/waiting-gaming) - Offline 2048 for Windows Codex with opt-in waiting invitations, saved game progress, and remembered window position.
 - [WakeWire](https://github.com/glenncalleja/wakewire) - Push events from GitHub, Gmail, Slack, and any signed webhook (Linear, Sentry, ClickUp) straight into your Codex threads as new turns — event-driven triggers instead of polling, with HMAC verification, deduplication, and a durable delivery queue.
 - [WaveSpeed](https://github.com/WaveSpeedAI/codex-plugins) - Generate and edit AI images, video, audio, and 3D on WaveSpeed through the hosted WaveSpeed MCP server and a CLI skill, with live catalog search and price quotes before running.
 - [Webly](https://github.com/Webly-AI/webly-plugin) - Publish a website or share files and folders from Codex at a live URL in seconds with no account, through the bundled Webly skill and remote MCP server, then let the person claim it, edit it over MCP, and publish drafts they approve.
@@ -699,6 +716,7 @@ The score is best used as a quick trust signal and triage summary (not the only 
 - [codex-patch-overlay](https://github.com/salty-flower/codex-patch-overlay) - Patched Codex CLI builds carrying community-requested features upstream has not merged yet (live TUI reasoning streaming, completion sound, WebP image input, timed CLI queueing). Ready-to-run macOS/Linux binaries plus a Nix overlay, refreshed each upstream release.
 - [Cross-LLM Delivery](https://github.com/jhesham/cross-llm-delivery) - On-demand skills that let Codex or Claude Code plan and review builds while delegating implementation to executor CLIs in isolated Git worktrees, with committed acceptance tests and verified integration.
 - [Email Marketing Bible](https://github.com/CosmoBlk/email-marketing-bible) - Codex skill (SKILL.md) for email marketing: automation flows, deliverability triage, copy de-slopping, AI email design, ESP control via MCP with send-safety gates, compliance and 19 industry playbooks.
+- [FindOpenSource Agent Skill Builder](https://findoss.dev/en/skills) - Free, no-login web tool that turns a selection from 346 open-source agent skills (10 packs) into one paste-in install prompt or the matching `npx skills add` commands for Codex, Claude Code, Cursor, Gemini CLI, GitHub Copilot or OpenCode, at project or global scope.
 - [HOL Plugin Registry](https://hol.org/registry/plugins) - Browse plugins with scanner-backed security analysis and trust scores.
 - [HowAI](https://howai.build) - Directory of 500+ reusable AI agent skills for websites, slides, images and LaunchMotion; works with Claude Code, Codex and Cursor (free + Pro).
 - [Koto](https://github.com/mehrdadxzaker/Koto) - Alpha multi-agent coding CLI with isolated Git worktrees, live controls, optional local models, and explicit review before integration.
